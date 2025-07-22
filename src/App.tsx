@@ -81,6 +81,14 @@ function App() {
                       <TopicDetail />
                     </Layout>
                   } 
+                 />
+                <Route 
+                  path="/create-topic" 
+                  element={
+                    <Layout>
+                      <CreateTopic />
+                    </Layout>
+                  } 
                 />
                 <Route 
                   path="/forums/:categoryId/new-topic" 

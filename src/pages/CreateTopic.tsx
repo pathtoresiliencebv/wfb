@@ -1,314 +1,212 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ImagePlus, Tag, Save } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useAuth } from '@/contexts/AuthContext';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
-const forumCategories = {
-  'wetgeving': 'Wetgeving & Nieuws',
-  'medicinaal': 'Medicinaal Gebruik',
-  'teelt': 'Teelt & Horticultuur',
-  'harm-reduction': 'Harm Reduction',
-  'community': 'Community',
-} as const;
+const createTopicSchema = z.object({
+  title: z.string().min(5, 'Titel moet minimaal 5 karakters lang zijn').max(200, 'Titel mag maximaal 200 karakters lang zijn'),
+  content: z.string().min(20, 'Content moet minimaal 20 karakters lang zijn'),
+  categoryId: z.string().min(1, 'Selecteer een categorie'),
+});
 
-const commonTags = [
-  'wetgeving', 'cbd', 'thc', 'medicinaal', 'teelt', 'onderzoek',
-  'beginner', 'expert', 'tip', 'vraag', 'nieuws', 'review'
-];
+type CreateTopicForm = z.infer<typeof createTopicSchema>;
+
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+}
 
 export default function CreateTopic() {
-  const { categoryId } = useParams<{ categoryId: string }>();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
-
-  const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    category: categoryId || '',
-    tags: [] as string[],
-    customTag: '',
-  });
+  const { user } = useAuth();
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  if (!isAuthenticated) {
-    return (
-      <div className="text-center py-12">
-        <h1 className="text-2xl font-bold mb-4">Inloggen vereist</h1>
-        <p className="text-muted-foreground mb-6">
-          Je moet ingelogd zijn om een nieuw topic te kunnen starten.
-        </p>
-        <Button onClick={() => navigate('/login')}>
-          Inloggen
-        </Button>
-      </div>
-    );
-  }
+  const form = useForm<CreateTopicForm>({
+    resolver: zodResolver(createTopicSchema),
+    defaultValues: {
+      title: '',
+      content: '',
+      categoryId: '',
+    },
+  });
 
-  const category = categoryId ? forumCategories[categoryId as keyof typeof forumCategories] : null;
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('id, name, description')
+        .eq('is_active', true)
+        .order('sort_order');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.title.trim()) {
+      if (error) {
+        console.error('Error fetching categories:', error);
+        return;
+      }
+
+      setCategories(data || []);
+    };
+
+    fetchCategories();
+  }, []);
+
+  const onSubmit = async (data: CreateTopicForm) => {
+    if (!user) {
       toast({
-        title: 'Titel vereist',
-        description: 'Voeg een titel toe aan je topic.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!formData.content.trim()) {
-      toast({
-        title: 'Inhoud vereist',
-        description: 'Voeg inhoud toe aan je topic.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!formData.category) {
-      toast({
-        title: 'Categorie vereist',
-        description: 'Selecteer een categorie voor je topic.',
+        title: 'Niet ingelogd',
+        description: 'Je moet ingelogd zijn om een topic te maken.',
         variant: 'destructive',
       });
       return;
     }
 
     setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    toast({
-      title: 'Topic aangemaakt',
-      description: 'Je topic is succesvol gepubliceerd.',
-    });
-    
-    // Navigate to the new topic
-    navigate(`/forums/${formData.category}/topic/new-topic-id`);
-  };
 
-  const addTag = (tag: string) => {
-    if (tag && !formData.tags.includes(tag) && formData.tags.length < 5) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, tag],
-        customTag: '',
-      }));
-    }
-  };
+    try {
+      const { data: topic, error } = await supabase
+        .from('topics')
+        .insert({
+          title: data.title,
+          content: data.content,
+          category_id: data.categoryId,
+          author_id: user.id,
+        })
+        .select()
+        .single();
 
-  const removeTag = (tagToRemove: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove),
-    }));
-  };
+      if (error) throw error;
 
-  const handleCustomTagAdd = () => {
-    if (formData.customTag.trim()) {
-      addTag(formData.customTag.trim().toLowerCase());
+      toast({
+        title: 'Topic aangemaakt!',
+        description: 'Je topic is succesvol aangemaakt.',
+      });
+
+      navigate(`/topic/${topic.id}`);
+    } catch (error) {
+      console.error('Error creating topic:', error);
+      toast({
+        title: 'Fout bij aanmaken',
+        description: 'Er is iets misgegaan. Probeer het opnieuw.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => navigate(categoryId ? `/forums/${categoryId}` : '/forums')}
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Terug
-        </Button>
-        <div>
-          <h1 className="font-heading text-2xl font-bold">Nieuw Topic</h1>
-          {category && (
-            <p className="text-muted-foreground">in {category}</p>
-          )}
-        </div>
-      </div>
-
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Topic Details</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Title */}
-            <div className="space-y-2">
-              <Label htmlFor="title">Titel *</Label>
-              <Input
-                id="title"
-                placeholder="Wat is het onderwerp van je topic?"
-                value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                maxLength={100}
+    <div className="max-w-2xl mx-auto">
+      <Card>
+        <CardHeader>
+          <CardTitle>Nieuw Topic Aanmaken</CardTitle>
+          <CardDescription>
+            Deel je vraag, ervaring of kennis met de community
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="categoryId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Categorie</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecteer een categorie" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {categories.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Kies de categorie die het best bij je topic past
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <p className="text-xs text-muted-foreground">
-                {formData.title.length}/100 karakters
-              </p>
-            </div>
 
-            {/* Category */}
-            <div className="space-y-2">
-              <Label htmlFor="category">Categorie *</Label>
-              <Select
-                value={formData.category}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecteer een categorie" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(forumCategories).map(([key, name]) => (
-                    <SelectItem key={key} value={key}>
-                      {name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Content */}
-            <div className="space-y-2">
-              <Label htmlFor="content">Inhoud *</Label>
-              <Textarea
-                id="content"
-                placeholder="Beschrijf je topic in detail. Je kunt markdown gebruiken voor opmaak."
-                value={formData.content}
-                onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                rows={12}
-                className="resize-none"
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Titel</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Bijvoorbeeld: CBD dosering voor beginners" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Kies een duidelijke titel die je topic goed omschrijft
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <p className="text-xs text-muted-foreground">
-                Tip: Gebruik **vet** voor vetgedrukte tekst, ## voor kopjes, en - voor lijstjes.
-              </p>
-            </div>
 
-            {/* Tags */}
-            <div className="space-y-3">
-              <Label>Tags (max 5)</Label>
-              
-              {/* Selected Tags */}
-              {formData.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {formData.tags.map(tag => (
-                    <Badge 
-                      key={tag} 
-                      variant="secondary" 
-                      className="cursor-pointer"
-                      onClick={() => removeTag(tag)}
-                    >
-                      {tag} ×
-                    </Badge>
-                  ))}
-                </div>
-              )}
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Inhoud</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Beschrijf je vraag, ervaring of tip in detail..."
+                        className="min-h-[200px]"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Schrijf je bericht zo duidelijk mogelijk. Gebruik markdown voor opmaak.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              {/* Common Tags */}
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Populaire tags:</p>
-                <div className="flex flex-wrap gap-2">
-                  {commonTags.map(tag => (
-                    <Badge
-                      key={tag}
-                      variant="outline"
-                      className="cursor-pointer hover:bg-primary hover:text-primary-foreground"
-                      onClick={() => addTag(tag)}
-                    >
-                      <Tag className="h-3 w-3 mr-1" />
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
+              <div className="flex gap-3">
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="flex-1"
+                >
+                  {isSubmitting ? 'Bezig met publiceren...' : 'Topic Publiceren'}
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => navigate(-1)}
+                >
+                  Annuleren
+                </Button>
               </div>
-
-              {/* Custom Tag Input */}
-              {formData.tags.length < 5 && (
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Voeg een custom tag toe..."
-                    value={formData.customTag}
-                    onChange={(e) => setFormData(prev => ({ ...prev, customTag: e.target.value }))}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleCustomTagAdd();
-                      }
-                    }}
-                    maxLength={20}
-                  />
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={handleCustomTagAdd}
-                    disabled={!formData.customTag.trim()}
-                  >
-                    Toevoegen
-                  </Button>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Media Upload (Future Feature) */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ImagePlus className="h-5 w-5" />
-              Media (Binnenkort beschikbaar)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="border-2 border-dashed border-muted rounded-lg p-8 text-center">
-              <ImagePlus className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">
-                Afbeeldingen en bestanden uploaden komt binnenkort beschikbaar.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Submit Buttons */}
-        <div className="flex justify-end gap-4">
-          <Button 
-            type="button" 
-            variant="outline"
-            onClick={() => navigate(categoryId ? `/forums/${categoryId}` : '/forums')}
-          >
-            Annuleren
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
-                Publiceren...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4 mr-2" />
-                Publiceer Topic
-              </>
-            )}
-          </Button>
-        </div>
-      </form>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

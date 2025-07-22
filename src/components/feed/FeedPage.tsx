@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Plus, TrendingUp, Users, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +7,8 @@ import { Separator } from '@/components/ui/separator';
 import { PostCard } from './PostCard';
 import { RecentActivity } from './RecentActivity';
 import { OnlineMembers } from './OnlineMembers';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Mock data
 const mockPosts = [
@@ -79,6 +81,105 @@ const stats = [
 ];
 
 export function FeedPage() {
+  const { user } = useAuth();
+  const [recentTopics, setRecentTopics] = useState(mockPosts);
+  const [stats, setStats] = useState([
+    {
+      title: 'Actieve Topics',
+      value: '...',
+      description: 'Deze week',
+      icon: MessageSquare,
+    },
+    {
+      title: 'Online Leden',
+      value: '...',
+      description: 'Nu online',
+      icon: Users,
+    },
+    {
+      title: 'Trending',
+      value: '#CBD',
+      description: 'Populairste tag',
+      icon: TrendingUp,
+    },
+  ]);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        // Fetch recent topics with author info and categories
+        const { data: topics, error: topicsError } = await supabase
+          .from('topics')
+          .select(`
+            *,
+            profiles!topics_author_id_fkey(username, avatar_url, is_verified),
+            categories(name)
+          `)
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        if (topicsError) throw topicsError;
+
+        // Transform data to match PostCard interface
+        if (topics) {
+          const transformedTopics = topics.map(topic => ({
+            id: topic.id,
+            title: topic.title,
+            content: topic.content,
+            author: {
+              username: topic.profiles?.username || 'Anonymous',
+              avatar: topic.profiles?.avatar_url || null,
+              isVerified: topic.profiles?.is_verified || false,
+            },
+            category: topic.categories?.name || 'General',
+            createdAt: new Date(topic.created_at),
+            votes: 0, // Will be calculated from votes table
+            replyCount: topic.reply_count || 0,
+            isSticky: topic.is_pinned || false,
+          }));
+          setRecentTopics(transformedTopics);
+        }
+
+        // Fetch stats
+        const { data: topicCount } = await supabase
+          .from('topics')
+          .select('id', { count: 'exact' });
+
+        const { data: profileCount } = await supabase
+          .from('profiles')
+          .select('id', { count: 'exact' });
+
+        setStats([
+          {
+            title: 'Actieve Topics',
+            value: topicCount?.length?.toString() || '0',
+            description: 'Totaal',
+            icon: MessageSquare,
+          },
+          {
+            title: 'Leden',
+            value: profileCount?.length?.toString() || '0',
+            description: 'Geregistreerd',
+            icon: Users,
+          },
+          {
+            title: 'Trending',
+            value: '#CBD',
+            description: 'Populairste tag',
+            icon: TrendingUp,
+          },
+        ]);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  if (!user) {
+    return null; // This should not happen as LandingPage handles non-authenticated users
+  }
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
       {/* Main Content */}
@@ -95,9 +196,11 @@ export function FeedPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="secondary" className="gap-2">
-              <Plus className="h-4 w-4" />
-              Nieuw Topic Starten
+            <Button variant="secondary" className="gap-2" asChild>
+              <a href="/create-topic">
+                <Plus className="h-4 w-4" />
+                Nieuw Topic Starten
+              </a>
             </Button>
           </CardContent>
         </Card>
@@ -122,13 +225,15 @@ export function FeedPage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-heading text-xl font-semibold">Recente Activiteit</h2>
-            <Button variant="outline" size="sm">
-              Alle Topics
+            <Button variant="outline" size="sm" asChild>
+              <a href="/forums">
+                Alle Topics
+              </a>
             </Button>
           </div>
           
           <div className="space-y-3">
-            {mockPosts.map((post) => (
+            {recentTopics.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}
           </div>
