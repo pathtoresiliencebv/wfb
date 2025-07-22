@@ -14,6 +14,7 @@ import {
   Sprout,
   AlertTriangle,
 } from 'lucide-react';
+import wietforumLogo from '@/assets/wietforum-logo.png';
 import {
   Sidebar,
   SidebarContent,
@@ -68,8 +69,12 @@ export function AppSidebar() {
       <SidebarContent className="p-4">
         {/* Logo Section */}
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
-            <Leaf className="h-5 w-5 text-primary-foreground" />
+          <div className="flex h-10 w-10 items-center justify-center">
+            <img 
+              src={wietforumLogo} 
+              alt="Wietforum België" 
+              className="h-8 w-8 object-contain"
+            />
           </div>
           {!collapsed && (
             <div>
