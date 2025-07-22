@@ -1,96 +1,119 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Design System - Wietforum België */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
+    /* Primary Colors - Cannabis groen uit logo */
+    --primary: 82 15% 64%;           /* #b2bd88 cannabis groen */
+    --primary-foreground: 0 0% 100%;
+    --primary-muted: 82 20% 72%;     /* Lichtere variant */
+    
+    /* Secondary Colors - Navy */
+    --secondary: 231 48% 31%;        /* Navy blue */
+    --secondary-foreground: 0 0% 100%;
+    --secondary-muted: 231 41% 48%;
+    
+    /* Background Colors - Zuiver wit uit logo */
+    --background: 0 0% 100%;         /* #fefefe zuiver wit */
+    --surface: 210 20% 98%;          /* Zeer lichte grijstint */
+    --card: 0 0% 100%;               /* Card achtergrond */
+    
+    /* Text Colors */
+    --foreground: 215 25% 27%;       /* Hoofdtekst */
+    --muted-foreground: 215 16% 47%; /* Secundaire tekst */
+    
+    /* Accent Colors */
+    --accent: 82 15% 64%;            /* Matches primary */
+    --accent-foreground: 0 0% 100%;
+    
+    /* Status Colors */
+    --success: 142 71% 45%;          /* Groen voor succes */
+    --warning: 32 95% 56%;           /* Oranje voor waarschuwing */
+    --destructive: 0 84% 60%;        /* Rood voor errors */
+    --info: 199 89% 48%;             /* Blauw voor info */
+    
+    /* Border & Dividers */
+    --border: 220 13% 91%;           /* Lichte borders */
+    --input: 220 13% 91%;            /* Input borders */
+    --ring: 82 15% 64%;              /* Focus ring - primary kleur */
+    
+    /* Popover */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --popover-foreground: 215 25% 27%;
+    
+    /* Muted */
+    --muted: 210 20% 98%;
+    --muted-foreground: 215 16% 47%;
 
     --radius: 0.5rem;
 
+    /* Sidebar */
     --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
+    --sidebar-foreground: 215 25% 27%;
+    --sidebar-primary: 82 15% 64%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 20% 98%;
+    --sidebar-accent-foreground: 215 25% 27%;
     --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 82 15% 64%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
+    /* Primary Colors - Behouden voor consistentie */
+    --primary: 82 15% 64%;           /* Consistent groen */
+    --primary-foreground: 231 84% 9%;
+    --primary-muted: 82 12% 55%;
+    
+    /* Secondary Colors */
+    --secondary: 231 41% 48%;        /* Lichtere navy voor dark mode */
+    --secondary-foreground: 0 0% 100%;
+    --secondary-muted: 231 48% 60%;
+    
+    /* Background Colors - Donkere navy geïnspireerd door logo */
+    --background: 231 84% 9%;        /* #0f0f23 donkere navy */
+    --surface: 231 60% 15%;          /* Lichtere surface */
+    --card: 231 45% 20%;             /* Card achtergrond */
+    
+    /* Text Colors */
+    --foreground: 210 40% 98%;       /* Lichte tekst */
+    --muted-foreground: 215 20% 65%; /* Gemuted tekst */
+    
+    /* Accent Colors */
+    --accent: 82 15% 64%;            /* Consistent met light mode */
+    --accent-foreground: 231 84% 9%;
+    
+    /* Status Colors - Aangepast voor dark mode */
+    --success: 142 76% 56%;
+    --warning: 32 100% 70%;
+    --destructive: 0 63% 31%;
+    --info: 199 89% 63%;
+    
+    /* Border & Dividers */
+    --border: 215 25% 27%;
+    --input: 215 16% 35%;
+    --ring: 82 15% 64%;
+    
+    /* Popover */
+    --popover: 231 45% 20%;
     --popover-foreground: 210 40% 98%;
+    
+    /* Muted */
+    --muted: 231 45% 20%;
+    --muted-foreground: 215 20% 65%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar */
+    --sidebar-background: 231 84% 9%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 82 15% 64%;
+    --sidebar-primary-foreground: 231 84% 9%;
+    --sidebar-accent: 231 60% 15%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 215 25% 27%;
+    --sidebar-ring: 82 15% 64%;
   }
 }
 
@@ -101,5 +124,29 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+}
+
+/* Cannabis theme specific utilities */
+@layer utilities {
+  .cannabis-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-muted)) 100%);
+  }
+  
+  .online-indicator {
+    @apply w-3 h-3 bg-primary rounded-full border-2 border-background;
+  }
+  
+  .forum-card {
+    @apply bg-card border border-border rounded-lg p-6 hover:shadow-md transition-all duration-200;
+  }
+  
+  .post-card {
+    @apply bg-card border border-border rounded-lg p-4 hover:bg-accent/5 transition-colors;
   }
 }
