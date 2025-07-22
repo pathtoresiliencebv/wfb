@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Pin, MessageSquare, Eye, Clock, User, Search, Filter } from 'lucide-react';
+import { ArrowLeft, Plus, Pin, MessageSquare, Eye, Clock, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
+import { AdvancedSearch } from '@/components/search/AdvancedSearch';
 
 const forumCategories = {
   'wetgeving': {
@@ -82,8 +81,13 @@ export default function ForumCategory() {
   const { categoryId } = useParams<{ categoryId: string }>();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('recent');
+  const [searchFilters, setSearchFilters] = useState({
+    query: '',
+    category: 'all',
+    author: '',
+    dateRange: 'all',
+    tags: [] as string[],
+  });
 
   const category = categoryId ? forumCategories[categoryId as keyof typeof forumCategories] : null;
 
@@ -99,10 +103,25 @@ export default function ForumCategory() {
     );
   }
 
-  const filteredTopics = mockTopics.filter(topic =>
-    topic.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    topic.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredTopics = mockTopics.filter(topic => {
+    // Search query filter
+    if (searchFilters.query && !topic.title.toLowerCase().includes(searchFilters.query.toLowerCase()) &&
+        !topic.tags.some(tag => tag.toLowerCase().includes(searchFilters.query.toLowerCase()))) {
+      return false;
+    }
+
+    // Author filter
+    if (searchFilters.author && !topic.author.toLowerCase().includes(searchFilters.author.toLowerCase())) {
+      return false;
+    }
+
+    // Tags filter
+    if (searchFilters.tags.length > 0 && !searchFilters.tags.some(tag => topic.tags.includes(tag))) {
+      return false;
+    }
+
+    return true;
+  });
 
   const sortedTopics = [...filteredTopics].sort((a, b) => {
     if (a.isSticky && !b.isSticky) return -1;
@@ -142,29 +161,11 @@ export default function ForumCategory() {
         )}
       </div>
 
-      {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Zoek in topics..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-full sm:w-48">
-            <Filter className="h-4 w-4 mr-2" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="recent">Meest recent</SelectItem>
-            <SelectItem value="replies">Meeste reacties</SelectItem>
-            <SelectItem value="views">Meeste views</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Enhanced Search */}
+      <AdvancedSearch
+        onSearch={setSearchFilters}
+        placeholder={`Zoek in ${category.title.toLowerCase()}...`}
+      />
 
       {/* Topics List */}
       <div className="space-y-2">
@@ -173,7 +174,7 @@ export default function ForumCategory() {
             <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium mb-2">Geen topics gevonden</h3>
             <p className="text-muted-foreground mb-4">
-              {searchTerm ? 'Probeer een andere zoekterm.' : 'Wees de eerste om een topic te starten!'}
+              {searchFilters.query ? 'Probeer een andere zoekterm.' : 'Wees de eerste om een topic te starten!'}
             </p>
             {isAuthenticated && (
               <Button onClick={() => navigate(`/forums/${categoryId}/new-topic`)}>

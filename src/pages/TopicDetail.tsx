@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, MessageSquare, Eye, Clock, User, ThumbsUp, ThumbsDown, Flag, Share2, Bookmark } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Eye, Clock, User, Flag, Share2, Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { VotingButtons } from '@/components/interactive/VotingButtons';
+import { PostActions } from '@/components/interactive/PostActions';
+import { useVoting } from '@/hooks/useVoting';
+import { useBookmarks } from '@/hooks/useBookmarks';
 
 const mockTopic = {
   id: '1',
@@ -101,21 +105,29 @@ export default function TopicDetail() {
   const [replyContent, setReplyContent] = useState('');
   const [isReplying, setIsReplying] = useState(false);
 
-  const handleVote = (type: 'up' | 'down', targetId: string, targetType: 'topic' | 'reply') => {
-    if (!isAuthenticated) {
-      toast({
-        title: 'Inloggen vereist',
-        description: 'Je moet ingelogd zijn om te kunnen stemmen.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    toast({
-      title: `${type === 'up' ? 'Upvote' : 'Downvote'} geregistreerd`,
-      description: 'Je stem is opgeslagen.',
-    });
+  // Initialize voting data
+  const initialVotes = {
+    [mockTopic.id]: {
+      id: mockTopic.id,
+      type: 'topic' as const,
+      currentVote: null,
+      upvotes: mockTopic.upvotes,
+      downvotes: mockTopic.downvotes,
+    },
+    ...mockReplies.reduce((acc, reply) => ({
+      ...acc,
+      [reply.id]: {
+        id: reply.id,
+        type: 'reply' as const,
+        currentVote: null,
+        upvotes: reply.upvotes,
+        downvotes: reply.downvotes,
+      }
+    }), {})
   };
+
+  const { handleVote, getVoteData } = useVoting(initialVotes);
+  const { toggleBookmark, isBookmarked } = useBookmarks();
 
   const handleReply = async () => {
     if (!isAuthenticated) {
@@ -172,6 +184,8 @@ export default function TopicDetail() {
     }
   };
 
+  const topicVoteData = getVoteData(mockTopic.id);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -191,12 +205,19 @@ export default function TopicDetail() {
           <h1 className="font-heading text-2xl font-bold">{mockTopic.title}</h1>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <Bookmark className="h-4 w-4" />
+          <Button 
+            variant={isBookmarked(mockTopic.id) ? "default" : "outline"} 
+            size="sm"
+            onClick={() => toggleBookmark(mockTopic.id, 'topic')}
+          >
+            <Bookmark className={`h-4 w-4 ${isBookmarked(mockTopic.id) ? 'fill-current' : ''}`} />
           </Button>
-          <Button variant="outline" size="sm">
-            <Share2 className="h-4 w-4" />
-          </Button>
+          <PostActions
+            itemId={mockTopic.id}
+            itemType="topic"
+            isBookmarked={isBookmarked(mockTopic.id)}
+            onBookmark={() => toggleBookmark(mockTopic.id, 'topic')}
+          />
         </div>
       </div>
 
@@ -248,42 +269,46 @@ export default function TopicDetail() {
           </div>
         </CardHeader>
         <CardContent className="pt-6">
-          <div className="prose prose-sm max-w-none mb-6">
-            {mockTopic.content.split('\n').map((paragraph, index) => (
-              <p key={index} className="mb-4 last:mb-0">
-                {paragraph}
-              </p>
-            ))}
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div className="flex flex-wrap gap-1">
-              {mockTopic.tags.map(tag => (
-                <Badge key={tag} variant="outline" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
+          <div className="flex gap-4">
+            {/* Vote Section */}
+            <div className="flex flex-col items-center min-w-[4rem]">
+              {topicVoteData && (
+                <VotingButtons
+                  itemId={mockTopic.id}
+                  upvotes={topicVoteData.upvotes}
+                  downvotes={topicVoteData.downvotes}
+                  currentVote={topicVoteData.currentVote}
+                  onVote={(voteType) => handleVote(mockTopic.id, voteType, 'topic')}
+                />
+              )}
             </div>
-            
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleVote('up', mockTopic.id, 'topic')}
-                className="gap-1"
-              >
-                <ThumbsUp className="h-4 w-4" />
-                <span>{mockTopic.upvotes}</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleVote('down', mockTopic.id, 'topic')}
-                className="gap-1"
-              >
-                <ThumbsDown className="h-4 w-4" />
-                <span>{mockTopic.downvotes}</span>
-              </Button>
+
+            {/* Content */}
+            <div className="flex-1">
+              <div className="prose prose-sm max-w-none mb-6">
+                {mockTopic.content.split('\n').map((paragraph, index) => (
+                  <p key={index} className="mb-4 last:mb-0">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div className="flex flex-wrap gap-1">
+                  {mockTopic.tags.map(tag => (
+                    <Badge key={tag} variant="outline" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+                
+                <PostActions
+                  itemId={mockTopic.id}
+                  itemType="topic"
+                  isBookmarked={isBookmarked(mockTopic.id)}
+                  onBookmark={() => toggleBookmark(mockTopic.id, 'topic')}
+                />
+              </div>
             </div>
           </div>
         </CardContent>
@@ -295,59 +320,70 @@ export default function TopicDetail() {
           Reacties ({mockReplies.length})
         </h3>
         
-        {mockReplies.map((reply) => (
-          <Card key={reply.id}>
-            <CardHeader className="border-b pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={reply.author.avatar || undefined} />
-                    <AvatarFallback className={getRoleColor(reply.author.role)}>
-                      {getUserInitials(reply.author.username)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm">{reply.author.username}</span>
-                      {reply.author.role === 'expert' && (
-                        <Badge variant="default" className="text-xs">EXPERT</Badge>
-                      )}
+        {mockReplies.map((reply) => {
+          const replyVoteData = getVoteData(reply.id);
+          
+          return (
+            <Card key={reply.id}>
+              <CardHeader className="border-b pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={reply.author.avatar || undefined} />
+                      <AvatarFallback className={getRoleColor(reply.author.role)}>
+                        {getUserInitials(reply.author.username)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-sm">{reply.author.username}</span>
+                        {reply.author.role === 'expert' && (
+                          <Badge variant="default" className="text-xs">EXPERT</Badge>
+                        )}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {formatDate(reply.createdAt)}
+                      </div>
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      {formatDate(reply.createdAt)}
+                  </div>
+                  <Button variant="ghost" size="sm">
+                    <Flag className="h-3 w-3" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <div className="flex gap-4">
+                  {/* Vote Section */}
+                  <div className="flex flex-col items-center min-w-[3rem]">
+                    {replyVoteData && (
+                      <VotingButtons
+                        itemId={reply.id}
+                        upvotes={replyVoteData.upvotes}
+                        downvotes={replyVoteData.downvotes}
+                        currentVote={replyVoteData.currentVote}
+                        onVote={(voteType) => handleVote(reply.id, voteType, 'reply')}
+                        size="sm"
+                      />
+                    )}
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1">
+                    <p className="mb-4 text-sm">{reply.content}</p>
+                    <div className="flex items-center justify-end">
+                      <PostActions
+                        itemId={reply.id}
+                        itemType="reply"
+                        isBookmarked={isBookmarked(reply.id)}
+                        onBookmark={() => toggleBookmark(reply.id, 'reply')}
+                      />
                     </div>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm">
-                  <Flag className="h-3 w-3" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <p className="mb-4 text-sm">{reply.content}</p>
-              <div className="flex items-center justify-end gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleVote('up', reply.id, 'reply')}
-                  className="gap-1"
-                >
-                  <ThumbsUp className="h-3 w-3" />
-                  <span>{reply.upvotes}</span>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleVote('down', reply.id, 'reply')}
-                  className="gap-1"
-                >
-                  <ThumbsDown className="h-3 w-3" />
-                  <span>{reply.downvotes}</span>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Reply Form */}

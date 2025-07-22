@@ -1,12 +1,15 @@
 
 import React from 'react';
-import { ArrowUp, ArrowDown, MessageSquare, Pin, CheckCircle } from 'lucide-react';
+import { MessageSquare, Pin, CheckCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import { VotingButtons } from '@/components/interactive/VotingButtons';
+import { PostActions } from '@/components/interactive/PostActions';
+import { useVoting } from '@/hooks/useVoting';
+import { useBookmarks } from '@/hooks/useBookmarks';
 
 interface Post {
   id: string;
@@ -29,6 +32,21 @@ interface PostCardProps {
 }
 
 export function PostCard({ post }: PostCardProps) {
+  // Initialize voting with current post data
+  const initialVotes = {
+    [post.id]: {
+      id: post.id,
+      type: 'topic' as const,
+      currentVote: null,
+      upvotes: Math.max(0, post.votes),
+      downvotes: Math.max(0, -post.votes),
+    }
+  };
+  
+  const { handleVote, getVoteData } = useVoting(initialVotes);
+  const { toggleBookmark, isBookmarked } = useBookmarks();
+  
+  const voteData = getVoteData(post.id);
   const timeAgo = formatDistanceToNow(post.createdAt, { 
     addSuffix: true, 
     locale: nl 
@@ -39,14 +57,17 @@ export function PostCard({ post }: PostCardProps) {
       <CardContent className="p-4">
         <div className="flex gap-4">
           {/* Vote Section */}
-          <div className="flex flex-col items-center space-y-1 min-w-[3rem]">
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <ArrowUp className="h-4 w-4" />
-            </Button>
-            <span className="text-sm font-medium text-foreground">{post.votes}</span>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <ArrowDown className="h-4 w-4" />
-            </Button>
+          <div className="flex flex-col items-center min-w-[3rem]">
+            {voteData && (
+              <VotingButtons
+                itemId={post.id}
+                upvotes={voteData.upvotes}
+                downvotes={voteData.downvotes}
+                currentVote={voteData.currentVote}
+                onVote={(voteType) => handleVote(post.id, voteType, 'topic')}
+                size="sm"
+              />
+            )}
           </div>
 
           {/* Content */}
@@ -85,11 +106,19 @@ export function PostCard({ post }: PostCardProps) {
                   {post.content}
                 </p>
 
-                <div className="flex items-center gap-4">
-                  <Button variant="ghost" size="sm" className="gap-2 h-8">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
                     <MessageSquare className="h-3 w-3" />
-                    <span className="text-xs">{post.replyCount} reacties</span>
-                  </Button>
+                    <span className="text-xs text-muted-foreground">{post.replyCount} reacties</span>
+                  </div>
+                  
+                  <PostActions
+                    itemId={post.id}
+                    itemType="topic"
+                    isBookmarked={isBookmarked(post.id)}
+                    onBookmark={() => toggleBookmark(post.id, 'topic')}
+                    replyCount={post.replyCount}
+                  />
                 </div>
               </div>
             </div>
