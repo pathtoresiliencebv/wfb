@@ -1,5 +1,8 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { User as SupabaseUser } from '@supabase/supabase-js';
+import { useToast } from '@/hooks/use-toast';
 
 export interface User {
   id: string;
@@ -50,51 +53,124 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  // Helper function to fetch user profile from database
+  const fetchUserProfile = async (supabaseUser: SupabaseUser): Promise<User | null> => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select(`
+          *,
+          user_badges(
+            badges(name)
+          )
+        `)
+        .eq('user_id', supabaseUser.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        return null;
+      }
+
+      if (!profile) return null;
+
+      const badges = profile.user_badges?.map((ub: any) => ub.badges.name) || [];
+
+      return {
+        id: profile.user_id,
+        username: profile.username,
+        email: supabaseUser.email || '',
+        avatar: profile.avatar_url,
+        bio: profile.bio,
+        reputation: profile.reputation,
+        badges,
+        isVerified: profile.is_verified,
+        joinedAt: new Date(profile.created_at),
+        lastSeen: new Date(profile.updated_at),
+        isOnline: true,
+        role: profile.role as 'user' | 'moderator' | 'expert' | 'admin',
+      };
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      return null;
+    }
+  };
 
   useEffect(() => {
-    // Check for stored user session on mount
-    const storedUser = localStorage.getItem('wietforum_user');
-    if (storedUser) {
+    // Get initial session
+    const getInitialSession = async () => {
       try {
-        const userData = JSON.parse(storedUser);
-        setUser({
-          ...userData,
-          joinedAt: new Date(userData.joinedAt),
-          lastSeen: new Date(userData.lastSeen),
-        });
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          setIsLoading(false);
+          return;
+        }
+
+        if (session?.user) {
+          const userProfile = await fetchUserProfile(session.user);
+          setUser(userProfile);
+        }
       } catch (error) {
-        console.error('Error parsing stored user data:', error);
-        localStorage.removeItem('wietforum_user');
+        console.error('Error getting initial session:', error);
+      } finally {
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
+    };
+
+    getInitialSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          const userProfile = await fetchUserProfile(session.user);
+          setUser(userProfile);
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock authentication - in real app, this would be an API call
-    if (email && password.length >= 6) {
-      const mockUser: User = {
-        id: '1',
-        username: email.split('@')[0],
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        reputation: 150,
-        badges: ['Newcomer'],
-        isVerified: false,
-        joinedAt: new Date('2024-01-15'),
-        lastSeen: new Date(),
-        isOnline: true,
-        role: 'user',
-      };
-      
-      setUser(mockUser);
-      localStorage.setItem('wietforum_user', JSON.stringify(mockUser));
-      setIsLoading(false);
-      return true;
+        password,
+      });
+
+      if (error) {
+        console.error('Login error:', error);
+        toast({
+          title: 'Login mislukt',
+          description: error.message,
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return false;
+      }
+
+      if (data.user) {
+        const userProfile = await fetchUserProfile(data.user);
+        setUser(userProfile);
+        setIsLoading(false);
+        return true;
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        title: 'Login mislukt',
+        description: 'Er is een onverwachte fout opgetreden.',
+        variant: 'destructive',
+      });
     }
     
     setIsLoading(false);
@@ -104,48 +180,127 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (userData: RegisterData): Promise<boolean> => {
     setIsLoading(true);
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Mock registration - check age verification
-    const birthDate = new Date(userData.birthDate);
-    const age = new Date().getFullYear() - birthDate.getFullYear();
-    
-    if (age < 18) {
-      setIsLoading(false);
-      return false;
+    try {
+      // Check age verification
+      const birthDate = new Date(userData.birthDate);
+      const age = new Date().getFullYear() - birthDate.getFullYear();
+      
+      if (age < 18) {
+        toast({
+          title: 'Registratie mislukt',
+          description: 'Je moet minimaal 18 jaar oud zijn om te registreren.',
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return false;
+      }
+
+      // Sign up with Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
+      });
+
+      if (error) {
+        console.error('Registration error:', error);
+        toast({
+          title: 'Registratie mislukt',
+          description: error.message,
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return false;
+      }
+
+      if (data.user) {
+        // Create user profile
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: data.user.id,
+            username: userData.username,
+            display_name: userData.username,
+            email: userData.email,
+          });
+
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
+          toast({
+            title: 'Registratie mislukt',
+            description: 'Er is een fout opgetreden bij het aanmaken van je profiel.',
+            variant: 'destructive',
+          });
+          setIsLoading(false);
+          return false;
+        }
+
+        // Assign Newcomer badge
+        const { data: newcomerBadge } = await supabase
+          .from('badges')
+          .select('id')
+          .eq('name', 'Newcomer')
+          .single();
+
+        if (newcomerBadge) {
+          await supabase
+            .from('user_badges')
+            .insert({
+              user_id: data.user.id,
+              badge_id: newcomerBadge.id,
+            });
+        }
+
+        toast({
+          title: 'Registratie succesvol',
+          description: 'Je account is aangemaakt. Je kunt nu inloggen.',
+        });
+
+        setIsLoading(false);
+        return true;
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast({
+        title: 'Registratie mislukt',
+        description: 'Er is een onverwachte fout opgetreden.',
+        variant: 'destructive',
+      });
     }
     
-    // Create new user
-    const newUser: User = {
-      id: Date.now().toString(),
-      username: userData.username,
-      email: userData.email,
-      reputation: 0,
-      badges: [],
-      isVerified: false,
-      joinedAt: new Date(),
-      lastSeen: new Date(),
-      isOnline: true,
-      role: 'user',
-    };
-    
-    setUser(newUser);
-    localStorage.setItem('wietforum_user', JSON.stringify(newUser));
     setIsLoading(false);
-    return true;
+    return false;
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('wietforum_user');
+  const logout = async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
-  const updateUser = (userData: Partial<User>) => {
-    if (user) {
-      const updatedUser = { ...user, ...userData };
-      setUser(updatedUser);
-      localStorage.setItem('wietforum_user', JSON.stringify(updatedUser));
+  const updateUser = async (userData: Partial<User>) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          display_name: userData.username,
+          bio: userData.bio,
+          avatar_url: userData.avatar,
+        })
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Update user error:', error);
+        return;
+      }
+
+      setUser({ ...user, ...userData });
+    } catch (error) {
+      console.error('Update user error:', error);
     }
   };
 
