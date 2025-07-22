@@ -88,6 +88,7 @@ export default function ForumCategory() {
     dateRange: 'all',
     tags: [] as string[],
   });
+  const [sortBy, setSortBy] = useState<'recent' | 'replies' | 'views'>('recent');
 
   const category = categoryId ? forumCategories[categoryId as keyof typeof forumCategories] : null;
 
