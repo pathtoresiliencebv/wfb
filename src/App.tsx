@@ -7,6 +7,10 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Layout } from "@/components/layout/Layout";
 import Index from "./pages/Index";
 import Forums from "./pages/Forums";
+import ForumCategory from "./pages/ForumCategory";
+import TopicDetail from "./pages/TopicDetail";
+import CreateTopic from "./pages/CreateTopic";
+import UserProfile from "./pages/UserProfile";
 import Members from "./pages/Members";
 import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
@@ -59,6 +63,38 @@ function App() {
                   element={
                     <Layout>
                       <Forums />
+                    </Layout>
+                  } 
+                />
+                <Route 
+                  path="/forums/:categoryId" 
+                  element={
+                    <Layout>
+                      <ForumCategory />
+                    </Layout>
+                  } 
+                />
+                <Route 
+                  path="/forums/:categoryId/topic/:topicId" 
+                  element={
+                    <Layout>
+                      <TopicDetail />
+                    </Layout>
+                  } 
+                />
+                <Route 
+                  path="/forums/:categoryId/new-topic" 
+                  element={
+                    <Layout>
+                      <CreateTopic />
+                    </Layout>
+                  } 
+                />
+                <Route 
+                  path="/user/:userId" 
+                  element={
+                    <Layout>
+                      <UserProfile />
                     </Layout>
                   } 
                 />
