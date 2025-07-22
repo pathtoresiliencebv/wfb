@@ -11,7 +11,7 @@ import {
   Settings,
   Scale,
   Heart,
-  Seedling,
+  Sprout,
   AlertTriangle,
 } from 'lucide-react';
 import {
@@ -37,15 +37,16 @@ const mainNavItems = [
 const forumCategories = [
   { title: 'Wetgeving & Nieuws', url: '/forums/wetgeving', icon: Scale },
   { title: 'Medicinaal Gebruik', url: '/forums/medicinaal', icon: Heart },
-  { title: 'Teelt & Horticultuur', url: '/forums/teelt', icon: Seedling },
+  { title: 'Teelt & Horticultuur', url: '/forums/teelt', icon: Sprout },
   { title: 'Harm Reduction', url: '/forums/harm-reduction', icon: AlertTriangle },
   { title: 'Community', url: '/forums/community', icon: Users },
 ];
 
 export function AppSidebar() {
-  const { collapsed } = useSidebar();
+  const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
+  const collapsed = state === "collapsed";
 
   const isActive = (path: string) => {
     if (path === '/') {
@@ -63,7 +64,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className={collapsed ? "w-16" : "w-64"} collapsible>
+    <Sidebar className={collapsed ? "w-16" : "w-64"} collapsible="icon">
       <SidebarContent className="p-4">
         {/* Logo Section */}
         <div className="mb-6 flex items-center gap-3">
