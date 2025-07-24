@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, MessageSquare, Eye, Clock, User, Flag, Share2, Bookmark } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Eye, Clock, User, Flag, Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,125 +12,147 @@ import { VotingButtons } from '@/components/interactive/VotingButtons';
 import { PostActions } from '@/components/interactive/PostActions';
 import { useVoting } from '@/hooks/useVoting';
 import { useBookmarks } from '@/hooks/useBookmarks';
+import { supabase } from '@/integrations/supabase/client';
 
-const mockTopic = {
-  id: '1',
-  title: 'Nieuwe CBD wetgeving in België - Wat verandert er?',
-  content: `Beste forum leden,
+interface TopicData {
+  id: string;
+  title: string;
+  content: string;
+  view_count: number;
+  reply_count: number;
+  is_pinned: boolean;
+  is_locked: boolean;
+  created_at: string;
+  categories: {
+    name: string;
+    slug: string;
+  };
+  profiles: {
+    username: string;
+    role: string;
+    reputation: number;
+    created_at: string;
+  };
+}
 
-Ik wil graag jullie aandacht vestigen op de recente ontwikkelingen in de Belgische CBD wetgeving die binnenkort van kracht gaan. Na maanden van onderzoek en discussie heeft de regering enkele belangrijke wijzigingen aangekondigd die van invloed zullen zijn op zowel consumenten als retailers.
-
-## Belangrijkste wijzigingen:
-
-**1. THC-limiet aanpassing**
-De maximaal toegestane THC-concentratie in CBD-producten wordt aangepast van 0.2% naar 0.3%, wat in lijn is met EU-regelgeving.
-
-**2. Nieuwe etiketteringsvereisten**
-Alle CBD-producten moeten voortaan duidelijke labels bevatten met:
-- Exacte CBD en THC concentraties
-- Oorsprong van de cannabis
-- Laboratoriumtestresultaten
-- Bewaaradvies
-
-**3. Verkoop in apotheken**
-CBD-olie met medicinale claims mag alleen nog verkocht worden in erkende apotheken, mits voorgeschreven door een arts.
-
-## Impact voor consumenten
-
-Voor gewone CBD-gebruikers betekent dit dat:
-- Meer zekerheid over productkwaliteit
-- Toegang tot betrouwbare informatie
-- Mogelijk hogere prijzen door extra regelgeving
-
-Wat denken jullie van deze ontwikkelingen? Zie je dit als een positieve stap of maken de extra regels het onnodig ingewikkeld?`,
-  author: {
-    id: 'mod1',
-    username: 'ModeratorBelgie',
-    avatar: null,
-    role: 'moderator',
-    reputation: 2840,
-    joinedAt: '2023-02-15',
-    badges: ['Moderator', 'Wetgeving Expert'],
-  },
-  category: 'wetgeving',
-  categoryTitle: 'Wetgeving & Nieuws',
-  createdAt: '2024-01-20T10:30:00Z',
-  replies: 23,
-  views: 1240,
-  isSticky: true,
-  isLocked: false,
-  tags: ['wetgeving', 'cbd', 'belangrijk'],
-  upvotes: 45,
-  downvotes: 3,
-};
-
-const mockReplies = [
-  {
-    id: 'r1',
-    content: 'Dank je wel voor deze uitgebreide update! De etiketteringsvereisten zijn zeker een stap in de goede richting. Ik ben benieuwd hoe dit gaat uitpakken voor de kleinere CBD-winkels.',
-    author: {
-      id: 'user1',
-      username: 'CannabisExpert',
-      avatar: null,
-      role: 'expert',
-      reputation: 1560,
-      badges: ['Expert', 'CBD Specialist'],
-    },
-    createdAt: '2024-01-20T11:15:00Z',
-    upvotes: 12,
-    downvotes: 0,
-  },
-  {
-    id: 'r2',
-    content: 'Eindelijk wat meer duidelijkheid! Al vraag ik me af of de apotheek-eis niet te ver gaat. CBD-olie is toch geen medicijn in de traditionele zin?',
-    author: {
-      id: 'user2',
-      username: 'HealthyUser',
-      avatar: null,
-      role: 'user',
-      reputation: 340,
-      badges: ['Active Member'],
-    },
-    createdAt: '2024-01-20T12:45:00Z',
-    upvotes: 8,
-    downvotes: 2,
-  },
-];
+interface ReplyData {
+  id: string;
+  content: string;
+  created_at: string;
+  profiles: {
+    username: string;
+    role: string;
+  };
+}
 
 export default function TopicDetail() {
   const { categoryId, topicId } = useParams<{ categoryId: string; topicId: string }>();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
+  const [topic, setTopic] = useState<TopicData | null>(null);
+  const [replies, setReplies] = useState<ReplyData[]>([]);
   const [replyContent, setReplyContent] = useState('');
   const [isReplying, setIsReplying] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Initialize voting data
-  const initialVotes = {
-    [mockTopic.id]: {
-      id: mockTopic.id,
+  // Initialize voting data  
+  const initialVotes = topic ? {
+    [topic.id]: {
+      id: topic.id,
       type: 'topic' as const,
       currentVote: null,
-      upvotes: mockTopic.upvotes,
-      downvotes: mockTopic.downvotes,
-    },
-    ...mockReplies.reduce((acc, reply) => ({
-      ...acc,
-      [reply.id]: {
-        id: reply.id,
-        type: 'reply' as const,
-        currentVote: null,
-        upvotes: reply.upvotes,
-        downvotes: reply.downvotes,
-      }
-    }), {})
-  };
+      upvotes: 0,
+      downvotes: 0,
+    }
+  } : {};
 
   const { handleVote, getVoteData } = useVoting(initialVotes);
   const { toggleBookmark, isBookmarked } = useBookmarks();
 
+  useEffect(() => {
+    const fetchTopicAndReplies = async () => {
+      if (!topicId) return;
+
+      try {
+        // Fetch topic details
+        const { data: topicData, error: topicError } = await supabase
+          .from('topics')
+          .select(`
+            id,
+            title,
+            content,
+            view_count,
+            reply_count,
+            is_pinned,
+            is_locked,
+            created_at,
+            categories (
+              name,
+              slug
+            ),
+            profiles (
+              username,
+              role,
+              reputation,
+              created_at
+            )
+          `)
+          .eq('id', topicId)
+          .single();
+
+        if (topicError) {
+          console.error('Error fetching topic:', topicError);
+          toast({
+            title: 'Error',
+            description: 'Topic niet gevonden',
+            variant: 'destructive',
+          });
+          navigate('/forums');
+          return;
+        }
+
+        setTopic(topicData);
+
+        // Fetch replies
+        const { data: repliesData, error: repliesError } = await supabase
+          .from('replies')
+          .select(`
+            id,
+            content,
+            created_at,
+            profiles (
+              username,
+              role
+            )
+          `)
+          .eq('topic_id', topicId)
+          .order('created_at', { ascending: true });
+
+        if (repliesError) {
+          console.error('Error fetching replies:', repliesError);
+        } else {
+          setReplies(repliesData || []);
+        }
+
+        // Update view count
+        await supabase
+          .from('topics')
+          .update({ view_count: topicData.view_count + 1 })
+          .eq('id', topicId);
+
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTopicAndReplies();
+  }, [topicId, navigate, toast]);
+
   const handleReply = async () => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !user) {
       toast({
         title: 'Inloggen vereist',
         description: 'Je moet ingelogd zijn om te kunnen reageren.',
@@ -149,16 +171,54 @@ export default function TopicDetail() {
     }
 
     setIsReplying(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
     
-    toast({
-      title: 'Reactie geplaatst',
-      description: 'Je reactie is succesvol toegevoegd.',
-    });
-    
-    setReplyContent('');
-    setIsReplying(false);
+    try {
+      const { error } = await supabase
+        .from('replies')
+        .insert({
+          content: replyContent.trim(),
+          topic_id: topicId,
+          author_id: user.id,
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: 'Reactie geplaatst',
+        description: 'Je reactie is succesvol toegevoegd.',
+      });
+      
+      setReplyContent('');
+      
+      // Refresh replies
+      const { data: repliesData } = await supabase
+        .from('replies')
+        .select(`
+          id,
+          content,
+          created_at,
+          profiles (
+            username,
+            role
+          )
+        `)
+        .eq('topic_id', topicId)
+        .order('created_at', { ascending: true });
+
+      setReplies(repliesData || []);
+      
+    } catch (error) {
+      console.error('Error creating reply:', error);
+      toast({
+        title: 'Error',
+        description: 'Er ging iets mis bij het plaatsen van je reactie.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsReplying(false);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -184,7 +244,31 @@ export default function TopicDetail() {
     }
   };
 
-  const topicVoteData = getVoteData(mockTopic.id);
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded w-2/3 mb-4"></div>
+          <div className="h-32 bg-muted rounded mb-4"></div>
+          <div className="h-24 bg-muted rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!topic) {
+    return (
+      <div className="text-center py-12">
+        <h1 className="text-2xl font-bold mb-4">Topic niet gevonden</h1>
+        <Button onClick={() => navigate('/forums')}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Terug naar Forums
+        </Button>
+      </div>
+    );
+  }
+
+  const topicVoteData = getVoteData(topic.id);
 
   return (
     <div className="space-y-6">
@@ -192,31 +276,31 @@ export default function TopicDetail() {
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="sm" onClick={() => navigate(`/forums/${categoryId}`)}>
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Terug naar {mockTopic.categoryTitle}
+          Terug naar {topic.categories?.name}
         </Button>
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <Link to={`/forums/${categoryId}`} className="text-sm text-muted-foreground hover:text-primary">
-              {mockTopic.categoryTitle}
+              {topic.categories?.name}
             </Link>
             <span className="text-muted-foreground">•</span>
             <span className="text-sm text-muted-foreground">Topic</span>
           </div>
-          <h1 className="font-heading text-2xl font-bold">{mockTopic.title}</h1>
+          <h1 className="font-heading text-2xl font-bold">{topic.title}</h1>
         </div>
         <div className="flex items-center gap-2">
           <Button 
-            variant={isBookmarked(mockTopic.id) ? "default" : "outline"} 
+            variant={isBookmarked(topic.id) ? "default" : "outline"} 
             size="sm"
-            onClick={() => toggleBookmark(mockTopic.id, 'topic')}
+            onClick={() => toggleBookmark(topic.id, 'topic')}
           >
-            <Bookmark className={`h-4 w-4 ${isBookmarked(mockTopic.id) ? 'fill-current' : ''}`} />
+            <Bookmark className={`h-4 w-4 ${isBookmarked(topic.id) ? 'fill-current' : ''}`} />
           </Button>
           <PostActions
-            itemId={mockTopic.id}
+            itemId={topic.id}
             itemType="topic"
-            isBookmarked={isBookmarked(mockTopic.id)}
-            onBookmark={() => toggleBookmark(mockTopic.id, 'topic')}
+            isBookmarked={isBookmarked(topic.id)}
+            onBookmark={() => toggleBookmark(topic.id, 'topic')}
           />
         </div>
       </div>
@@ -225,15 +309,15 @@ export default function TopicDetail() {
       <div className="flex items-center gap-6 text-sm text-muted-foreground">
         <div className="flex items-center gap-1">
           <Eye className="h-4 w-4" />
-          <span>{mockTopic.views} views</span>
+          <span>{topic.view_count} views</span>
         </div>
         <div className="flex items-center gap-1">
           <MessageSquare className="h-4 w-4" />
-          <span>{mockTopic.replies} reacties</span>
+          <span>{topic.reply_count} reacties</span>
         </div>
         <div className="flex items-center gap-1">
           <Clock className="h-4 w-4" />
-          <span>{formatDate(mockTopic.createdAt)}</span>
+          <span>{formatDate(topic.created_at)}</span>
         </div>
       </div>
 
@@ -243,23 +327,22 @@ export default function TopicDetail() {
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={mockTopic.author.avatar || undefined} />
-                <AvatarFallback className={getRoleColor(mockTopic.author.role)}>
-                  {getUserInitials(mockTopic.author.username)}
+                <AvatarFallback className={getRoleColor(topic.profiles?.role || 'user')}>
+                  {getUserInitials(topic.profiles?.username || 'Anonymous')}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">{mockTopic.author.username}</span>
-                  {mockTopic.author.role === 'moderator' && (
+                  <span className="font-medium">{topic.profiles?.username}</span>
+                  {topic.profiles?.role === 'moderator' && (
                     <Badge variant="secondary" className="text-xs">MOD</Badge>
                   )}
-                  {mockTopic.author.role === 'expert' && (
+                  {topic.profiles?.role === 'expert' && (
                     <Badge variant="default" className="text-xs">EXPERT</Badge>
                   )}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {mockTopic.author.reputation} reputatie • Lid sinds {new Date(mockTopic.author.joinedAt).getFullYear()}
+                  {topic.profiles?.reputation || 0} reputatie • Lid sinds {new Date(topic.profiles?.created_at || topic.created_at).getFullYear()}
                 </div>
               </div>
             </div>
@@ -274,11 +357,11 @@ export default function TopicDetail() {
             <div className="flex flex-col items-center min-w-[4rem]">
               {topicVoteData && (
                 <VotingButtons
-                  itemId={mockTopic.id}
+                  itemId={topic.id}
                   upvotes={topicVoteData.upvotes}
                   downvotes={topicVoteData.downvotes}
                   currentVote={topicVoteData.currentVote}
-                  onVote={(voteType) => handleVote(mockTopic.id, voteType, 'topic')}
+                  onVote={(voteType) => handleVote(topic.id, voteType, 'topic')}
                 />
               )}
             </div>
@@ -286,27 +369,19 @@ export default function TopicDetail() {
             {/* Content */}
             <div className="flex-1">
               <div className="prose prose-sm max-w-none mb-6">
-                {mockTopic.content.split('\n').map((paragraph, index) => (
+                {topic.content.split('\n').map((paragraph, index) => (
                   <p key={index} className="mb-4 last:mb-0">
                     {paragraph}
                   </p>
                 ))}
               </div>
               
-              <div className="flex items-center justify-between">
-                <div className="flex flex-wrap gap-1">
-                  {mockTopic.tags.map(tag => (
-                    <Badge key={tag} variant="outline" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-                
+              <div className="flex items-center justify-end">
                 <PostActions
-                  itemId={mockTopic.id}
+                  itemId={topic.id}
                   itemType="topic"
-                  isBookmarked={isBookmarked(mockTopic.id)}
-                  onBookmark={() => toggleBookmark(mockTopic.id, 'topic')}
+                  isBookmarked={isBookmarked(topic.id)}
+                  onBookmark={() => toggleBookmark(topic.id, 'topic')}
                 />
               </div>
             </div>
@@ -317,73 +392,41 @@ export default function TopicDetail() {
       {/* Replies */}
       <div className="space-y-4">
         <h3 className="font-heading text-lg font-semibold">
-          Reacties ({mockReplies.length})
+          Reacties ({replies.length})
         </h3>
         
-        {mockReplies.map((reply) => {
-          const replyVoteData = getVoteData(reply.id);
-          
-          return (
-            <Card key={reply.id}>
-              <CardHeader className="border-b pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={reply.author.avatar || undefined} />
-                      <AvatarFallback className={getRoleColor(reply.author.role)}>
-                        {getUserInitials(reply.author.username)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm">{reply.author.username}</span>
-                        {reply.author.role === 'expert' && (
-                          <Badge variant="default" className="text-xs">EXPERT</Badge>
-                        )}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {formatDate(reply.createdAt)}
-                      </div>
+        {replies.map((reply) => (
+          <Card key={reply.id}>
+            <CardHeader className="border-b pb-3">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className={getRoleColor(reply.profiles?.role || 'user')}>
+                      {getUserInitials(reply.profiles?.username || 'Anonymous')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">{reply.profiles?.username}</span>
+                      {reply.profiles?.role === 'expert' && (
+                        <Badge variant="default" className="text-xs">EXPERT</Badge>
+                      )}
                     </div>
-                  </div>
-                  <Button variant="ghost" size="sm">
-                    <Flag className="h-3 w-3" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <div className="flex gap-4">
-                  {/* Vote Section */}
-                  <div className="flex flex-col items-center min-w-[3rem]">
-                    {replyVoteData && (
-                      <VotingButtons
-                        itemId={reply.id}
-                        upvotes={replyVoteData.upvotes}
-                        downvotes={replyVoteData.downvotes}
-                        currentVote={replyVoteData.currentVote}
-                        onVote={(voteType) => handleVote(reply.id, voteType, 'reply')}
-                        size="sm"
-                      />
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1">
-                    <p className="mb-4 text-sm">{reply.content}</p>
-                    <div className="flex items-center justify-end">
-                      <PostActions
-                        itemId={reply.id}
-                        itemType="reply"
-                        isBookmarked={isBookmarked(reply.id)}
-                        onBookmark={() => toggleBookmark(reply.id, 'reply')}
-                      />
+                    <div className="text-xs text-muted-foreground">
+                      {formatDate(reply.created_at)}
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+                <Button variant="ghost" size="sm">
+                  <Flag className="h-3 w-3" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <p className="text-sm">{reply.content}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Reply Form */}

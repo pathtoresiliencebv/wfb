@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Pin, MessageSquare, Eye, Clock, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,81 +6,38 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { AdvancedSearch } from '@/components/search/AdvancedSearch';
+import { supabase } from '@/integrations/supabase/client';
 
-const forumCategories = {
-  'wetgeving': {
-    title: 'Wetgeving & Nieuws',
-    description: 'Actuele ontwikkelingen in de cannabiswetgeving en nieuwsberichten',
-    color: 'bg-blue-500',
-  },
-  'medicinaal': {
-    title: 'Medicinaal Gebruik',
-    description: 'Informatie over medicinaal cannabisgebruik, CBD, en therapeutische toepassingen',
-    color: 'bg-green-500',
-  },
-  'teelt': {
-    title: 'Teelt & Horticultuur',
-    description: 'Tips, tricks en discussies over het kweken van cannabis',
-    color: 'bg-emerald-500',
-  },
-  'harm-reduction': {
-    title: 'Harm Reduction',
-    description: 'Veilig gebruik, risicovermindering en gezondheidsadvies',
-    color: 'bg-orange-500',
-  },
-  'community': {
-    title: 'Community',
-    description: 'Algemene discussies, introductions en community events',
-    color: 'bg-purple-500',
-  },
-} as const;
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  slug: string;
+}
 
-const mockTopics = [
-  {
-    id: '1',
-    title: 'Nieuwe CBD wetgeving in België - Wat verandert er?',
-    author: 'ModeratorBelgie',
-    authorRole: 'moderator',
-    replies: 23,
-    views: 1240,
-    lastActivity: '2 uur geleden',
-    lastUser: 'CannabisExpert',
-    isSticky: true,
-    isLocked: false,
-    tags: ['wetgeving', 'cbd', 'belangrijk'],
-  },
-  {
-    id: '2',
-    title: 'Nieuwe onderzoeksresultaten over THC en geheugen',
-    author: 'ResearcherNL',
-    authorRole: 'expert',
-    replies: 15,
-    views: 890,
-    lastActivity: '4 uur geleden',
-    lastUser: 'HealthyUser',
-    isSticky: false,
-    isLocked: false,
-    tags: ['onderzoek', 'thc'],
-  },
-  {
-    id: '3',
-    title: 'Verkiezingen 2024: Welke partijen steunen legalisatie?',
-    author: 'PolitiekWatcher',
-    authorRole: 'user',
-    replies: 67,
-    views: 2340,
-    lastActivity: '1 dag geleden',
-    lastUser: 'VotingCitizen',
-    isSticky: false,
-    isLocked: false,
-    tags: ['politiek', 'verkiezingen'],
-  },
-];
+interface TopicWithAuthor {
+  id: string;
+  title: string;
+  reply_count: number;
+  view_count: number;
+  is_pinned: boolean;
+  is_locked: boolean;
+  created_at: string;
+  last_activity_at: string;
+  profiles: {
+    username: string;
+    role: string;
+  };
+}
 
 export default function ForumCategory() {
   const { categoryId } = useParams<{ categoryId: string }>();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const [category, setCategory] = useState<Category | null>(null);
+  const [topics, setTopics] = useState<TopicWithAuthor[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchFilters, setSearchFilters] = useState({
     query: '',
     category: 'all',
@@ -88,9 +45,103 @@ export default function ForumCategory() {
     dateRange: 'all',
     tags: [] as string[],
   });
-  const [sortBy, setSortBy] = useState<'recent' | 'replies' | 'views'>('recent');
 
-  const category = categoryId ? forumCategories[categoryId as keyof typeof forumCategories] : null;
+  useEffect(() => {
+    const fetchCategoryAndTopics = async () => {
+      if (!categoryId) return;
+
+      try {
+        // Fetch category details
+        const { data: categoryData, error: categoryError } = await supabase
+          .from('categories')
+          .select('*')
+          .eq('slug', categoryId)
+          .single();
+
+        if (categoryError) {
+          console.error('Error fetching category:', categoryError);
+          setCategory(null);
+        } else {
+          setCategory(categoryData);
+        }
+
+        // Fetch topics for this category
+        const { data: topicsData, error: topicsError } = await supabase
+          .from('topics')
+          .select(`
+            id,
+            title,
+            reply_count,
+            view_count,
+            is_pinned,
+            is_locked,
+            created_at,
+            last_activity_at,
+            profiles (
+              username,
+              role
+            )
+          `)
+          .eq('category_id', categoryData?.id)
+          .order('is_pinned', { ascending: false })
+          .order('last_activity_at', { ascending: false });
+
+        if (topicsError) {
+          console.error('Error fetching topics:', topicsError);
+        } else {
+          setTopics(topicsData || []);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategoryAndTopics();
+  }, [categoryId]);
+
+  const filteredTopics = topics.filter(topic => {
+    if (searchFilters.query && !topic.title.toLowerCase().includes(searchFilters.query.toLowerCase())) {
+      return false;
+    }
+    if (searchFilters.author && !topic.profiles?.username.toLowerCase().includes(searchFilters.author.toLowerCase())) {
+      return false;
+    }
+    return true;
+  });
+
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes} min geleden`;
+    } else if (diffInMinutes < 1440) {
+      return `${Math.floor(diffInMinutes / 60)} uur geleden`;
+    } else {
+      return `${Math.floor(diffInMinutes / 1440)} dag${Math.floor(diffInMinutes / 1440) > 1 ? 'en' : ''} geleden`;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded w-1/3 mb-2"></div>
+          <div className="h-4 bg-muted rounded w-2/3"></div>
+        </div>
+        <div className="space-y-4">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="animate-pulse">
+              <div className="h-24 bg-muted rounded-lg"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (!category) {
     return (
@@ -104,41 +155,6 @@ export default function ForumCategory() {
     );
   }
 
-  const filteredTopics = mockTopics.filter(topic => {
-    // Search query filter
-    if (searchFilters.query && !topic.title.toLowerCase().includes(searchFilters.query.toLowerCase()) &&
-        !topic.tags.some(tag => tag.toLowerCase().includes(searchFilters.query.toLowerCase()))) {
-      return false;
-    }
-
-    // Author filter
-    if (searchFilters.author && !topic.author.toLowerCase().includes(searchFilters.author.toLowerCase())) {
-      return false;
-    }
-
-    // Tags filter
-    if (searchFilters.tags.length > 0 && !searchFilters.tags.some(tag => topic.tags.includes(tag))) {
-      return false;
-    }
-
-    return true;
-  });
-
-  const sortedTopics = [...filteredTopics].sort((a, b) => {
-    if (a.isSticky && !b.isSticky) return -1;
-    if (!a.isSticky && b.isSticky) return 1;
-    
-    switch (sortBy) {
-      case 'replies':
-        return b.replies - a.replies;
-      case 'views':
-        return b.views - a.views;
-      case 'recent':
-      default:
-        return 0; // Mock sorting by recent activity
-    }
-  });
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -147,11 +163,11 @@ export default function ForumCategory() {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Terug
         </Button>
-        <div className={`w-12 h-12 rounded-lg ${category.color} flex items-center justify-center`}>
+        <div className={`w-12 h-12 rounded-lg ${category.color || 'bg-primary'} flex items-center justify-center`}>
           <MessageSquare className="h-6 w-6 text-white" />
         </div>
         <div className="flex-1">
-          <h1 className="font-heading text-3xl font-bold">{category.title}</h1>
+          <h1 className="font-heading text-3xl font-bold">{category.name}</h1>
           <p className="text-muted-foreground">{category.description}</p>
         </div>
         {isAuthenticated && (
@@ -165,12 +181,12 @@ export default function ForumCategory() {
       {/* Enhanced Search */}
       <AdvancedSearch
         onSearch={setSearchFilters}
-        placeholder={`Zoek in ${category.title.toLowerCase()}...`}
+        placeholder={`Zoek in ${category.name.toLowerCase()}...`}
       />
 
       {/* Topics List */}
       <div className="space-y-2">
-        {sortedTopics.length === 0 ? (
+        {filteredTopics.length === 0 ? (
           <Card className="p-8 text-center">
             <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium mb-2">Geen topics gevonden</h3>
@@ -185,13 +201,13 @@ export default function ForumCategory() {
             )}
           </Card>
         ) : (
-          sortedTopics.map((topic) => (
+          filteredTopics.map((topic) => (
             <Card key={topic.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-4">
                 <div className="flex items-start gap-4">
                   {/* Topic Icons */}
                   <div className="flex flex-col items-center gap-1 mt-1">
-                    {topic.isSticky && <Pin className="h-4 w-4 text-primary" />}
+                    {topic.is_pinned && <Pin className="h-4 w-4 text-primary" />}
                     <MessageSquare className="h-5 w-5 text-muted-foreground" />
                   </div>
 
@@ -208,21 +224,13 @@ export default function ForumCategory() {
                         
                         <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
                           <User className="h-3 w-3" />
-                          <span className="font-medium">{topic.author}</span>
-                          {topic.authorRole === 'moderator' && (
+                          <span className="font-medium">{topic.profiles?.username}</span>
+                          {topic.profiles?.role === 'moderator' && (
                             <Badge variant="secondary" className="text-xs">MOD</Badge>
                           )}
-                          {topic.authorRole === 'expert' && (
+                          {topic.profiles?.role === 'expert' && (
                             <Badge variant="default" className="text-xs">EXPERT</Badge>
                           )}
-                        </div>
-
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {topic.tags.map(tag => (
-                            <Badge key={tag} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
                         </div>
                       </div>
 
@@ -231,19 +239,16 @@ export default function ForumCategory() {
                         <div className="flex items-center gap-4">
                           <div className="flex items-center gap-1">
                             <MessageSquare className="h-3 w-3" />
-                            <span>{topic.replies}</span>
+                            <span>{topic.reply_count}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Eye className="h-3 w-3" />
-                            <span>{topic.views}</span>
+                            <span>{topic.view_count}</span>
                           </div>
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          <span>{topic.lastActivity}</span>
-                        </div>
-                        <div className="text-xs">
-                          door <span className="font-medium">{topic.lastUser}</span>
+                          <span>{formatTimeAgo(topic.last_activity_at || topic.created_at)}</span>
                         </div>
                       </div>
                     </div>
