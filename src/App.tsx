@@ -15,6 +15,7 @@ import UserProfile from "./pages/UserProfile";
 import Members from "./pages/Members";
 import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
+import Messages from "./pages/Messages";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { LandingPage } from "@/components/landing/LandingPage";
@@ -115,6 +116,16 @@ function App() {
                     <Layout>
                       <Leaderboard />
                     </Layout>
+                  } 
+                />
+                <Route 
+                  path="/messages" 
+                  element={
+                    <ProtectedRoute>
+                      <Layout>
+                        <Messages />
+                      </Layout>
+                    </ProtectedRoute>
                   } 
                 />
                 
