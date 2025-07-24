@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Layout } from "@/components/layout/Layout";
+import { HomeRoute } from "@/components/routes/HomeRoute";
 import Index from "./pages/Index";
 import Forums from "./pages/Forums";
 import ForumCategory from "./pages/ForumCategory";
@@ -14,8 +15,9 @@ import UserProfile from "./pages/UserProfile";
 import Members from "./pages/Members";
 import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { LandingPage } from "@/components/landing/LandingPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
@@ -49,15 +51,8 @@ function App() {
                   } 
                 />
                 
-                {/* Protected app routes */}
-                <Route 
-                  path="/" 
-                  element={
-                    <Layout>
-                      <Index />
-                    </Layout>
-                  } 
-                />
+                {/* Home route - conditional rendering based on auth */}
+                <Route path="/" element={<HomeRoute />} />
                 <Route 
                   path="/forums" 
                   element={
