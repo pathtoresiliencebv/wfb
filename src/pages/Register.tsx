@@ -4,12 +4,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Loader2, CheckCircle, CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { nl } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
@@ -25,7 +30,13 @@ const registerSchema = z.object({
     .regex(/(?=.*[A-Z])/, 'Wachtwoord moet minimaal één hoofdletter bevatten')
     .regex(/(?=.*\d)/, 'Wachtwoord moet minimaal één cijfer bevatten'),
   confirmPassword: z.string(),
-  birthDate: z.string().min(1, 'Geboortedatum is verplicht'),
+  birthDate: z.date({
+    required_error: 'Geboortedatum is verplicht',
+  }).refine((date) => {
+    const today = new Date();
+    const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+    return date <= eighteenYearsAgo;
+  }, 'Je moet minimaal 18 jaar oud zijn'),
   termsAccepted: z.boolean().refine(val => val === true, 'Je moet akkoord gaan met de gebruiksvoorwaarden'),
   ageConfirmed: z.boolean().refine(val => val === true, 'Je moet bevestigen dat je 18+ bent'),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -48,7 +59,7 @@ export default function Register() {
       email: '',
       password: '',
       confirmPassword: '',
-      birthDate: '',
+      birthDate: undefined,
       termsAccepted: false,
       ageConfirmed: false,
     },
@@ -73,7 +84,7 @@ export default function Register() {
         username: data.username,
         email: data.email,
         password: data.password,
-        birthDate: data.birthDate,
+        birthDate: data.birthDate.toISOString().split('T')[0],
       });
       
       if (success) {
@@ -158,14 +169,43 @@ export default function Register() {
                   control={form.control}
                   name="birthDate"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col">
                       <FormLabel>Geboortedatum</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="date"
-                          {...field}
-                        />
-                      </FormControl>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP", { locale: nl })
+                              ) : (
+                                <span>Selecteer je geboortedatum</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date > new Date() || date < new Date("1900-01-01")
+                            }
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                            captionLayout="dropdown-buttons"
+                            fromYear={1900}
+                            toYear={new Date().getFullYear()}
+                          />
+                        </PopoverContent>
+                      </Popover>
                       <FormDescription>
                         Je moet 18+ zijn om een account aan te maken
                       </FormDescription>
