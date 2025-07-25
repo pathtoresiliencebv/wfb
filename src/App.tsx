@@ -23,6 +23,7 @@ import { LandingPage } from "@/components/landing/LandingPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import PasswordReset from "./pages/PasswordReset";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -144,6 +145,16 @@ function App() {
                     <Layout>
                       <Search />
                     </Layout>
+                  } 
+                />
+                <Route 
+                  path="/settings" 
+                  element={
+                    <ProtectedRoute>
+                      <Layout>
+                        <Settings />
+                      </Layout>
+                    </ProtectedRoute>
                   } 
                 />
                 

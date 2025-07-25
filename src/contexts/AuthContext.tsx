@@ -9,6 +9,7 @@ export interface User {
   username: string;
   email: string;
   avatar?: string;
+  displayName?: string;
   bio?: string;
   reputation: number;
   badges: string[];
@@ -87,6 +88,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         username: profile.username,
         email: supabaseUser.email || '',
         avatar: profile.avatar_url,
+        displayName: profile.display_name,
         bio: profile.bio,
         reputation: profile.reputation,
         badges,
@@ -362,28 +364,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const updateUser = async (userData: Partial<User>) => {
+  const updateUser = (userData: Partial<User>) => {
     if (!user) return;
-
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          display_name: userData.username,
-          bio: userData.bio,
-          avatar_url: userData.avatar,
-        })
-        .eq('user_id', user.id);
-
-      if (error) {
-        console.error('Update user error:', error);
-        return;
-      }
-
-      setUser({ ...user, ...userData });
-    } catch (error) {
-      console.error('Update user error:', error);
-    }
+    setUser({ ...user, ...userData });
   };
 
   const resetPassword = async (email: string): Promise<boolean> => {

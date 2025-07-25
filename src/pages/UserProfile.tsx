@@ -167,7 +167,7 @@ export default function UserProfile() {
                 </div>
                 
                 {isOwnProfile ? (
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => navigate('/settings')}>
                     <Edit className="h-4 w-4 mr-2" />
                     Bewerk Profiel
                   </Button>
