@@ -149,9 +149,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (error) {
         console.error('Login error:', error);
+        let errorMessage = 'Er is een fout opgetreden bij het inloggen.';
+        
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = 'Ongeldig e-mailadres of wachtwoord.';
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = 'Je e-mailadres is nog niet bevestigd. Controleer je inbox.';
+        } else if (error.message.includes('Too many requests')) {
+          errorMessage = 'Te veel inlogpogingen. Probeer het later opnieuw.';
+        }
+        
         toast({
           title: 'Login mislukt',
-          description: error.message,
+          description: errorMessage,
           variant: 'destructive',
         });
         setIsLoading(false);
@@ -160,7 +170,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (data.user) {
         const userProfile = await fetchUserProfile(data.user);
-        setUser(userProfile);
+        if (userProfile) {
+          setUser(userProfile);
+          toast({
+            title: 'Welkom terug!',
+            description: `Hallo ${userProfile.username}, je bent succesvol ingelogd.`,
+          });
+        }
         setIsLoading(false);
         return true;
       }
@@ -211,9 +227,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (error) {
         console.error('Registration error:', error);
+        let errorMessage = 'Er is een fout opgetreden tijdens de registratie.';
+        
+        if (error.message.includes('already registered')) {
+          errorMessage = 'Dit e-mailadres is al in gebruik.';
+        } else if (error.message.includes('Password')) {
+          errorMessage = 'Het wachtwoord voldoet niet aan de eisen.';
+        } else if (error.message.includes('email')) {
+          errorMessage = 'Ongeldig e-mailadres.';
+        }
+        
         toast({
           title: 'Registratie mislukt',
-          description: error.message,
+          description: errorMessage,
           variant: 'destructive',
         });
         setIsLoading(false);
@@ -221,6 +247,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       if (data.user) {
+        // Check if username already exists
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('username', userData.username)
+          .single();
+
+        if (existingProfile) {
+          toast({
+            title: 'Registratie mislukt',
+            description: 'Deze gebruikersnaam is al in gebruik.',
+            variant: 'destructive',
+          });
+          setIsLoading(false);
+          return false;
+        }
+
         // Create user profile
         const { error: profileError } = await supabase
           .from('profiles')
@@ -232,9 +275,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         if (profileError) {
           console.error('Profile creation error:', profileError);
+          let errorMessage = 'Er is een fout opgetreden bij het aanmaken van je profiel.';
+          
+          if (profileError.message.includes('username')) {
+            errorMessage = 'Deze gebruikersnaam is al in gebruik.';
+          }
+          
           toast({
             title: 'Registratie mislukt',
-            description: 'Er is een fout opgetreden bij het aanmaken van je profiel.',
+            description: errorMessage,
             variant: 'destructive',
           });
           setIsLoading(false);
@@ -265,11 +314,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoading(false);
         return true;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
+      let errorMessage = 'Er is een onverwachte fout opgetreden.';
+      
+      if (error?.message?.includes('email')) {
+        errorMessage = 'Dit e-mailadres is al in gebruik.';
+      } else if (error?.message?.includes('username')) {
+        errorMessage = 'Deze gebruikersnaam is al in gebruik.';
+      } else if (error?.message?.includes('password')) {
+        errorMessage = 'Het wachtwoord voldoet niet aan de eisen.';
+      }
+      
       toast({
         title: 'Registratie mislukt',
-        description: 'Er is een onverwachte fout opgetreden.',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
@@ -282,8 +341,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await supabase.auth.signOut();
       setUser(null);
+      toast({
+        title: 'Uitgelogd',
+        description: 'Je bent succesvol uitgelogd.',
+      });
     } catch (error) {
       console.error('Logout error:', error);
+      toast({
+        title: 'Fout bij uitloggen',
+        description: 'Er is een fout opgetreden bij het uitloggen.',
+        variant: 'destructive',
+      });
     }
   };
 
