@@ -16,6 +16,7 @@ import Members from "./pages/Members";
 import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
 import Messages from "./pages/Messages";
+import Search from "./pages/Search";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { LandingPage } from "@/components/landing/LandingPage";
@@ -126,6 +127,14 @@ function App() {
                         <Messages />
                       </Layout>
                     </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/search" 
+                  element={
+                    <Layout>
+                      <Search />
+                    </Layout>
                   } 
                 />
                 

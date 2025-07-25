@@ -29,6 +29,14 @@ export function Header() {
               type="search"
               placeholder="Zoek in forums..."
               className="pl-8"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  const query = (e.target as HTMLInputElement).value;
+                  if (query.trim()) {
+                    window.location.href = `/search?q=${encodeURIComponent(query)}`;
+                  }
+                }
+              }}
             />
           </div>
         </div>
