@@ -3,42 +3,47 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, MessageSquare, Trophy, Shield, Heart, Scale } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Users, MessageSquare, Trophy, Shield, Heart, Scale, CheckCircle } from 'lucide-react';
 import wietforumLogoDark from '@/assets/wietforum-logo-dark.png';
 import wietforumLogoGreen from '@/assets/wietforum-logo-green.png';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useRealTimeStats } from '@/hooks/useRealTimeStats';
 
-const stats = [
-  { label: 'Actieve Leden', value: '2,547', icon: Users },
-  { label: 'Forum Topics', value: '8,432', icon: MessageSquare },
-  { label: 'Expert Adviseurs', value: '156', icon: Trophy },
-  { label: 'Veilige Community', value: '100%', icon: Shield },
+const getStatsArray = (stats: any, isLoading: boolean) => [
+  { label: 'Actieve Leden', value: isLoading ? '...' : stats.userCount.toLocaleString(), icon: Users },
+  { label: 'Forum Topics', value: isLoading ? '...' : stats.topicCount.toLocaleString(), icon: MessageSquare },
+  { label: 'Expert Adviseurs', value: isLoading ? '...' : stats.expertCount.toString(), icon: Trophy },
+  { label: 'Veilige Community', value: stats.verifiedCommunity, icon: Shield },
 ];
 
 const features = [
   {
     title: 'Medicinaal Gebruik',
-    description: 'Delen van ervaringen en kennis over medicinale cannabis',
+    description: 'Delen van ervaringen en kennis over medicinale cannabis voor therapeutische doeleinden',
     icon: Heart,
     color: 'bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400'
   },
   {
     title: 'Wetgeving & Nieuws',
-    description: 'Blijf op de hoogte van de laatste ontwikkelingen in België',
+    description: 'Blijf op de hoogte van de laatste ontwikkelingen en wetswijzigingen in België',
     icon: Scale,
     color: 'bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400'
   },
   {
-    title: 'Community Support',
-    description: 'Een veilige ruimte voor vragen en ondersteuning',
-    icon: Users,
+    title: 'Veilige Community',
+    description: 'Een gemodereerde, veilige ruimte voor vragen, tips en ondersteuning',
+    icon: CheckCircle,
     color: 'bg-green-50 text-green-600 dark:bg-green-950 dark:text-green-400'
   }
 ];
 
 export function LandingPage() {
   const { theme } = useTheme();
+  const { stats, isLoading } = useRealTimeStats();
   const logoSrc = theme === 'dark' ? wietforumLogoGreen : wietforumLogoDark;
+  
+  const statsArray = getStatsArray(stats, isLoading);
 
   return (
     <div className="min-h-screen bg-background">
@@ -73,7 +78,8 @@ export function LandingPage() {
           </h1>
           <p className="mb-8 text-lg text-muted-foreground sm:text-xl">
             De grootste en meest vertrouwde cannabis community van België. 
-            Deel kennis, ervaringen en verbind met gelijkgestemden in een veilige omgeving.
+            Deel kennis, ervaringen en verbind met gelijkgestemden in een gemodereerde, 
+            veilige en informatieve omgeving.
           </p>
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
             <Link to="/register">
@@ -94,12 +100,16 @@ export function LandingPage() {
       <section className="border-y bg-muted/50">
         <div className="container mx-auto px-6 py-12">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-            {stats.map((stat, index) => (
+            {statsArray.map((stat, index) => (
               <div key={index} className="text-center">
                 <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
                   <stat.icon className="h-6 w-6" />
                 </div>
-                <div className="text-2xl font-bold">{stat.value}</div>
+                {isLoading ? (
+                  <Skeleton className="h-8 w-16 mx-auto mb-1" />
+                ) : (
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                )}
                 <div className="text-sm text-muted-foreground">{stat.label}</div>
               </div>
             ))}
@@ -144,7 +154,7 @@ export function LandingPage() {
             Klaar om deel uit te maken van de community?
           </h2>
           <p className="mb-8 text-lg text-muted-foreground">
-            Sluit je aan bij duizenden Belgen die hun kennis en ervaringen delen
+            Sluit je aan bij {isLoading ? 'duizenden' : stats.userCount > 0 ? `${stats.userCount}+` : 'onze'} Belgen die hun kennis en ervaringen delen
           </p>
           <Link to="/register">
             <Button size="lg">

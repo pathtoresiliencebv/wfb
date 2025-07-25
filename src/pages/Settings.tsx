@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, Save, User, Mail, MapPin, FileText } from 'lucide-react';
+import { ArrowLeft, Camera, Save, User, Lock, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -24,8 +24,18 @@ export default function Settings() {
     bio: user?.bio || '',
   });
 
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePasswordChange = (field: string, value: string) => {
+    setPasswordData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleAvatarUpload = async (file: File) => {
@@ -148,6 +158,67 @@ export default function Settings() {
     }
   };
 
+  const handleChangePassword = async () => {
+    if (!passwordData.newPassword || !passwordData.confirmPassword || !passwordData.currentPassword) {
+      toast({
+        title: 'Fout',
+        description: 'Vul alle velden in.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast({
+        title: 'Fout',
+        description: 'Nieuwe wachtwoorden komen niet overeen.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (passwordData.newPassword.length < 8) {
+      toast({
+        title: 'Fout',
+        description: 'Wachtwoord moet minimaal 8 karakters bevatten.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      const { error } = await supabase.auth.updateUser({
+        password: passwordData.newPassword
+      });
+
+      if (error) throw error;
+
+      // Clear password fields
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+
+      toast({
+        title: 'Succes',
+        description: 'Wachtwoord succesvol gewijzigd.',
+      });
+
+    } catch (error) {
+      console.error('Password update error:', error);
+      toast({
+        title: 'Fout',
+        description: 'Er ging iets mis bij het wijzigen van je wachtwoord.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const getUserInitials = (username: string) => {
     return username.slice(0, 2).toUpperCase();
   };
@@ -260,6 +331,62 @@ export default function Settings() {
                   rows={4}
                 />
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Security Settings */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Beveiliging
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="currentPassword">Huidig wachtwoord</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  value={passwordData.currentPassword}
+                  onChange={(e) => handlePasswordChange('currentPassword', e.target.value)}
+                  placeholder="Voer je huidige wachtwoord in"
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="newPassword">Nieuw wachtwoord</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={passwordData.newPassword}
+                  onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
+                  placeholder="Minimaal 8 karakters"
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="confirmPassword">Bevestig nieuw wachtwoord</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={passwordData.confirmPassword}
+                  onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
+                  placeholder="Herhaal je nieuwe wachtwoord"
+                />
+              </div>
+
+              <Button 
+                onClick={handleChangePassword}
+                disabled={isLoading || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
+                variant="outline"
+                className="w-fit"
+              >
+                <Lock className="h-4 w-4 mr-2" />
+                {isLoading ? 'Wijzigen...' : 'Wachtwoord wijzigen'}
+              </Button>
             </div>
           </CardContent>
         </Card>
