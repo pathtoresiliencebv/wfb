@@ -14,7 +14,9 @@ import {
   Sprout,
   AlertTriangle,
 } from 'lucide-react';
-import wietforumLogo from '@/assets/wietforum-logo.png';
+import wietforumLogoDark from '@/assets/wietforum-logo-dark.png';
+import wietforumLogoGreen from '@/assets/wietforum-logo-green.png';
+import { useTheme } from '@/contexts/ThemeContext';
 import {
   Sidebar,
   SidebarContent,
@@ -45,9 +47,13 @@ const forumCategories = [
 
 export function AppSidebar() {
   const { state } = useSidebar();
+  const { theme } = useTheme();
   const location = useLocation();
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
+  
+  // Select logo based on theme
+  const logoSrc = theme === 'dark' ? wietforumLogoGreen : wietforumLogoDark;
 
   const isActive = (path: string) => {
     if (path === '/') {
@@ -69,15 +75,15 @@ export function AppSidebar() {
       <SidebarContent className="p-4">
         {/* Logo Section */}
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center">
+          <div className="flex h-12 w-12 items-center justify-center">
             <img 
-              src={wietforumLogo} 
+              src={logoSrc} 
               alt="Wietforum België" 
-              className="h-8 w-8 object-contain"
+              className="h-10 w-10 object-contain"
             />
           </div>
           {!collapsed && (
-            <div>
+            <div className="ml-2">
               <h1 className="font-heading text-lg font-bold text-foreground">
                 Wietforum
               </h1>

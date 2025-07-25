@@ -4,7 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Users, MessageSquare, Trophy, Shield, Heart, Scale } from 'lucide-react';
-import wietforumLogo from '@/assets/wietforum-logo.png';
+import wietforumLogoDark from '@/assets/wietforum-logo-dark.png';
+import wietforumLogoGreen from '@/assets/wietforum-logo-green.png';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const stats = [
   { label: 'Actieve Leden', value: '2,547', icon: Users },
@@ -35,13 +37,16 @@ const features = [
 ];
 
 export function LandingPage() {
+  const { theme } = useTheme();
+  const logoSrc = theme === 'dark' ? wietforumLogoGreen : wietforumLogoDark;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <img src={wietforumLogo} alt="Wietforum België" className="h-8 w-8" />
+            <img src={logoSrc} alt="Wietforum België" className="h-10 w-10 object-contain" />
             <div>
               <h1 className="font-heading text-lg font-bold">Wietforum</h1>
               <p className="text-xs text-muted-foreground">België</p>
@@ -158,7 +163,7 @@ export function LandingPage() {
         <div className="container mx-auto px-6 py-8">
           <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between">
             <div className="flex items-center gap-3">
-              <img src={wietforumLogo} alt="Wietforum België" className="h-6 w-6" />
+              <img src={logoSrc} alt="Wietforum België" className="h-6 w-6 object-contain" />
               <span className="font-semibold">Wietforum België</span>
             </div>
             <div className="flex gap-6 text-sm text-muted-foreground">
