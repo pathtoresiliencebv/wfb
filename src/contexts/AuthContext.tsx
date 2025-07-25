@@ -183,7 +183,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       // Check age verification
       const birthDate = new Date(userData.birthDate);
-      const age = new Date().getFullYear() - birthDate.getFullYear();
+      const today = new Date();
+      
+      // Calculate age more accurately
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
       
       if (age < 18) {
         toast({
@@ -220,7 +228,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             user_id: data.user.id,
             username: userData.username,
             display_name: userData.username,
-            email: userData.email,
           });
 
         if (profileError) {
