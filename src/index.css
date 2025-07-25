@@ -8,9 +8,9 @@
 @layer base {
   :root {
     /* Primary Colors - Cannabis groen uit logo */
-    --primary: 82 15% 64%;           /* #b2bd88 cannabis groen */
+    --primary: 76 100% 15%;          /* #3a4f00 cannabis groen */
     --primary-foreground: 0 0% 100%;
-    --primary-muted: 82 20% 72%;     /* Lichtere variant */
+    --primary-muted: 76 80% 25%;     /* Lichtere variant */
     
     /* Secondary Colors - Navy */
     --secondary: 231 48% 31%;        /* Navy blue */
@@ -27,7 +27,7 @@
     --muted-foreground: 215 16% 47%; /* Secundaire tekst */
     
     /* Accent Colors */
-    --accent: 82 15% 64%;            /* Matches primary */
+    --accent: 76 100% 15%;            /* Matches primary */
     --accent-foreground: 0 0% 100%;
     
     /* Status Colors */
@@ -39,7 +39,7 @@
     /* Border & Dividers */
     --border: 220 13% 91%;           /* Lichte borders */
     --input: 220 13% 91%;            /* Input borders */
-    --ring: 82 15% 64%;              /* Focus ring - primary kleur */
+    --ring: 76 100% 15%;              /* Focus ring - primary kleur */
     
     /* Popover */
     --popover: 0 0% 100%;
@@ -54,19 +54,19 @@
     /* Sidebar */
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 215 25% 27%;
-    --sidebar-primary: 82 15% 64%;
+    --sidebar-primary: 76 100% 15%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 210 20% 98%;
     --sidebar-accent-foreground: 215 25% 27%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 82 15% 64%;
+    --sidebar-ring: 76 100% 15%;
   }
 
   .dark {
     /* Primary Colors - Behouden voor consistentie */
-    --primary: 82 15% 64%;           /* Consistent groen */
-    --primary-foreground: 231 84% 9%;
-    --primary-muted: 82 12% 55%;
+    --primary: 76 100% 15%;           /* Consistent groen */
+    --primary-foreground: 0 0% 100%;
+    --primary-muted: 76 80% 25%;
     
     /* Secondary Colors */
     --secondary: 231 41% 48%;        /* Lichtere navy voor dark mode */
@@ -83,8 +83,8 @@
     --muted-foreground: 215 20% 65%; /* Gemuted tekst */
     
     /* Accent Colors */
-    --accent: 82 15% 64%;            /* Consistent met light mode */
-    --accent-foreground: 231 84% 9%;
+    --accent: 76 100% 15%;            /* Consistent met light mode */
+    --accent-foreground: 0 0% 100%;
     
     /* Status Colors - Aangepast voor dark mode */
     --success: 142 76% 56%;
@@ -95,7 +95,7 @@
     /* Border & Dividers */
     --border: 215 25% 27%;
     --input: 215 16% 35%;
-    --ring: 82 15% 64%;
+    --ring: 76 100% 15%;
     
     /* Popover */
     --popover: 231 45% 20%;
@@ -108,12 +108,12 @@
     /* Sidebar */
     --sidebar-background: 231 84% 9%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 82 15% 64%;
-    --sidebar-primary-foreground: 231 84% 9%;
+    --sidebar-primary: 76 100% 15%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 231 60% 15%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 215 25% 27%;
-    --sidebar-ring: 82 15% 64%;
+    --sidebar-ring: 76 100% 15%;
   }
 }
 
