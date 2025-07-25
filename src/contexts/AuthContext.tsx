@@ -31,6 +31,8 @@ interface AuthContextType {
   updateUser: (userData: Partial<User>) => void;
   resetPassword: (email: string) => Promise<boolean>;
   resendVerificationEmail: () => Promise<boolean>;
+  showOnboarding: boolean;
+  setShowOnboarding: (show: boolean) => void;
 }
 
 interface RegisterData {
@@ -58,6 +60,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [emailVerified, setEmailVerified] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { toast } = useToast();
 
   // Helper function to fetch user profile from database
@@ -464,9 +467,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
-    updateUser,
-    resetPassword,
-    resendVerificationEmail,
+      updateUser,
+      resetPassword,
+      resendVerificationEmail,
+      showOnboarding,
+      setShowOnboarding,
   };
 
   return (

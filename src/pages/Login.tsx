@@ -4,14 +4,16 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { useLoginAttempts } from '@/hooks/useLoginAttempts';
 
 const loginSchema = z.object({
   email: z.string().email('Voer een geldig emailadres in'),
@@ -26,6 +28,14 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   
+  const {
+    isAccountLocked,
+    recordFailedAttempt,
+    clearAttempts,
+    getRemainingLockoutTime,
+    getAttemptsRemaining
+  } = useLoginAttempts();
+  
   const from = location.state?.from?.pathname || '/';
 
   const form = useForm<LoginFormData>({
@@ -37,23 +47,54 @@ export default function Login() {
   });
 
   const onSubmit = async (data: LoginFormData) => {
+    // Check if account is locked
+    if (isAccountLocked(data.email)) {
+      const remainingTime = getRemainingLockoutTime(data.email);
+      const minutes = Math.ceil(remainingTime / (1000 * 60));
+      toast({
+        title: 'Account vergrendeld',
+        description: `Account tijdelijk vergrendeld. Probeer opnieuw over ${minutes} minuten.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       const success = await login(data.email, data.password);
       
       if (success) {
+        clearAttempts(data.email);
         toast({
           title: 'Welkom terug!',
           description: 'Je bent succesvol ingelogd.',
         });
         navigate(from, { replace: true });
       } else {
-        toast({
-          title: 'Inloggen mislukt',
-          description: 'Controleer je emailadres en wachtwoord.',
-          variant: 'destructive',
-        });
+        recordFailedAttempt(data.email);
+        
+        const attemptsLeft = getAttemptsRemaining(data.email);
+        if (attemptsLeft <= 0) {
+          toast({
+            title: 'Account vergrendeld',
+            description: 'Te veel mislukte pogingen. Account tijdelijk vergrendeld.',
+            variant: 'destructive',
+          });
+        } else if (attemptsLeft <= 2) {
+          toast({
+            title: 'Inloggen mislukt',
+            description: `Ongeldig e-mailadres of wachtwoord. Nog ${attemptsLeft} pogingen over.`,
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: 'Inloggen mislukt',
+            description: 'Ongeldig e-mailadres of wachtwoord.',
+            variant: 'destructive',
+          });
+        }
       }
     } catch (error) {
+      recordFailedAttempt(data.email);
       toast({
         title: 'Er is een fout opgetreden',
         description: 'Probeer het later opnieuw.',
@@ -78,6 +119,27 @@ export default function Login() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Account lockout warning */}
+            {form.watch("email") && isAccountLocked(form.watch("email")) && (
+              <Alert className="mb-4 border-destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Account tijdelijk vergrendeld wegens te veel mislukte inlogpogingen. 
+                  Probeer opnieuw over {Math.ceil(getRemainingLockoutTime(form.watch("email")) / (1000 * 60))} minuten.
+                </AlertDescription>
+              </Alert>
+            )}
+            
+            {/* Attempts warning */}
+            {form.watch("email") && !isAccountLocked(form.watch("email")) && getAttemptsRemaining(form.watch("email")) < 5 && (
+              <Alert className="mb-4 border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
+                <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <AlertDescription className="text-amber-800 dark:text-amber-200">
+                  Nog {getAttemptsRemaining(form.watch("email"))} inlogpogingen over voordat je account wordt vergrendeld.
+                </AlertDescription>
+              </Alert>
+            )}
+            
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField

@@ -19,6 +19,7 @@ import Messages from "./pages/Messages";
 import Search from "./pages/Search";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { OnboardingWelcome } from "@/components/auth/OnboardingWelcome";
 import { LandingPage } from "@/components/landing/LandingPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -27,16 +28,18 @@ import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
-function App() {
+function AppRoutes() {
+  const { showOnboarding, setShowOnboarding, user } = useAuth();
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ThemeProvider defaultTheme="system">
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
+    <>
+      {showOnboarding && user && (
+        <OnboardingWelcome
+          username={user.username}
+          onComplete={() => setShowOnboarding(false)}
+        />
+      )}
+      <Routes>
                 {/* Public auth routes */}
                 <Route 
                   path="/login" 
@@ -158,9 +161,23 @@ function App() {
                   } 
                 />
                 
-                {/* Catch-all route */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+        {/* Catch-all route */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ThemeProvider defaultTheme="system">
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AppRoutes />
             </BrowserRouter>
           </TooltipProvider>
         </ThemeProvider>
