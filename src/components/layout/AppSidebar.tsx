@@ -74,22 +74,14 @@ export function AppSidebar() {
     <Sidebar className={collapsed ? "w-16" : "w-64"} collapsible="icon">
       <SidebarContent className="p-4">
         {/* Logo Section */}
-        <div className="mb-6 flex items-center gap-3">
+        <div className="mb-6 flex items-center justify-center">
           <div className="flex h-12 w-12 items-center justify-center">
             <img 
               src={logoSrc} 
-              alt="Wietforum België" 
+              alt="Logo" 
               className="h-10 w-10 object-contain"
             />
           </div>
-          {!collapsed && (
-            <div className="ml-2">
-              <h1 className="font-heading text-lg font-bold text-foreground">
-                Wietforum
-              </h1>
-              <p className="text-xs text-muted-foreground">België</p>
-            </div>
-          )}
         </div>
 
         {/* Main Navigation */}
