@@ -27,6 +27,7 @@ interface AuthContextType {
   register: (userData: RegisterData) => Promise<boolean>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
+  resetPassword: (email: string) => Promise<boolean>;
 }
 
 interface RegisterData {
@@ -379,6 +380,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const resetPassword = async (email: string): Promise<boolean> => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+
+      if (error) {
+        console.error('Password reset error:', error);
+        let errorMessage = 'Er is een fout opgetreden bij het resetten van je wachtwoord.';
+        
+        if (error.message.includes('not found')) {
+          errorMessage = 'Er is geen account gevonden met dit e-mailadres.';
+        } else if (error.message.includes('rate limit')) {
+          errorMessage = 'Te veel reset pogingen. Probeer het later opnieuw.';
+        }
+        
+        toast({
+          title: 'Reset mislukt',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+        return false;
+      }
+
+      return true;
+    } catch (error: any) {
+      console.error('Password reset error:', error);
+      toast({
+        title: 'Reset mislukt',
+        description: 'Er is een onverwachte fout opgetreden.',
+        variant: 'destructive',
+      });
+      return false;
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
@@ -387,6 +424,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     register,
     logout,
     updateUser,
+    resetPassword,
   };
 
   return (

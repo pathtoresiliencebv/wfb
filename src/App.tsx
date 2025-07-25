@@ -22,6 +22,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { LandingPage } from "@/components/landing/LandingPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import PasswordReset from "./pages/PasswordReset";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,14 @@ function App() {
                   element={
                     <ProtectedRoute requireAuth={false}>
                       <Register />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/password-reset" 
+                  element={
+                    <ProtectedRoute requireAuth={false}>
+                      <PasswordReset />
                     </ProtectedRoute>
                   } 
                 />

@@ -146,7 +146,7 @@ export default function Login() {
             </div>
 
             <div className="mt-4 text-center">
-              <Link to="/forgot-password" className="text-sm text-muted-foreground hover:text-primary">
+              <Link to="/password-reset" className="text-sm text-muted-foreground hover:text-primary">
                 Wachtwoord vergeten?
               </Link>
             </div>
