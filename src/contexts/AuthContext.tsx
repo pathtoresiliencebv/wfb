@@ -23,11 +23,13 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  emailVerified: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (userData: RegisterData) => Promise<boolean>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
   resetPassword: (email: string) => Promise<boolean>;
+  resendVerificationEmail: () => Promise<boolean>;
 }
 
 interface RegisterData {
@@ -54,6 +56,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [emailVerified, setEmailVerified] = useState(false);
   const { toast } = useToast();
 
   // Helper function to fetch user profile from database
@@ -114,6 +117,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (session?.user) {
           const userProfile = await fetchUserProfile(session.user);
           setUser(userProfile);
+          setEmailVerified(!!session.user.email_confirmed_at);
         }
       } catch (error) {
         console.error('Error getting initial session:', error);
@@ -130,8 +134,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (event === 'SIGNED_IN' && session?.user) {
           const userProfile = await fetchUserProfile(session.user);
           setUser(userProfile);
+          setEmailVerified(!!session.user.email_confirmed_at);
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
+          setEmailVerified(false);
         }
       }
     );
@@ -416,15 +422,68 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const resendVerificationEmail = async (): Promise<boolean> => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: 'Geen gebruiker',
+          description: 'Je moet ingelogd zijn om een verificatie-email te versturen.',
+          variant: 'destructive',
+        });
+        return false;
+      }
+
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: user.email!,
+      });
+
+      if (error) {
+        console.error('Resend verification error:', error);
+        let errorMessage = 'Er is een fout opgetreden bij het versturen van de verificatie-email.';
+        
+        if (error.message.includes('rate limit')) {
+          errorMessage = 'Te veel pogingen. Probeer het later opnieuw.';
+        }
+        
+        toast({
+          title: 'Versturen mislukt',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+        return false;
+      }
+
+      toast({
+        title: 'Verificatie-email verstuurd',
+        description: 'Controleer je inbox voor de nieuwe verificatie-email.',
+      });
+
+      return true;
+    } catch (error: any) {
+      console.error('Resend verification error:', error);
+      toast({
+        title: 'Versturen mislukt',
+        description: 'Er is een onverwachte fout opgetreden.',
+        variant: 'destructive',
+      });
+      return false;
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
     isLoading,
+    emailVerified,
     login,
     register,
     logout,
     updateUser,
     resetPassword,
+    resendVerificationEmail,
   };
 
   return (

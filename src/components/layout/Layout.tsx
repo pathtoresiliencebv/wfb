@@ -3,6 +3,7 @@ import React from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { Header } from './Header';
+import { EmailVerificationBanner } from '@/components/auth/EmailVerificationBanner';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -16,6 +17,7 @@ export function Layout({ children }: LayoutProps) {
         
         <div className="flex-1 flex flex-col">
           <Header />
+          <EmailVerificationBanner />
           
           <main className="flex-1 overflow-auto">
             <div className="container mx-auto p-6">
