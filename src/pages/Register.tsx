@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Eye, EyeOff, Loader2, CheckCircle, CalendarIcon } from 'lucide-react';
+import { Eye, EyeOff, Loader2, CheckCircle, CalendarIcon, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const registerSchema = z.object({
   username: z.string()
@@ -34,9 +35,18 @@ const registerSchema = z.object({
     required_error: 'Geboortedatum is verplicht',
   }).refine((date) => {
     const today = new Date();
-    const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
-    return date <= eighteenYearsAgo;
-  }, 'Je moet minimaal 18 jaar oud zijn'),
+    // Prevent future dates
+    if (date > today) {
+      return false;
+    }
+    // Calculate exact age using same logic as backend
+    let age = today.getFullYear() - date.getFullYear();
+    const monthDiff = today.getMonth() - date.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
+      age--;
+    }
+    return age >= 18;
+  }, 'Je moet minimaal 18 jaar oud zijn en mag geen toekomstige datum kiezen'),
   termsAccepted: z.boolean().refine(val => val === true, 'Je moet akkoord gaan met de gebruiksvoorwaarden'),
   ageConfirmed: z.boolean().refine(val => val === true, 'Je moet bevestigen dat je 18+ bent'),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -49,6 +59,8 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
   const { register: registerUser, isLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -78,7 +90,40 @@ export default function Register() {
 
   const passwordStrength = getPasswordStrength(watchPassword || '');
 
+  // Check username availability
+  const checkUsernameAvailability = async (username: string) => {
+    if (username.length < 3) {
+      setUsernameAvailable(null);
+      return;
+    }
+
+    setIsCheckingUsername(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('username', username)
+        .single();
+
+      setUsernameAvailable(!data);
+    } catch (error) {
+      setUsernameAvailable(true); // Assume available if error checking
+    } finally {
+      setIsCheckingUsername(false);
+    }
+  };
+
   const onSubmit = async (data: RegisterFormData) => {
+    // Check username availability one more time
+    if (usernameAvailable === false) {
+      toast({
+        title: 'Gebruikersnaam niet beschikbaar',
+        description: 'Deze gebruikersnaam is al in gebruik. Kies een andere.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       const success = await registerUser({
         username: data.username,
@@ -96,14 +141,26 @@ export default function Register() {
       } else {
         toast({
           title: 'Registratie mislukt',
-          description: 'Je moet 18+ zijn om een account aan te maken.',
+          description: 'Er is een fout opgetreden tijdens de registratie.',
           variant: 'destructive',
         });
       }
-    } catch (error) {
+    } catch (error: any) {
+      let errorMessage = 'Er is een onverwachte fout opgetreden.';
+      
+      if (error?.message?.includes('email')) {
+        errorMessage = 'Dit e-mailadres is al in gebruik.';
+      } else if (error?.message?.includes('username')) {
+        errorMessage = 'Deze gebruikersnaam is al in gebruik.';
+      } else if (error?.message?.includes('password')) {
+        errorMessage = 'Het wachtwoord voldoet niet aan de eisen.';
+      } else if (error?.message?.includes('age') || error?.message?.includes('18')) {
+        errorMessage = 'Je moet minimaal 18 jaar oud zijn om te registreren.';
+      }
+
       toast({
-        title: 'Er is een fout opgetreden',
-        description: 'Probeer het later opnieuw.',
+        title: 'Registratie mislukt',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
@@ -134,14 +191,40 @@ export default function Register() {
                     <FormItem>
                       <FormLabel>Gebruikersnaam</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="jouwgebruikersnaam"
-                          {...field}
-                        />
+                        <div className="relative">
+                          <Input
+                            placeholder="jouwgebruikersnaam"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              checkUsernameAvailability(e.target.value);
+                            }}
+                            disabled={isLoading}
+                          />
+                          {isCheckingUsername && (
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                            </div>
+                          )}
+                          {!isCheckingUsername && field.value.length >= 3 && usernameAvailable !== null && (
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                              {usernameAvailable ? (
+                                <CheckCircle className="h-4 w-4 text-green-500" />
+                              ) : (
+                                <XCircle className="h-4 w-4 text-red-500" />
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </FormControl>
                       <FormDescription>
                         3-20 karakters, alleen letters, cijfers, - en _
                       </FormDescription>
+                      {!isCheckingUsername && field.value.length >= 3 && usernameAvailable !== null && (
+                        <p className={`text-sm ${usernameAvailable ? 'text-green-600' : 'text-red-600'}`}>
+                          {usernameAvailable ? 'Gebruikersnaam is beschikbaar' : 'Gebruikersnaam is niet beschikbaar'}
+                        </p>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -158,6 +241,7 @@ export default function Register() {
                           type="email"
                           placeholder="je@email.com"
                           {...field}
+                          disabled={isLoading}
                         />
                       </FormControl>
                       <FormMessage />
@@ -180,6 +264,8 @@ export default function Register() {
                                 "w-full pl-3 text-left font-normal",
                                 !field.value && "text-muted-foreground"
                               )}
+                              disabled={isLoading}
+                              aria-label="Selecteer geboortedatum"
                             >
                               {field.value ? (
                                 format(field.value, "PPP", { locale: nl })
@@ -203,6 +289,8 @@ export default function Register() {
                             captionLayout="dropdown-buttons"
                             fromYear={1900}
                             toYear={new Date().getFullYear()}
+                            locale={nl}
+                            aria-label="Kalender voor geboortedatum selectie"
                           />
                         </PopoverContent>
                       </Popover>
@@ -226,6 +314,7 @@ export default function Register() {
                             type={showPassword ? 'text' : 'password'}
                             placeholder="••••••••"
                             {...field}
+                            disabled={isLoading}
                           />
                           <Button
                             type="button"
@@ -282,6 +371,7 @@ export default function Register() {
                             type={showConfirmPassword ? 'text' : 'password'}
                             placeholder="••••••••"
                             {...field}
+                            disabled={isLoading}
                           />
                           <Button
                             type="button"
@@ -355,7 +445,11 @@ export default function Register() {
                   )}
                 />
 
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={isLoading || usernameAvailable === false}
+                >
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {isLoading ? 'Account aanmaken...' : 'Account aanmaken'}
                 </Button>
