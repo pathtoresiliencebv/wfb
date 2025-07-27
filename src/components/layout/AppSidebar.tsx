@@ -14,8 +14,7 @@ import {
   Sprout,
   AlertTriangle,
 } from 'lucide-react';
-import wietforumLogoDark from '@/assets/wietforum-logo-dark.png';
-import wietforumLogoGreen from '@/assets/wietforum-logo-green.png';
+import wietforumLogo from '@/assets/wietforum-logo.png';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
@@ -54,8 +53,8 @@ export function AppSidebar() {
   const isMobile = useIsMobile();
   const collapsed = state === "collapsed";
   
-  // Select logo based on theme
-  const logoSrc = theme === 'dark' ? wietforumLogoGreen : wietforumLogoDark;
+  // Use the same logo for all themes
+  const logoSrc = wietforumLogo;
 
   const isActive = (path: string) => {
     if (path === '/') {
@@ -83,8 +82,8 @@ export function AppSidebar() {
           <div className="flex h-12 w-12 items-center justify-center">
             <img 
               src={logoSrc} 
-              alt="Logo" 
-              className="h-10 w-10 object-contain"
+              alt="Wietforum België" 
+              className="h-12 w-auto object-contain"
             />
           </div>
         </div>
