@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { authenticator } from '@otplib/preset-browser';
+import * as OTPAuth from 'otpauth';
 import QRCode from 'qrcode';
 
 interface TwoFactorAuth {
@@ -28,25 +28,28 @@ export const use2FA = () => {
     setIsLoading(true);
     try {
       // Generate secret
-      const secret = authenticator.generateSecret();
+      const secret = new OTPAuth.Secret();
       
-      // Generate OTP auth URL
-      const otpauthUrl = authenticator.keyuri(
-        user.email,
-        'WietForum',
-        secret
-      );
+      // Create TOTP instance
+      const totp = new OTPAuth.TOTP({
+        issuer: 'WietForum',
+        label: user.email,
+        algorithm: 'SHA1',
+        digits: 6,
+        period: 30,
+        secret: secret,
+      });
 
       // Generate QR code
-      const qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl);
+      const qrCodeDataUrl = await QRCode.toDataURL(totp.toString());
       
-      setSetupSecret(secret);
+      setSetupSecret(secret.base32);
       setQrCodeUrl(qrCodeDataUrl);
 
       return {
-        secret: secret,
+        secret: secret.base32,
         qrCode: qrCodeDataUrl,
-        manualEntryKey: secret,
+        manualEntryKey: secret.base32,
       };
     } catch (error) {
       console.error('Error generating 2FA setup:', error);
@@ -68,10 +71,10 @@ export const use2FA = () => {
     setIsLoading(true);
     try {
       // Verify token
-      const verified = authenticator.verify({
-        token,
-        secret: setupSecret,
+      const totp = new OTPAuth.TOTP({
+        secret: OTPAuth.Secret.fromBase32(setupSecret),
       });
+      const verified = totp.validate({ token, window: 1 }) !== null;
 
       if (!verified) {
         toast({
@@ -212,10 +215,10 @@ export const use2FA = () => {
       if (error || !twoFAData) return false;
 
       // Try TOTP verification first
-      const verified = authenticator.verify({
-        token,
-        secret: twoFAData.secret,
+      const totp = new OTPAuth.TOTP({
+        secret: OTPAuth.Secret.fromBase32(twoFAData.secret),
       });
+      const verified = totp.validate({ token, window: 1 }) !== null;
 
       if (verified) {
         return true;
