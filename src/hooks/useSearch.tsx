@@ -1,256 +1,186 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface SearchFilters {
-  query: string;
-  category: string;
-  author: string;
-  dateRange: string;
-  tags: string[];
+interface SearchParams {
+  query?: string;
+  category?: string;
+  author?: string;
+  tags?: string[];
+  dateFrom?: string;
+  dateTo?: string;
+  contentType?: string;
 }
 
 interface SearchResult {
-  type: 'topic' | 'reply' | 'user';
   id: string;
+  type: 'topic' | 'reply';
   title?: string;
-  content?: string;
-  username?: string;
-  displayName?: string;
-  created_at: string;
+  content: string;
+  author: {
+    username: string;
+    display_name?: string;
+    avatar_url?: string;
+  };
   category?: {
     name: string;
     slug: string;
   };
-  author?: {
-    username: string;
-    displayName: string;
-    isVerified: boolean;
-  };
-  stats?: {
-    replyCount: number;
-    viewCount: number;
-  };
+  created_at: string;
+  reply_count?: number;
+  view_count?: number;
+  topic_id?: string;
+  matches?: string[];
 }
 
-export function useSearch() {
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export const useSearch = () => {
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
 
-  const search = useCallback(async (filters: SearchFilters, types: ('topic' | 'reply' | 'user')[] = ['topic', 'reply', 'user']) => {
-    setLoading(true);
-    setError(null);
-
+  const performSearch = async (params: SearchParams) => {
+    setSearchLoading(true);
     try {
-      const allResults: SearchResult[] = [];
+      // Search in topics
+      let topicsQuery = supabase
+        .from('topics')
+        .select(`
+          id,
+          title,
+          content,
+          created_at,
+          view_count,
+          reply_count,
+          profiles!topics_author_id_fkey (
+            username,
+            display_name,
+            avatar_url
+          ),
+          categories!topics_category_id_fkey (
+            name,
+            slug
+          )
+        `);
 
-      // Helper function to get date filter
-      const getDateFilter = (range: string): string | null => {
-        const now = new Date();
-        switch (range) {
-          case 'today':
-            return new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-          case 'week':
-            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-            return weekAgo.toISOString();
-          case 'month':
-            const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-            return monthAgo.toISOString();
-          case 'year':
-            const yearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-            return yearAgo.toISOString();
-          default:
-            return null;
-        }
-      };
-
-      // Search Topics
-      if (types.includes('topic')) {
-        let topicsQuery = supabase
-          .from('topics')
-          .select(`
-            id,
-            title,
-            content,
-            created_at,
-            reply_count,
-            view_count,
-            categories!inner (
-              name,
-              slug
-            ),
-            profiles!inner (
-              username,
-              display_name,
-              is_verified
-            )
-          `);
-
-        if (filters.query) {
-          topicsQuery = topicsQuery.or(`title.ilike.%${filters.query}%,content.ilike.%${filters.query}%`);
-        }
-        
-        if (filters.category !== 'all') {
-          topicsQuery = topicsQuery.eq('categories.slug', filters.category);
-        }
-        
-        if (filters.author) {
-          topicsQuery = topicsQuery.ilike('profiles.username', `%${filters.author}%`);
-        }
-
-        if (filters.dateRange !== 'all') {
-          const dateFilter = getDateFilter(filters.dateRange);
-          if (dateFilter) {
-            topicsQuery = topicsQuery.gte('created_at', dateFilter);
-          }
-        }
-
-        const { data: topicsData, error: topicsError } = await topicsQuery.limit(50);
-
-        if (topicsError) throw topicsError;
-
-        if (topicsData) {
-          const topicResults: SearchResult[] = topicsData.map(topic => ({
-            type: 'topic' as const,
-            id: topic.id,
-            title: topic.title,
-            content: topic.content,
-            created_at: topic.created_at,
-            category: topic.categories,
-            author: {
-              username: topic.profiles.username,
-              displayName: topic.profiles.display_name || topic.profiles.username,
-              isVerified: topic.profiles.is_verified
-            },
-            stats: {
-              replyCount: topic.reply_count,
-              viewCount: topic.view_count
-            }
-          }));
-          allResults.push(...topicResults);
-        }
+      if (params.query) {
+        topicsQuery = topicsQuery.or(`title.ilike.%${params.query}%,content.ilike.%${params.query}%`);
       }
 
-      // Search Replies
-      if (types.includes('reply')) {
-        let repliesQuery = supabase
+      if (params.category) {
+        topicsQuery = topicsQuery.eq('categories.slug', params.category);
+      }
+
+      if (params.dateFrom) {
+        topicsQuery = topicsQuery.gte('created_at', params.dateFrom);
+      }
+
+      if (params.dateTo) {
+        topicsQuery = topicsQuery.lte('created_at', params.dateTo);
+      }
+
+      // Search in replies if contentType is 'all' or 'reply'
+      let repliesQuery = null;
+      if (!params.contentType || params.contentType === 'all' || params.contentType === 'reply') {
+        repliesQuery = supabase
           .from('replies')
           .select(`
             id,
             content,
             created_at,
-            topics!inner (
-              id,
+            topic_id,
+            profiles!replies_author_id_fkey (
+              username,
+              display_name,
+              avatar_url
+            ),
+            topics!replies_topic_id_fkey (
               title,
-              categories (
+              categories!topics_category_id_fkey (
                 name,
                 slug
               )
-            ),
-            profiles!inner (
-              username,
-              display_name,
-              is_verified
             )
           `);
 
-        if (filters.query) {
-          repliesQuery = repliesQuery.ilike('content', `%${filters.query}%`);
-        }
-        
-        if (filters.author) {
-          repliesQuery = repliesQuery.ilike('profiles.username', `%${filters.author}%`);
+        if (params.query) {
+          repliesQuery = repliesQuery.ilike('content', `%${params.query}%`);
         }
 
-        if (filters.dateRange !== 'all') {
-          const dateFilter = getDateFilter(filters.dateRange);
-          if (dateFilter) {
-            repliesQuery = repliesQuery.gte('created_at', dateFilter);
-          }
+        if (params.dateFrom) {
+          repliesQuery = repliesQuery.gte('created_at', params.dateFrom);
         }
 
-        const { data: repliesData, error: repliesError } = await repliesQuery.limit(50);
+        if (params.dateTo) {
+          repliesQuery = repliesQuery.lte('created_at', params.dateTo);
+        }
+      }
 
-        if (repliesError) throw repliesError;
+      // Execute queries
+      const promises = [topicsQuery.limit(10)];
+      if (repliesQuery) {
+        promises.push(repliesQuery.limit(10));
+      }
 
-        if (repliesData) {
-          const replyResults: SearchResult[] = repliesData.map(reply => ({
-            type: 'reply' as const,
+      const results = await Promise.all(promises);
+      const [topicsResult, repliesResult] = results;
+
+      if (topicsResult.error) {
+        console.error('Topics search error:', topicsResult.error);
+      }
+
+      if (repliesResult && repliesResult.error) {
+        console.error('Replies search error:', repliesResult.error);
+      }
+
+      // Format results
+      const formattedResults: SearchResult[] = [];
+
+      // Add topics
+      if (topicsResult.data) {
+        topicsResult.data.forEach(topic => {
+          formattedResults.push({
+            id: topic.id,
+            type: 'topic',
+            title: topic.title,
+            content: topic.content,
+            author: topic.profiles,
+            category: topic.categories,
+            created_at: topic.created_at,
+            reply_count: topic.reply_count,
+            view_count: topic.view_count
+          });
+        });
+      }
+
+      // Add replies
+      if (repliesResult && repliesResult.data) {
+        repliesResult.data.forEach((reply: any) => {
+          formattedResults.push({
             id: reply.id,
+            type: 'reply',
+            title: reply.topics?.title || 'Reply',
             content: reply.content,
+            author: reply.profiles,
+            category: reply.topics?.categories,
             created_at: reply.created_at,
-            title: `Re: ${reply.topics.title}`,
-            category: reply.topics.categories,
-            author: {
-              username: reply.profiles.username,
-              displayName: reply.profiles.display_name || reply.profiles.username,
-              isVerified: reply.profiles.is_verified
-            }
-          }));
-          allResults.push(...replyResults);
-        }
+            topic_id: reply.topic_id
+          });
+        });
       }
 
-      // Search Users
-      if (types.includes('user')) {
-        let usersQuery = supabase
-          .from('profiles')
-          .select('id, user_id, username, display_name, bio, is_verified, created_at, reputation');
+      // Sort by relevance and date
+      formattedResults.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-        if (filters.query) {
-          usersQuery = usersQuery.or(`username.ilike.%${filters.query}%,display_name.ilike.%${filters.query}%,bio.ilike.%${filters.query}%`);
-        }
-
-        const { data: usersData, error: usersError } = await usersQuery.limit(50);
-
-        if (usersError) throw usersError;
-
-        if (usersData) {
-          const userResults: SearchResult[] = usersData.map(user => ({
-            type: 'user' as const,
-            id: user.id,
-            username: user.username,
-            displayName: user.display_name || user.username,
-            content: user.bio,
-            created_at: user.created_at
-          }));
-          allResults.push(...userResults);
-        }
-      }
-
-      // Sort results by relevance and date
-      allResults.sort((a, b) => {
-        // Prioritize title matches over content matches
-        if (filters.query && a.title && b.title) {
-          const aMatch = a.title.toLowerCase().includes(filters.query.toLowerCase());
-          const bMatch = b.title.toLowerCase().includes(filters.query.toLowerCase());
-          if (aMatch && !bMatch) return -1;
-          if (!aMatch && bMatch) return 1;
-        }
-        
-        // Then sort by date
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      });
-      
-      setResults(allResults);
-    } catch (err) {
-      console.error('Search error:', err);
-      setError(err instanceof Error ? err.message : 'Er is een fout opgetreden bij het zoeken');
+      setSearchResults(formattedResults);
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchResults([]);
     } finally {
-      setLoading(false);
+      setSearchLoading(false);
     }
-  }, []);
-
-  const clearResults = useCallback(() => {
-    setResults([]);
-    setError(null);
-  }, []);
+  };
 
   return {
-    results,
-    loading,
-    error,
-    search,
-    clearResults
+    searchResults,
+    searchLoading,
+    performSearch
   };
-}
+};

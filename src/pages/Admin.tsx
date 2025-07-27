@@ -3,7 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SecurityDashboard from '@/components/settings/SecurityDashboard';
 import { ContentModerationPanel } from '@/components/admin/ContentModerationPanel';
-import { Users, Shield, Flag, BarChart3 } from 'lucide-react';
+import { AdminImageManager } from '@/components/admin/AdminImageManager';
+import { Users, Shield, Flag, BarChart3, ImageIcon } from 'lucide-react';
 
 export default function Admin() {
   return (
@@ -17,7 +18,7 @@ export default function Admin() {
       </div>
 
       <Tabs defaultValue="moderation" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="moderation" className="flex items-center gap-2">
             <Flag className="h-4 w-4" />
             Moderatie
@@ -25,6 +26,10 @@ export default function Admin() {
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Gebruikers
+          </TabsTrigger>
+          <TabsTrigger value="images" className="flex items-center gap-2">
+            <ImageIcon className="h-4 w-4" />
+            Afbeeldingen
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
@@ -50,6 +55,10 @@ export default function Admin() {
               <p className="text-muted-foreground">Gebruikersbeheer komt binnenkort beschikbaar</p>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="images" className="space-y-4">
+          <AdminImageManager />
         </TabsContent>
 
         <TabsContent value="security" className="space-y-4">

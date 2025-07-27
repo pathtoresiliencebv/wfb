@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { 
   Bold, 
   Italic, 
@@ -37,6 +39,7 @@ export function RichTextEditor({
   const [isPreview, setIsPreview] = useState(false);
   const [selectionStart, setSelectionStart] = useState(0);
   const [selectionEnd, setSelectionEnd] = useState(0);
+  const [showImageUpload, setShowImageUpload] = useState(false);
 
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
@@ -65,6 +68,12 @@ export function RichTextEditor({
     }, 0);
   };
 
+  const handleImageUploaded = useCallback((imageUrl: string) => {
+    const imageMarkdown = `![Afbeelding](${imageUrl})`;
+    insertText(imageMarkdown);
+    setShowImageUpload(false);
+  }, []);
+
   const toolbarButtons = [
     { icon: Bold, action: () => insertText('**', '**'), title: 'Vet (Ctrl+B)' },
     { icon: Italic, action: () => insertText('*', '*'), title: 'Cursief (Ctrl+I)' },
@@ -73,7 +82,7 @@ export function RichTextEditor({
     { icon: List, action: () => insertText('- '), title: 'Lijst' },
     { icon: ListOrdered, action: () => insertText('1. '), title: 'Genummerde lijst' },
     { icon: Quote, action: () => insertText('> '), title: 'Citaat' },
-    { icon: Image, action: () => insertText('![alt tekst](', ')'), title: 'Afbeelding' },
+    { icon: Image, action: () => setShowImageUpload(true), title: 'Afbeelding uploaden' },
   ];
 
   const renderPreview = (text: string) => {
@@ -137,6 +146,26 @@ export function RichTextEditor({
           </Button>
         </div>
       </div>
+
+      {/* Image Upload Section */}
+      {showImageUpload && (
+        <div className="border-t pt-4">
+          <ImageUpload
+            onImageUploaded={handleImageUploaded}
+            onImageRemoved={() => setShowImageUpload(false)}
+            showPreview={false}
+          />
+          <div className="flex justify-end gap-2 mt-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowImageUpload(false)}
+            >
+              Annuleren
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Editor/Preview Area */}
       <div style={{ minHeight, maxHeight }}>
