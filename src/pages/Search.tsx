@@ -371,10 +371,9 @@ export default function Search() {
       </div>
 
       {/* Search Form */}
-      <AdvancedSearch 
-        onSearch={performSearch}
-        placeholder="Zoek naar topics, reacties of leden..."
-      />
+      <AdvancedSearch />
+
+      {/* Note: AdvancedSearch now handles its own search state and results */}
 
       {/* Results */}
       {(filters.query || totalResults > 0) && (

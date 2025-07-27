@@ -178,11 +178,12 @@ export default function ForumCategory() {
         )}
       </div>
 
-      {/* Enhanced Search */}
-      <AdvancedSearch
-        onSearch={setSearchFilters}
-        placeholder={`Zoek in ${category.name.toLowerCase()}...`}
-      />
+      <AdvancedSearch />
+
+      {/* Note: Search functionality is now self-contained in AdvancedSearch component */}
+      <div className="text-sm text-muted-foreground mb-4">
+        Showing topics in {category.name}
+      </div>
 
       {/* Topics List */}
       <div className="space-y-2">

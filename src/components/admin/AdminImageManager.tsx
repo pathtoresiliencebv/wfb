@@ -65,7 +65,7 @@ export const AdminImageManager: React.FC = () => {
         return;
       }
 
-      setImages((data || []).filter(img => img.profiles && typeof img.profiles === 'object' && img.profiles?.username) as unknown as ImageData[]);
+      setImages((data || []).filter(img => img.profiles && typeof img.profiles === 'object' && (img.profiles as any)?.username) as unknown as ImageData[]);
     } catch (error) {
       console.error('Unexpected error:', error);
       toast({
