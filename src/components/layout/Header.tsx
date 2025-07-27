@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Search, Bell, User, Settings, LogOut } from 'lucide-react';
+import { Search, User, Settings, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,7 @@ import {
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ThemeToggle } from './ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
+import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
 
 export function Header() {
   const { user, logout } = useAuth();
@@ -60,10 +61,7 @@ export function Header() {
           <ThemeToggle />
           
           {/* Notifications */}
-          <Button variant="ghost" size="icon" className="h-9 w-9">
-            <Bell className="h-4 w-4" />
-            <span className="sr-only">Notificaties</span>
-          </Button>
+          {user && <NotificationDropdown />}
 
           {/* User Menu */}
           {user && (
