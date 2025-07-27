@@ -13,7 +13,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
-import { useLoginAttempts } from '@/hooks/useLoginAttempts';
+import { useServerSideRateLimit } from '@/hooks/useServerSideRateLimit';
+import { useAuditLog } from '@/hooks/useAuditLog';
+import { validateEmail } from '@/lib/security';
 
 const loginSchema = z.object({
   email: z.string().email('Voer een geldig emailadres in'),
@@ -24,17 +26,23 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isLoading } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isLoading, setIsLoading] = useState(false);
+  const [rateLimitInfo, setRateLimitInfo] = useState<{
+    locked: boolean;
+    remaining_attempts: number;
+    locked_until?: string;
+  } | null>(null);
   
-  const {
-    isAccountLocked,
-    recordFailedAttempt,
-    clearAttempts,
-    getRemainingLockoutTime,
-    getAttemptsRemaining
-  } = useLoginAttempts();
+  const { 
+    isLoading: rateLimitLoading,
+    recordFailedAttempt, 
+    recordSuccessfulLogin,
+    getRemainingLockoutTime 
+  } = useServerSideRateLimit();
+  const { logSecurityEvent } = useAuditLog();
   
   const from = location.state?.from?.pathname || '/';
 
@@ -47,59 +55,78 @@ export default function Login() {
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    // Check if account is locked
-    if (isAccountLocked(data.email)) {
-      const remainingTime = getRemainingLockoutTime(data.email);
-      const minutes = Math.ceil(remainingTime / (1000 * 60));
+    const email = data.email.toLowerCase().trim();
+    
+    // Validate email format
+    if (!validateEmail(email)) {
       toast({
-        title: 'Account vergrendeld',
-        description: `Account tijdelijk vergrendeld. Probeer opnieuw over ${minutes} minuten.`,
-        variant: 'destructive',
+        variant: "destructive",
+        title: "Ongeldig e-mailadres",
+        description: "Voer een geldig e-mailadres in.",
+      });
+      return;
+    }
+    
+    // Check rate limit
+    if (rateLimitInfo?.locked) {
+      const remainingTime = getRemainingLockoutTime(rateLimitInfo.locked_until);
+      const minutes = Math.ceil(remainingTime / (1000 * 60));
+      
+      toast({
+        variant: "destructive",
+        title: "Account vergrendeld",
+        description: `Je account is vergrendeld vanwege te veel mislukte inlogpogingen. Probeer het over ${minutes} minuten opnieuw.`,
       });
       return;
     }
 
+    setIsLoading(true);
+    
     try {
-      const success = await login(data.email, data.password);
+      await login(email, data.password);
       
-      if (success) {
-        clearAttempts(data.email);
-        toast({
-          title: 'Welkom terug!',
-          description: 'Je bent succesvol ingelogd.',
-        });
-        navigate(from, { replace: true });
-      } else {
-        recordFailedAttempt(data.email);
-        
-        const attemptsLeft = getAttemptsRemaining(data.email);
-        if (attemptsLeft <= 0) {
-          toast({
-            title: 'Account vergrendeld',
-            description: 'Te veel mislukte pogingen. Account tijdelijk vergrendeld.',
-            variant: 'destructive',
-          });
-        } else if (attemptsLeft <= 2) {
-          toast({
-            title: 'Inloggen mislukt',
-            description: `Ongeldig e-mailadres of wachtwoord. Nog ${attemptsLeft} pogingen over.`,
-            variant: 'destructive',
-          });
-        } else {
-          toast({
-            title: 'Inloggen mislukt',
-            description: 'Ongeldig e-mailadres of wachtwoord.',
-            variant: 'destructive',
-          });
-        }
-      }
-    } catch (error) {
-      recordFailedAttempt(data.email);
+      // Record successful login for rate limiting
+      await recordSuccessfulLogin(email);
+      setRateLimitInfo(null);
+      
+      // Log successful login
+      logSecurityEvent('login_success', { email });
+      
       toast({
-        title: 'Er is een fout opgetreden',
-        description: 'Probeer het later opnieuw.',
-        variant: 'destructive',
+        title: "Welkom terug!",
+        description: "Je bent succesvol ingelogd.",
       });
+      
+      navigate(from, { replace: true });
+    } catch (error) {
+      // Record failed attempt and check rate limit
+      const rateLimitResult = await recordFailedAttempt(email);
+      setRateLimitInfo(rateLimitResult);
+      
+      // Log failed login attempt
+      logSecurityEvent('login_failed', { email, error: error instanceof Error ? error.message : 'Unknown error' });
+      
+      if (rateLimitResult?.locked) {
+        toast({
+          variant: "destructive",
+          title: "Account vergrendeld",
+          description: "Je account is vergrendeld vanwege te veel mislukte inlogpogingen. Probeer het over 15 minuten opnieuw.",
+        });
+      } else if (rateLimitResult) {
+        toast({
+          variant: "destructive",
+          title: "Inloggen mislukt",
+          description: `Ongeldige inloggegevens. Je hebt nog ${rateLimitResult.remaining_attempts} pogingen over.`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Inloggen mislukt",
+          description: "Ongeldige inloggegevens.",
+        });
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -119,23 +146,21 @@ export default function Login() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Account lockout warning */}
-            {form.watch("email") && isAccountLocked(form.watch("email")) && (
+            {rateLimitInfo?.locked && (
               <Alert className="mb-4 border-destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Account tijdelijk vergrendeld wegens te veel mislukte inlogpogingen. 
-                  Probeer opnieuw over {Math.ceil(getRemainingLockoutTime(form.watch("email")) / (1000 * 60))} minuten.
+                  Je account is vergrendeld vanwege te veel mislukte inlogpogingen. 
+                  Probeer het over {Math.ceil(getRemainingLockoutTime(rateLimitInfo.locked_until) / (1000 * 60))} minuten opnieuw.
                 </AlertDescription>
               </Alert>
             )}
-            
-            {/* Attempts warning */}
-            {form.watch("email") && !isAccountLocked(form.watch("email")) && getAttemptsRemaining(form.watch("email")) < 5 && (
+
+            {rateLimitInfo && !rateLimitInfo.locked && rateLimitInfo.remaining_attempts < 5 && (
               <Alert className="mb-4 border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
                 <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 <AlertDescription className="text-amber-800 dark:text-amber-200">
-                  Nog {getAttemptsRemaining(form.watch("email"))} inlogpogingen over voordat je account wordt vergrendeld.
+                  Je hebt nog {rateLimitInfo.remaining_attempts} inlogpogingen over voordat je account wordt vergrendeld.
                 </AlertDescription>
               </Alert>
             )}
@@ -193,7 +218,7 @@ export default function Login() {
                   )}
                 />
 
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full" disabled={isLoading || rateLimitLoading || rateLimitInfo?.locked}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {isLoading ? 'Inloggen...' : 'Inloggen'}
                 </Button>

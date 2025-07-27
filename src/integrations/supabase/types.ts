@@ -228,6 +228,39 @@ export type Database = {
         }
         Relationships: []
       }
+      login_attempts: {
+        Row: {
+          attempt_count: number
+          created_at: string
+          email: string
+          id: string
+          ip_address: unknown
+          last_attempt_at: string
+          locked_until: string | null
+          updated_at: string
+        }
+        Insert: {
+          attempt_count?: number
+          created_at?: string
+          email: string
+          id?: string
+          ip_address: unknown
+          last_attempt_at?: string
+          locked_until?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attempt_count?: number
+          created_at?: string
+          email?: string
+          id?: string
+          ip_address?: unknown
+          last_attempt_at?: string
+          locked_until?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -638,6 +671,14 @@ export type Database = {
           notification_data?: Json
         }
         Returns: string
+      }
+      handle_login_attempt: {
+        Args: {
+          attempt_email: string
+          attempt_ip: unknown
+          is_successful?: boolean
+        }
+        Returns: Json
       }
       update_user_reputation: {
         Args: {

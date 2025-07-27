@@ -20,6 +20,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { AdminRoute } from '@/components/auth/AdminRoute';
+import { SecurityMonitor } from '@/components/security/SecurityMonitor';
 
 interface Report {
   id: string;
@@ -1353,6 +1354,10 @@ function AdminContent() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+        
+        <TabsContent value="security" className="space-y-6">
+          <SecurityMonitor />
         </TabsContent>
       </Tabs>
     </div>
