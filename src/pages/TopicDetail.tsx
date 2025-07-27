@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Textarea } from '@/components/ui/textarea';
+import { RichTextEditor } from '@/components/rich-text/RichTextEditor';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { VotingButtons } from '@/components/interactive/VotingButtons';
@@ -55,17 +55,30 @@ export default function TopicDetail() {
   const [replyContent, setReplyContent] = useState('');
   const [isReplying, setIsReplying] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [replyVotes, setReplyVotes] = useState<Record<string, any>>({});
 
-  // Initialize voting data  
-  const initialVotes = topic ? {
-    [topic.id]: {
+  // Initialize voting data for topic and replies
+  const initialVotes: Record<string, any> = {};
+  if (topic) {
+    initialVotes[topic.id] = {
       id: topic.id,
       type: 'topic' as const,
       currentVote: null,
       upvotes: 0,
       downvotes: 0,
-    }
-  } : {};
+    };
+  }
+  
+  // Add replies to voting data
+  replies.forEach(reply => {
+    initialVotes[reply.id] = {
+      id: reply.id,
+      type: 'reply' as const,
+      currentVote: null,
+      upvotes: 0,
+      downvotes: 0,
+    };
+  });
 
   const { handleVote, getVoteData } = useVoting(initialVotes);
   const { toggleBookmark, isBookmarked } = useBookmarks();
@@ -368,13 +381,12 @@ export default function TopicDetail() {
 
             {/* Content */}
             <div className="flex-1">
-              <div className="prose prose-sm max-w-none mb-6">
-                {topic.content.split('\n').map((paragraph, index) => (
-                  <p key={index} className="mb-4 last:mb-0">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
+              <div 
+                className="prose prose-sm max-w-none mb-6 text-foreground"
+                dangerouslySetInnerHTML={{ 
+                  __html: topic.content.replace(/\n/g, '<br>') 
+                }}
+              />
               
               <div className="flex items-center justify-end">
                 <PostActions
@@ -423,7 +435,31 @@ export default function TopicDetail() {
               </div>
             </CardHeader>
             <CardContent className="pt-4">
-              <p className="text-sm">{reply.content}</p>
+              <div className="flex gap-4">
+                {/* Vote Section for Reply */}
+                <div className="flex flex-col items-center min-w-[3rem]">
+                  {getVoteData(reply.id) && (
+                    <VotingButtons
+                      itemId={reply.id}
+                      upvotes={getVoteData(reply.id)?.upvotes || 0}
+                      downvotes={getVoteData(reply.id)?.downvotes || 0}
+                      currentVote={getVoteData(reply.id)?.currentVote || null}
+                      onVote={(voteType) => handleVote(reply.id, voteType, 'reply')}
+                      size="sm"
+                    />
+                  )}
+                </div>
+                
+                {/* Reply Content */}
+                <div className="flex-1">
+                  <div 
+                    className="text-sm prose prose-sm max-w-none text-foreground"
+                    dangerouslySetInnerHTML={{ 
+                      __html: reply.content.replace(/\n/g, '<br>') 
+                    }}
+                  />
+                </div>
+              </div>
             </CardContent>
           </Card>
         ))}
@@ -436,11 +472,11 @@ export default function TopicDetail() {
             <h4 className="font-medium">Reageer op dit topic</h4>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Textarea
-              placeholder="Deel je gedachten over dit topic..."
+            <RichTextEditor
               value={replyContent}
-              onChange={(e) => setReplyContent(e.target.value)}
-              rows={4}
+              onChange={setReplyContent}
+              placeholder="Deel je gedachten over dit topic..."
+              minHeight={120}
             />
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setReplyContent('')}>

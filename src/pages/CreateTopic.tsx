@@ -6,7 +6,7 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { RichTextEditor } from '@/components/rich-text/RichTextEditor';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
@@ -173,14 +173,15 @@ export default function CreateTopic() {
                   <FormItem>
                     <FormLabel>Inhoud</FormLabel>
                     <FormControl>
-                      <Textarea 
+                      <RichTextEditor
+                        value={field.value}
+                        onChange={field.onChange}
                         placeholder="Beschrijf je vraag, ervaring of tip in detail..."
-                        className="min-h-[200px]"
-                        {...field} 
+                        minHeight={200}
                       />
                     </FormControl>
                     <FormDescription>
-                      Schrijf je bericht zo duidelijk mogelijk. Gebruik markdown voor opmaak.
+                      Gebruik de rich text editor voor mooie opmaak. Markdown wordt ondersteund.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
