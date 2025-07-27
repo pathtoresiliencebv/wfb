@@ -235,6 +235,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
+        options: {
+          data: {
+            username: userData.username,
+            display_name: userData.username,
+          }
+        }
       });
 
       if (error) {
@@ -259,7 +265,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       if (data.user) {
-        // Check if username already exists
+        // Check if username already exists (before the trigger creates the profile)
         const { data: existingProfile } = await supabase
           .from('profiles')
           .select('username')
@@ -276,31 +282,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           return false;
         }
 
-        // Create user profile
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            user_id: data.user.id,
-            username: userData.username,
-            display_name: userData.username,
-          });
-
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
-          let errorMessage = 'Er is een fout opgetreden bij het aanmaken van je profiel.';
-          
-          if (profileError.message.includes('username')) {
-            errorMessage = 'Deze gebruikersnaam is al in gebruik.';
-          }
-          
-          toast({
-            title: 'Registratie mislukt',
-            description: errorMessage,
-            variant: 'destructive',
-          });
-          setIsLoading(false);
-          return false;
-        }
+        // Wait a moment for the trigger to create the profile
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Assign Newcomer badge
         const { data: newcomerBadge } = await supabase
@@ -320,7 +303,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         toast({
           title: 'Registratie succesvol',
-          description: 'Je account is aangemaakt. Je kunt nu inloggen.',
+          description: 'Je account is aangemaakt. Controleer je e-mail voor verificatie.',
         });
 
         setIsLoading(false);
