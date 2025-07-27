@@ -19,6 +19,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Checkbox } from '@/components/ui/checkbox';
 import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import { AdminRoute } from '@/components/auth/AdminRoute';
 
 interface Report {
   id: string;
@@ -95,7 +96,7 @@ interface AuditLog {
   } | null;
 }
 
-export default function Admin() {
+function AdminContent() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -1355,5 +1356,13 @@ export default function Admin() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+export default function Admin() {
+  return (
+    <AdminRoute requireRole="moderator">
+      <AdminContent />
+    </AdminRoute>
   );
 }

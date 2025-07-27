@@ -15,6 +15,7 @@ import {
   Edit3
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import DOMPurify from 'dompurify';
 
 interface RichTextEditorProps {
   value: string;
@@ -77,7 +78,7 @@ export function RichTextEditor({
 
   const renderPreview = (text: string) => {
     // Basic markdown to HTML conversion for preview
-    return text
+    const html = text
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/<u>(.*?)<\/u>/g, '<u>$1</u>')
@@ -87,6 +88,13 @@ export function RichTextEditor({
       .replace(/^1\. (.*$)/gim, '<li>$1</li>')
       .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-md" />')
       .replace(/\n/g, '<br>');
+    
+    // Sanitize HTML to prevent XSS attacks
+    return DOMPurify.sanitize(html, {
+      ALLOWED_TAGS: ['strong', 'em', 'u', 'a', 'blockquote', 'li', 'img', 'br'],
+      ALLOWED_ATTR: ['href', 'class', 'src', 'alt'],
+      ALLOW_DATA_ATTR: false
+    });
   };
 
   return (
