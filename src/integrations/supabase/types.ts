@@ -630,15 +630,47 @@ export type Database = {
           },
         ]
       }
+      trusted_ip_ranges: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          expires_at: string | null
+          id: string
+          ip_range: unknown
+          is_active: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          ip_range: unknown
+          is_active?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          ip_range?: unknown
+          is_active?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_2fa: {
         Row: {
           backup_codes: string[] | null
           backup_codes_used: Json | null
           created_at: string
+          encrypted_secret: string | null
           id: string
           is_enabled: boolean
           last_used_at: string | null
           secret: string
+          secret_iv: string | null
           setup_completed_at: string | null
           updated_at: string
           user_id: string
@@ -647,10 +679,12 @@ export type Database = {
           backup_codes?: string[] | null
           backup_codes_used?: Json | null
           created_at?: string
+          encrypted_secret?: string | null
           id?: string
           is_enabled?: boolean
           last_used_at?: string | null
           secret: string
+          secret_iv?: string | null
           setup_completed_at?: string | null
           updated_at?: string
           user_id: string
@@ -659,10 +693,12 @@ export type Database = {
           backup_codes?: string[] | null
           backup_codes_used?: Json | null
           created_at?: string
+          encrypted_secret?: string | null
           id?: string
           is_enabled?: boolean
           last_used_at?: string | null
           secret?: string
+          secret_iv?: string | null
           setup_completed_at?: string | null
           updated_at?: string
           user_id?: string
@@ -971,6 +1007,10 @@ export type Database = {
         }
         Returns: string
       }
+      get_client_ip: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
+      }
       handle_login_attempt: {
         Args: {
           attempt_email: string
@@ -992,6 +1032,10 @@ export type Database = {
       update_user_security_score: {
         Args: { target_user_id: string }
         Returns: undefined
+      }
+      verify_user_password: {
+        Args: { user_email: string; password_to_verify: string }
+        Returns: boolean
       }
     }
     Enums: {

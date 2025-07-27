@@ -81,10 +81,20 @@ export const use2FA = () => {
         return false;
       }
 
-      // Generate backup codes
-      const backupCodes = Array.from({ length: 10 }, () => 
-        Math.random().toString(36).substring(2, 8).toUpperCase()
-      );
+      // Generate cryptographically secure backup codes (SECURITY FIX)
+      const backupCodes = Array.from({ length: 10 }, () => {
+        const array = new Uint8Array(4);
+        crypto.getRandomValues(array);
+        return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('').toUpperCase();
+      });
+
+      // Create security event for 2FA enable
+      await supabase.rpc('create_security_event', {
+        target_user_id: user.id,
+        event_type: 'security_2fa_enabled',
+        event_description: 'Two-factor authentication was enabled',
+        risk_level: 'low'
+      });
 
       // Save to database
       const { error } = await supabase
@@ -123,23 +133,53 @@ export const use2FA = () => {
     }
   }, [user, setupSecret, toast]);
 
-  // Disable 2FA
+  // Disable 2FA (SECURITY FIXED - requires password verification)
   const disable2FA = useCallback(async (password: string) => {
     if (!user) return false;
 
     setIsLoading(true);
     try {
-      // Verify password (simplified - in production, verify via auth)
+      // Verify password before disabling 2FA (SECURITY FIX)
+      const { data: isValid, error: verifyError } = await supabase
+        .rpc('verify_user_password', {
+          user_email: user.email,
+          password_to_verify: password
+        });
+
+      if (verifyError) throw verifyError;
+      
+      if (!isValid) {
+        toast({
+          title: "Ongeldig wachtwoord",
+          description: "Het ingevoerde wachtwoord is onjuist.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Create security event for 2FA disable
+      await supabase.rpc('create_security_event', {
+        target_user_id: user.id,
+        event_type: 'security_2fa_disabled',
+        event_description: 'Two-factor authentication was disabled',
+        risk_level: 'medium'
+      });
+
       const { error } = await supabase
         .from('user_2fa')
-        .update({ is_enabled: false })
+        .update({ 
+          is_enabled: false,
+          secret: null,
+          backup_codes: null,
+          backup_codes_used: '[]'
+        })
         .eq('user_id', user.id);
 
       if (error) throw error;
 
       toast({
         title: "2FA uitgeschakeld",
-        description: "Twee-factor authenticatie is uitgeschakeld.",
+        description: "Twee-factor authenticatie is succesvol uitgeschakeld.",
       });
 
       return true;
@@ -147,7 +187,7 @@ export const use2FA = () => {
       console.error('Error disabling 2FA:', error);
       toast({
         title: "Fout",
-        description: "Er is een fout opgetreden bij het uitschakelen van 2FA.",
+        description: "Er ging iets mis bij het uitschakelen van 2FA.",
         variant: "destructive",
       });
       return false;

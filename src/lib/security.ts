@@ -72,11 +72,21 @@ export const validateContent = (content: string): { isValid: boolean; error?: st
   return { isValid: true };
 };
 
-// Rate limiting helpers
+// Rate limiting helpers - Enhanced IP detection
 export const getClientIP = (): string => {
-  // In production, this would come from headers
-  // For development, return a placeholder
-  return '127.0.0.1';
+  // Check for forwarded IP headers in order of preference
+  const forwardedFor = (window as any).__REQUEST_HEADERS__?.['x-forwarded-for'];
+  const realIP = (window as any).__REQUEST_HEADERS__?.['x-real-ip'];
+  const cfConnectingIP = (window as any).__REQUEST_HEADERS__?.['cf-connecting-ip'];
+  
+  const clientIP = forwardedFor || realIP || cfConnectingIP || '127.0.0.1';
+  
+  // Extract first IP if comma-separated
+  if (clientIP.includes(',')) {
+    return clientIP.split(',')[0].trim();
+  }
+  
+  return clientIP;
 };
 
 // Security headers
