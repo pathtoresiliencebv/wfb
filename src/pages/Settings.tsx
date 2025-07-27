@@ -12,8 +12,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SecuritySection } from '@/components/settings/SecuritySection';
+import SecurityDashboard from '@/components/settings/SecurityDashboard';
+import TwoFactorSetup from '@/components/settings/TwoFactorSetup';
+import DataExportSection from '@/components/settings/DataExportSection';
+import AccountDeletionSection from '@/components/settings/AccountDeletionSection';
 import { PasswordStrengthMeter } from '@/components/settings/PasswordStrengthMeter';
 import { useAuditLog } from '@/hooks/useAuditLog';
+import { useUserSecurity } from '@/hooks/useUserSecurity';
 import { validatePassword } from '@/lib/security';
 
 const Settings = () => {
@@ -21,6 +26,7 @@ const Settings = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { logUserAction } = useAuditLog();
+  const { twoFactorAuth, refreshData } = useUserSecurity();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
@@ -264,7 +270,12 @@ const Settings = () => {
         <Tabs defaultValue="profile" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="profile">Profiel</TabsTrigger>
-            <TabsTrigger value="security">Beveiliging</TabsTrigger>
+            <TabsTrigger value="security" className="flex items-center gap-2">
+              Beveiliging
+              {twoFactorAuth?.is_enabled && (
+                <div className="w-2 h-2 bg-green-500 rounded-full" />
+              )}
+            </TabsTrigger>
             <TabsTrigger value="privacy">Privacy</TabsTrigger>
           </TabsList>
 
@@ -360,6 +371,15 @@ const Settings = () => {
           </TabsContent>
 
           <TabsContent value="security" className="space-y-6">
+            {/* Security Dashboard */}
+            <SecurityDashboard />
+
+            {/* Two-Factor Authentication */}
+            <TwoFactorSetup 
+              currentStatus={twoFactorAuth} 
+              onStatusChange={refreshData}
+            />
+
             {/* Password Change Section */}
             <Card>
               <CardHeader>
@@ -415,10 +435,18 @@ const Settings = () => {
               </CardContent>
             </Card>
 
+            {/* Additional Security Settings */}
             <SecuritySection />
           </TabsContent>
 
-          <TabsContent value="privacy">
+          <TabsContent value="privacy" className="space-y-6">
+            {/* Data Export */}
+            <DataExportSection />
+
+            {/* Account Deletion */}
+            <AccountDeletionSection />
+
+            {/* Privacy Settings */}
             <SecuritySection />
           </TabsContent>
         </Tabs>
