@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Loader2, AlertCircle, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -33,6 +33,10 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Check for registration success message from state
+  const registrationMessage = location.state?.message;
+  const registrationEmail = location.state?.email;
   const [isLoading, setIsLoading] = useState(false);
   const [rateLimitInfo, setRateLimitInfo] = useState<{
     locked: boolean;
@@ -193,6 +197,15 @@ export default function Login() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {registrationMessage && (
+              <Alert className="mb-4 border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+                <Mail className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <AlertDescription className="text-green-800 dark:text-green-200">
+                  {registrationMessage}
+                </AlertDescription>
+              </Alert>
+            )}
+
             {rateLimitInfo?.locked && (
               <Alert className="mb-4 border-destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -220,12 +233,13 @@ export default function Login() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="je@email.com"
-                          {...field}
-                        />
+                       <FormControl>
+                         <Input
+                           type="email"
+                           placeholder="je@email.com"
+                           {...field}
+                           defaultValue={registrationEmail || ''}
+                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

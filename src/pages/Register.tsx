@@ -133,11 +133,21 @@ export default function Register() {
       });
       
       if (success) {
+        // Show success state and redirect to login with instructions
         toast({
-          title: 'Account aangemaakt!',
-          description: 'Welkom bij Wietforum België. Je kunt nu beginnen met posten.',
+          title: 'Account aangemaakt! 📧',
+          description: 'Check je e-mail voor de bevestigingslink. Na bevestiging kun je inloggen.',
         });
-        navigate('/');
+        
+        // Wait a moment to show the toast, then redirect to login
+        setTimeout(() => {
+          navigate('/login', { 
+            state: { 
+              message: 'Account aangemaakt! Check je e-mail voor de bevestigingslink voordat je inlogt.',
+              email: data.email 
+            }
+          });
+        }, 2000);
       } else {
         toast({
           title: 'Registratie mislukt',

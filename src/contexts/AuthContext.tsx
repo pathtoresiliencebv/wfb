@@ -231,11 +231,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return false;
       }
 
+      // Use production URL for email confirmation redirects
+      const baseUrl = window.location.hostname === 'localhost' 
+        ? window.location.origin 
+        : window.location.origin;
+
       // Sign up with Supabase
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
         options: {
+          emailRedirectTo: `${baseUrl}/`,
           data: {
             username: userData.username,
             display_name: userData.username,
@@ -301,9 +307,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             });
         }
 
+        // Show clear registration success message with email verification steps
         toast({
-          title: 'Registratie succesvol',
-          description: 'Je account is aangemaakt. Controleer je e-mail voor verificatie.',
+          title: 'Account succesvol aangemaakt! 🎉',
+          description: 'Check je inbox en klik op de bevestigingslink om je account te activeren.',
         });
 
         setIsLoading(false);
@@ -357,8 +364,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const resetPassword = async (email: string): Promise<boolean> => {
     try {
+      // Use production URL for redirects
+      const baseUrl = window.location.hostname === 'localhost' 
+        ? window.location.origin 
+        : window.location.origin;
+        
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+        redirectTo: `${baseUrl}/auth/reset-password`,
       });
 
       if (error) {
