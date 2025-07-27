@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import * as speakeasy from 'speakeasy';
+import { authenticator } from '@otplib/preset-browser';
 import QRCode from 'qrcode';
 
 interface TwoFactorAuth {
@@ -28,22 +28,25 @@ export const use2FA = () => {
     setIsLoading(true);
     try {
       // Generate secret
-      const secret = speakeasy.generateSecret({
-        name: `WietForum (${user.email})`,
-        issuer: 'WietForum',
-        length: 32,
-      });
+      const secret = authenticator.generateSecret();
+      
+      // Generate OTP auth URL
+      const otpauthUrl = authenticator.keyuri(
+        user.email,
+        'WietForum',
+        secret
+      );
 
       // Generate QR code
-      const qrCodeDataUrl = await QRCode.toDataURL(secret.otpauth_url!);
+      const qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl);
       
-      setSetupSecret(secret.base32);
+      setSetupSecret(secret);
       setQrCodeUrl(qrCodeDataUrl);
 
       return {
-        secret: secret.base32,
+        secret: secret,
         qrCode: qrCodeDataUrl,
-        manualEntryKey: secret.base32,
+        manualEntryKey: secret,
       };
     } catch (error) {
       console.error('Error generating 2FA setup:', error);
@@ -65,11 +68,9 @@ export const use2FA = () => {
     setIsLoading(true);
     try {
       // Verify token
-      const verified = speakeasy.totp.verify({
-        secret: setupSecret,
-        encoding: 'base32',
+      const verified = authenticator.verify({
         token,
-        window: 2,
+        secret: setupSecret,
       });
 
       if (!verified) {
@@ -211,11 +212,9 @@ export const use2FA = () => {
       if (error || !twoFAData) return false;
 
       // Try TOTP verification first
-      const verified = speakeasy.totp.verify({
-        secret: twoFAData.secret,
-        encoding: 'base32',
+      const verified = authenticator.verify({
         token,
-        window: 2,
+        secret: twoFAData.secret,
       });
 
       if (verified) {
