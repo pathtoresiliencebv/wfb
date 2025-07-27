@@ -39,7 +39,8 @@ export function TagSelector({ selectedTags, onTagsChange, maxTags = 5 }: TagSele
         return;
       }
 
-      setAvailableTags((data || []) as Tag[]);
+      // Cast to Tag[] since all required fields are selected
+      setAvailableTags((data || []).filter(tag => tag.id && tag.name && tag.slug && tag.color) as Tag[]);
     };
 
     fetchTags();

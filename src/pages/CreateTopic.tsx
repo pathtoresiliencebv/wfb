@@ -18,12 +18,7 @@ const createTopicSchema = z.object({
   title: z.string().min(5, 'Titel moet minimaal 5 karakters lang zijn').max(200, 'Titel mag maximaal 200 karakters lang zijn'),
   content: z.string().min(20, 'Content moet minimaal 20 karakters lang zijn'),
   categoryId: z.string().min(1, 'Selecteer een categorie'),
-  tags: z.array(z.object({
-    id: z.string().min(1),
-    name: z.string().min(1),
-    slug: z.string().min(1),
-    color: z.string().min(1),
-  })).max(5, 'Maximaal 5 tags toegestaan').default([]),
+  tags: z.array(z.any()).max(5, 'Maximaal 5 tags toegestaan').default([]),
 });
 
 type CreateTopicForm = z.infer<typeof createTopicSchema>;
