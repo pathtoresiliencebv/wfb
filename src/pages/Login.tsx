@@ -16,6 +16,8 @@ import { toast } from '@/hooks/use-toast';
 import { useServerSideRateLimit } from '@/hooks/useServerSideRateLimit';
 import { useAuditLog } from '@/hooks/useAuditLog';
 import { validateEmail } from '@/lib/security';
+import { TwoFactorModal } from '@/components/auth/TwoFactorModal';
+import { use2FA } from '@/hooks/use2FA';
 
 const loginSchema = z.object({
   email: z.string().email('Voer een geldig emailadres in'),
@@ -26,6 +28,8 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [show2FAModal, setShow2FAModal] = useState(false);
+  const [pendingLogin, setPendingLogin] = useState<{email: string, password: string} | null>(null);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,6 +39,7 @@ export default function Login() {
     remaining_attempts: number;
     locked_until?: string;
   } | null>(null);
+  const { get2FAStatus } = use2FA();
   
   const { 
     isLoading: rateLimitLoading,
@@ -83,21 +88,33 @@ export default function Login() {
     setIsLoading(true);
     
     try {
-      await login(email, data.password);
+      // First, try basic authentication
+      const loginSuccess = await login(email, data.password);
       
-      // Record successful login for rate limiting
-      await recordSuccessfulLogin(email);
-      setRateLimitInfo(null);
-      
-      // Log successful login
-      logSecurityEvent('login_success', { email });
-      
-      toast({
-        title: "Welkom terug!",
-        description: "Je bent succesvol ingelogd.",
-      });
-      
-      navigate(from, { replace: true });
+      if (loginSuccess) {
+        // Check if user has 2FA enabled
+        const twoFAStatus = await get2FAStatus();
+        
+        if (twoFAStatus?.is_enabled) {
+          // Store pending login data and show 2FA modal
+          setPendingLogin({ email, password: data.password });
+          setShow2FAModal(true);
+          setIsLoading(false);
+          return;
+        }
+        
+        // No 2FA required, complete login
+        await recordSuccessfulLogin(email);
+        setRateLimitInfo(null);
+        logSecurityEvent('login_success', { email });
+        
+        toast({
+          title: "Welkom terug!",
+          description: "Je bent succesvol ingelogd.",
+        });
+        
+        navigate(from, { replace: true });
+      }
     } catch (error) {
       // Record failed attempt and check rate limit
       const rateLimitResult = await recordFailedAttempt(email);
@@ -128,6 +145,36 @@ export default function Login() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handle2FAComplete = async (success: boolean) => {
+    setShow2FAModal(false);
+    
+    if (success && pendingLogin) {
+      // Complete the login process
+      await recordSuccessfulLogin(pendingLogin.email);
+      setRateLimitInfo(null);
+      logSecurityEvent('login_success', { email: pendingLogin.email, twofa_verified: true });
+      
+      toast({
+        title: "Welkom terug!",
+        description: "Je bent succesvol ingelogd.",
+      });
+      
+      navigate(from, { replace: true });
+    } else {
+      // 2FA failed, logout the user
+      await recordFailedAttempt(pendingLogin?.email || '');
+      logSecurityEvent('login_failed', { email: pendingLogin?.email, error: '2FA verification failed' });
+      
+      toast({
+        variant: "destructive",
+        title: "2FA verificatie mislukt",
+        description: "Inloggen geannuleerd.",
+      });
+    }
+    
+    setPendingLogin(null);
   };
 
   return (
@@ -239,6 +286,12 @@ export default function Login() {
             </div>
           </CardContent>
         </Card>
+
+        <TwoFactorModal
+          isOpen={show2FAModal}
+          onComplete={handle2FAComplete}
+          userEmail={pendingLogin?.email || ''}
+        />
 
         <div className="text-center text-sm text-muted-foreground">
           <p>Door in te loggen ga je akkoord met onze</p>
