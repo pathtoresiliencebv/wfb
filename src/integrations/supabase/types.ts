@@ -561,6 +561,36 @@ export type Database = {
           },
         ]
       }
+      user_2fa: {
+        Row: {
+          backup_codes: string[] | null
+          created_at: string
+          id: string
+          is_enabled: boolean
+          secret: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          backup_codes?: string[] | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          secret: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          backup_codes?: string[] | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          secret?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           badge_id: string
@@ -618,6 +648,117 @@ export type Database = {
         }
         Relationships: []
       }
+      user_privacy_settings: {
+        Row: {
+          activity_tracking: boolean
+          created_at: string
+          data_sharing: boolean
+          email_notifications: boolean
+          id: string
+          marketing_emails: boolean
+          profile_visibility: string
+          security_alerts: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_tracking?: boolean
+          created_at?: string
+          data_sharing?: boolean
+          email_notifications?: boolean
+          id?: string
+          marketing_emails?: boolean
+          profile_visibility?: string
+          security_alerts?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activity_tracking?: boolean
+          created_at?: string
+          data_sharing?: boolean
+          email_notifications?: boolean
+          id?: string
+          marketing_emails?: boolean
+          profile_visibility?: string
+          security_alerts?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_security_events: {
+        Row: {
+          created_at: string
+          event_description: string
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          risk_level: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_description: string
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          risk_level?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_description?: string
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          risk_level?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          created_at: string
+          device_info: Json | null
+          expires_at: string
+          id: string
+          ip_address: unknown | null
+          last_activity_at: string
+          location: string | null
+          session_token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_info?: Json | null
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          last_activity_at?: string
+          location?: string | null
+          session_token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_info?: Json | null
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          last_activity_at?: string
+          location?: string | null
+          session_token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       votes: {
         Row: {
           created_at: string
@@ -669,6 +810,16 @@ export type Database = {
           notification_title: string
           notification_message?: string
           notification_data?: Json
+        }
+        Returns: string
+      }
+      create_security_event: {
+        Args: {
+          target_user_id: string
+          event_type: string
+          event_description: string
+          risk_level?: string
+          metadata?: Json
         }
         Returns: string
       }
