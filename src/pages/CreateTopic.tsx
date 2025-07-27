@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/rich-text/RichTextEditor';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { TagSelector, type Tag } from '@/components/ui/tag-selector';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -17,6 +18,12 @@ const createTopicSchema = z.object({
   title: z.string().min(5, 'Titel moet minimaal 5 karakters lang zijn').max(200, 'Titel mag maximaal 200 karakters lang zijn'),
   content: z.string().min(20, 'Content moet minimaal 20 karakters lang zijn'),
   categoryId: z.string().min(1, 'Selecteer een categorie'),
+  tags: z.array(z.object({
+    id: z.string().min(1),
+    name: z.string().min(1),
+    slug: z.string().min(1),
+    color: z.string().min(1),
+  })).max(5, 'Maximaal 5 tags toegestaan').default([]),
 });
 
 type CreateTopicForm = z.infer<typeof createTopicSchema>;
@@ -40,6 +47,7 @@ export default function CreateTopic() {
       title: '',
       content: '',
       categoryId: '',
+      tags: [],
     },
   });
 
@@ -87,6 +95,22 @@ export default function CreateTopic() {
         .single();
 
       if (error) throw error;
+
+      // Add tags to topic
+      if (data.tags.length > 0) {
+        const tagInserts = data.tags.map(tag => ({
+          topic_id: topic.id,
+          tag_id: tag.id,
+        }));
+
+        const { error: tagError } = await supabase
+          .from('topic_tags')
+          .insert(tagInserts);
+
+        if (tagError) {
+          console.error('Error adding tags:', tagError);
+        }
+      }
 
       toast({
         title: 'Topic aangemaakt!',
@@ -182,6 +206,27 @@ export default function CreateTopic() {
                     </FormControl>
                     <FormDescription>
                       Gebruik de rich text editor voor mooie opmaak. Markdown wordt ondersteund.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="tags"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tags</FormLabel>
+                    <FormControl>
+                      <TagSelector
+                        selectedTags={field.value}
+                        onTagsChange={field.onChange}
+                        maxTags={5}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Voeg relevante tags toe om je topic beter vindbaar te maken
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

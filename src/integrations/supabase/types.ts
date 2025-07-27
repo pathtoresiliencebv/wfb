@@ -297,6 +297,48 @@ export type Database = {
         }
         Relationships: []
       }
+      images: {
+        Row: {
+          alt_text: string | null
+          created_at: string
+          file_size: number
+          filename: string
+          height: number | null
+          id: string
+          mime_type: string
+          original_name: string
+          storage_path: string
+          user_id: string
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string
+          file_size: number
+          filename: string
+          height?: number | null
+          id?: string
+          mime_type: string
+          original_name: string
+          storage_path: string
+          user_id: string
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string
+          file_size?: number
+          filename?: string
+          height?: number | null
+          id?: string
+          mime_type?: string
+          original_name?: string
+          storage_path?: string
+          user_id?: string
+          width?: number | null
+        }
+        Relationships: []
+      }
       login_attempts: {
         Row: {
           attempt_count: number
@@ -569,6 +611,75 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      tags: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+          updated_at: string
+          usage_count: number | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string
+          usage_count?: number | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string
+          usage_count?: number | null
+        }
+        Relationships: []
+      }
+      topic_tags: {
+        Row: {
+          created_at: string
+          id: string
+          tag_id: string
+          topic_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          tag_id: string
+          topic_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          tag_id?: string
+          topic_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topic_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "topic_tags_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       topics: {
         Row: {
