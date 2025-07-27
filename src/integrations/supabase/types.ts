@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_deletion_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          reason: string | null
+          scheduled_for: string
+          status: string
+          user_id: string
+          verification_token: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          reason?: string | null
+          scheduled_for: string
+          status?: string
+          user_id: string
+          verification_token: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          reason?: string | null
+          scheduled_for?: string
+          status?: string
+          user_id?: string
+          verification_token?: string
+        }
+        Relationships: []
+      }
       activity_feed: {
         Row: {
           activity_data: Json
@@ -225,6 +258,42 @@ export type Database = {
           id?: string
           last_message_at?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      data_export_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          expires_at: string | null
+          file_size_bytes: number | null
+          file_url: string | null
+          id: string
+          request_type: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          expires_at?: string | null
+          file_size_bytes?: number | null
+          file_url?: string | null
+          id?: string
+          request_type: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          expires_at?: string | null
+          file_size_bytes?: number | null
+          file_url?: string | null
+          id?: string
+          request_type?: string
+          status?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -564,28 +633,37 @@ export type Database = {
       user_2fa: {
         Row: {
           backup_codes: string[] | null
+          backup_codes_used: Json | null
           created_at: string
           id: string
           is_enabled: boolean
+          last_used_at: string | null
           secret: string
+          setup_completed_at: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           backup_codes?: string[] | null
+          backup_codes_used?: Json | null
           created_at?: string
           id?: string
           is_enabled?: boolean
+          last_used_at?: string | null
           secret: string
+          setup_completed_at?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           backup_codes?: string[] | null
+          backup_codes_used?: Json | null
           created_at?: string
           id?: string
           is_enabled?: boolean
+          last_used_at?: string | null
           secret?: string
+          setup_completed_at?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -626,6 +704,45 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      user_device_fingerprints: {
+        Row: {
+          browser_info: Json | null
+          created_at: string
+          device_info: Json | null
+          fingerprint_hash: string
+          first_seen_at: string
+          id: string
+          is_trusted: boolean | null
+          last_seen_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          browser_info?: Json | null
+          created_at?: string
+          device_info?: Json | null
+          fingerprint_hash: string
+          first_seen_at?: string
+          id?: string
+          is_trusted?: boolean | null
+          last_seen_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          browser_info?: Json | null
+          created_at?: string
+          device_info?: Json | null
+          fingerprint_hash?: string
+          first_seen_at?: string
+          id?: string
+          is_trusted?: boolean | null
+          last_seen_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_followers: {
         Row: {
@@ -723,6 +840,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_security_scores: {
+        Row: {
+          created_at: string
+          factors: Json | null
+          id: string
+          recommendations: Json | null
+          score: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          factors?: Json | null
+          id?: string
+          recommendations?: Json | null
+          score: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          factors?: Json | null
+          id?: string
+          recommendations?: Json | null
+          score?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_sessions: {
         Row: {
           created_at: string
@@ -799,6 +943,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_user_security_score: {
+        Args: { target_user_id: string }
+        Returns: number
+      }
       create_activity_entry: {
         Args: { user_id: string; activity_type: string; activity_data?: Json }
         Returns: string
@@ -839,6 +987,10 @@ export type Database = {
           related_item_id?: string
           related_item_type?: string
         }
+        Returns: undefined
+      }
+      update_user_security_score: {
+        Args: { target_user_id: string }
         Returns: undefined
       }
     }
