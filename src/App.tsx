@@ -17,6 +17,7 @@ import Members from "./pages/Members";
 import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
 import Messages from "./pages/Messages";
+import Admin from "./pages/Admin";
 import Search from "./pages/Search";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -165,6 +166,16 @@ function AppRoutes() {
                     <ProtectedRoute>
                       <Layout>
                         <Settings />
+                      </Layout>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin" 
+                  element={
+                    <ProtectedRoute>
+                      <Layout>
+                        <Admin />
                       </Layout>
                     </ProtectedRoute>
                   } 

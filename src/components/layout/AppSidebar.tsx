@@ -17,6 +17,7 @@ import {
 import wietforumLogoDark from '@/assets/wietforum-logo-dark.png';
 import wietforumLogoGreen from '@/assets/wietforum-logo-green.png';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Sidebar,
   SidebarContent,
@@ -50,6 +51,7 @@ export function AppSidebar() {
   const { theme } = useTheme();
   const location = useLocation();
   const currentPath = location.pathname;
+  const isMobile = useIsMobile();
   const collapsed = state === "collapsed";
   
   // Select logo based on theme
@@ -71,8 +73,11 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className={collapsed ? "w-16" : "w-64"} collapsible="icon">
-      <SidebarContent className="p-4">
+    <Sidebar 
+      className={`${collapsed ? "w-16" : "w-64"} ${isMobile ? 'fixed z-50' : ''}`} 
+      collapsible={isMobile ? "offcanvas" : "icon"}
+    >
+      <SidebarContent className={isMobile ? "p-2" : "p-4"}>
         {/* Logo Section */}
         <div className="mb-6 flex items-center justify-center">
           <div className="flex h-12 w-12 items-center justify-center">

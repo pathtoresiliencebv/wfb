@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_feed: {
+        Row: {
+          activity_data: Json
+          activity_type: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          activity_data?: Json
+          activity_type: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          activity_data?: Json
+          activity_type?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -375,6 +399,75 @@ export type Database = {
           },
         ]
       }
+      reports: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          reason: string
+          reported_item_id: string
+          reported_item_type: string
+          reporter_id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason: string
+          reported_item_id: string
+          reported_item_type: string
+          reporter_id: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason?: string
+          reported_item_id?: string
+          reported_item_type?: string
+          reporter_id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      reputation_history: {
+        Row: {
+          change_amount: number
+          created_at: string
+          id: string
+          reason: string
+          related_item_id: string | null
+          related_item_type: string | null
+          user_id: string
+        }
+        Insert: {
+          change_amount: number
+          created_at?: string
+          id?: string
+          reason: string
+          related_item_id?: string | null
+          related_item_type?: string | null
+          user_id: string
+        }
+        Update: {
+          change_amount?: number
+          created_at?: string
+          id?: string
+          reason?: string
+          related_item_id?: string | null
+          related_item_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       topics: {
         Row: {
           author_id: string
@@ -471,6 +564,27 @@ export type Database = {
           },
         ]
       }
+      user_followers: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
       votes: {
         Row: {
           created_at: string
@@ -511,6 +625,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_activity_entry: {
+        Args: { user_id: string; activity_type: string; activity_data?: Json }
+        Returns: string
+      }
       create_notification: {
         Args: {
           recipient_id: string
@@ -520,6 +638,16 @@ export type Database = {
           notification_data?: Json
         }
         Returns: string
+      }
+      update_user_reputation: {
+        Args: {
+          target_user_id: string
+          change_amount: number
+          reason: string
+          related_item_id?: string
+          related_item_type?: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
