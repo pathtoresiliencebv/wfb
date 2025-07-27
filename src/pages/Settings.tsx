@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,8 +9,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Upload } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Upload, Shield, Eye, User, FileWarning, AlertTriangle, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { SettingsBreadcrumb } from '@/components/ui/settings-breadcrumb';
+import { SettingsProfileSkeleton, SettingsSecuritySkeleton, SettingsPrivacySkeleton } from '@/components/ui/settings-skeleton';
 import { SecuritySection } from '@/components/settings/SecuritySection';
 import SecurityDashboard from '@/components/settings/SecurityDashboard';
 import TwoFactorSetup from '@/components/settings/TwoFactorSetup';
@@ -19,15 +23,29 @@ import AccountDeletionSection from '@/components/settings/AccountDeletionSection
 import { PasswordStrengthMeter } from '@/components/settings/PasswordStrengthMeter';
 import { useAuditLog } from '@/hooks/useAuditLog';
 import { useUserSecurity } from '@/hooks/useUserSecurity';
+import { useSecurityDashboard } from '@/hooks/useSecurityDashboard';
+import { useDataExport } from '@/hooks/useDataExport';
 import { validatePassword } from '@/lib/security';
 
 const Settings = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { toast } = useToast();
   const { logUserAction } = useAuditLog();
   const { twoFactorAuth, refreshData } = useUserSecurity();
+  const { dashboard } = useSecurityDashboard();
+  const { exportRequests } = useDataExport();
+  const isMobile = useIsMobile();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Get active tab from URL params or default to profile
+  const activeTab = searchParams.get('tab') || 'profile';
+  
+  // Set active tab and update URL
+  const setActiveTab = (tab: string) => {
+    setSearchParams({ tab });
+  };
 
   const [formData, setFormData] = useState({
     username: '',
@@ -45,24 +63,32 @@ const Settings = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return;
       
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-      
-      if (data) {
-        setFormData({
-          username: data.username || '',
-          display_name: data.display_name || '',
-          bio: data.bio || '',
-          avatar_url: data.avatar_url || '',
-        });
+      setIsInitialLoading(true);
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (data) {
+          setFormData({
+            username: data.username || '',
+            display_name: data.display_name || '',
+            bio: data.bio || '',
+            avatar_url: data.avatar_url || '',
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      } finally {
+        setIsInitialLoading(false);
       }
     };
     
@@ -247,207 +273,321 @@ const Settings = () => {
     }
   };
 
+  // Get tab status indicators
+  const getTabBadges = () => {
+    const badges: Record<string, React.ReactNode> = {};
+    
+    // Security tab badges
+    if (twoFactorAuth?.is_enabled) {
+      badges.security = <Badge variant="secondary" className="ml-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"><Shield className="h-3 w-3 mr-1" />2FA</Badge>;
+    }
+    
+    // Privacy tab badges  
+    if (exportRequests && exportRequests.length > 0) {
+      const pendingExports = exportRequests.filter(req => req.status === 'processing').length;
+      if (pendingExports > 0) {
+        badges.privacy = <Badge variant="secondary" className="ml-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"><Clock className="h-3 w-3 mr-1" />{pendingExports}</Badge>;
+      }
+    }
+    
+    return badges;
+  };
+
+  const tabBadges = getTabBadges();
+
   if (!user) {
-    return <div>Laden...</div>;
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-muted rounded w-48"></div>
+            <div className="h-10 bg-muted rounded"></div>
+            <div className="space-y-4">
+              <div className="h-32 bg-muted rounded"></div>
+              <div className="h-32 bg-muted rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="flex items-center gap-4 mb-8">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Terug
-          </Button>
-          <h1 className="text-3xl font-bold">Instellingen</h1>
+      <div className="container mx-auto px-4 py-6 sm:py-8 max-w-4xl">
+        {/* Breadcrumb Navigation */}
+        <SettingsBreadcrumb activeTab={activeTab} />
+
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6 sm:mb-8">
+          {!isMobile && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2 transition-colors hover:bg-muted"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Terug
+            </Button>
+          )}
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Instellingen</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Beheer je account, beveiliging en privacy
+            </p>
+          </div>
         </div>
 
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="profile">Profiel</TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-2">
-              Beveiliging
-              {twoFactorAuth?.is_enabled && (
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
-              )}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-1 gap-1 h-auto' : 'grid-cols-3'} bg-muted/50 p-1`}>
+            <TabsTrigger 
+              value="profile" 
+              className={`flex items-center gap-2 transition-all ${isMobile ? 'justify-start px-4 py-3' : 'justify-center'} data-[state=active]:bg-background data-[state=active]:shadow-sm`}
+            >
+              <User className="h-4 w-4" />
+              <span>Profiel</span>
+              {tabBadges.profile}
             </TabsTrigger>
-            <TabsTrigger value="privacy">Privacy</TabsTrigger>
+            <TabsTrigger 
+              value="security" 
+              className={`flex items-center gap-2 transition-all ${isMobile ? 'justify-start px-4 py-3' : 'justify-center'} data-[state=active]:bg-background data-[state=active]:shadow-sm`}
+            >
+              <Shield className="h-4 w-4" />
+              <span>Beveiliging</span>
+              {tabBadges.security}
+            </TabsTrigger>
+            <TabsTrigger 
+              value="privacy" 
+              className={`flex items-center gap-2 transition-all ${isMobile ? 'justify-start px-4 py-3' : 'justify-center'} data-[state=active]:bg-background data-[state=active]:shadow-sm`}
+            >
+              <Eye className="h-4 w-4" />
+              <span>Privacy</span>
+              {tabBadges.privacy}
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="profile" className="space-y-6">
-            {/* Profile Picture Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Profielfoto</CardTitle>
-                <CardDescription>
-                  Upload een nieuwe profielfoto
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <Avatar className="h-20 w-20">
-                    <AvatarImage src={formData.avatar_url || ''} />
-                    <AvatarFallback>
-                      {user?.email?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <Button
-                      variant="outline"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="flex items-center gap-2"
-                      disabled={isUploading}
+          <TabsContent value="profile" className="space-y-6 animate-fade-in">
+            {isInitialLoading ? (
+              <SettingsProfileSkeleton />
+            ) : (
+              <>
+                {/* Profile Picture Section */}
+                <Card className="transition-all hover:shadow-md border-border/50">
+                  <CardHeader className="space-y-1">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <User className="h-5 w-5 text-primary" />
+                      Profielfoto
+                    </CardTitle>
+                    <CardDescription>
+                      Upload een nieuwe profielfoto om je profiel te personaliseren
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} items-center gap-4`}>
+                      <Avatar className="h-20 w-20 ring-2 ring-primary/10">
+                        <AvatarImage src={formData.avatar_url || ''} />
+                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                          {user?.email?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className={`${isMobile ? 'text-center' : 'text-left'} space-y-2`}>
+                        <Button
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="flex items-center gap-2 transition-all hover:scale-105"
+                          disabled={isUploading}
+                        >
+                          <Upload className="h-4 w-4" />
+                          {isUploading ? 'Uploaden...' : 'Nieuwe foto uploaden'}
+                        </Button>
+                        <p className="text-sm text-muted-foreground">
+                          JPG, PNG of GIF. Max 5MB.
+                        </p>
+                      </div>
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Profile Information Section */}
+                <Card className="transition-all hover:shadow-md border-border/50">
+                  <CardHeader className="space-y-1">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <User className="h-5 w-5 text-primary" />
+                      Profiel informatie
+                    </CardTitle>
+                    <CardDescription>
+                      Bewerk je profiel gegevens en laat anderen weten wie je bent
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="username" className="text-sm font-medium">Gebruikersnaam</Label>
+                        <Input
+                          id="username"
+                          name="username"
+                          value={formData.username}
+                          onChange={handleInputChange}
+                          placeholder="Voer je gebruikersnaam in"
+                          className="transition-all focus:ring-2 focus:ring-primary/20"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="display_name" className="text-sm font-medium">Weergavenaam</Label>
+                        <Input
+                          id="display_name"
+                          name="display_name"
+                          value={formData.display_name}
+                          onChange={handleInputChange}
+                          placeholder="Voer je weergavenaam in"
+                          className="transition-all focus:ring-2 focus:ring-primary/20"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="bio" className="text-sm font-medium">Bio</Label>
+                      <Textarea
+                        id="bio"
+                        name="bio"
+                        value={formData.bio}
+                        onChange={handleInputChange}
+                        placeholder="Vertel iets over jezelf..."
+                        rows={4}
+                        className="transition-all focus:ring-2 focus:ring-primary/20 resize-none"
+                      />
+                    </div>
+                    <Button 
+                      onClick={handleSaveProfile} 
+                      disabled={isSaving}
+                      className="transition-all hover:scale-105"
                     >
-                      <Upload className="h-4 w-4" />
-                      {isUploading ? 'Uploaden...' : 'Nieuwe foto uploaden'}
+                      {isSaving ? 'Opslaan...' : 'Profiel opslaan'}
                     </Button>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      JPG, PNG of GIF. Max 5MB.
-                    </p>
-                  </div>
-                </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
-              </CardContent>
-            </Card>
-
-            {/* Profile Information Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Profiel informatie</CardTitle>
-                <CardDescription>
-                  Bewerk je profiel gegevens
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="username">Gebruikersnaam</Label>
-                    <Input
-                      id="username"
-                      name="username"
-                      value={formData.username}
-                      onChange={handleInputChange}
-                      placeholder="Voer je gebruikersnaam in"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="display_name">Weergavenaam</Label>
-                    <Input
-                      id="display_name"
-                      name="display_name"
-                      value={formData.display_name}
-                      onChange={handleInputChange}
-                      placeholder="Voer je weergavenaam in"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="bio">Bio</Label>
-                  <Textarea
-                    id="bio"
-                    name="bio"
-                    value={formData.bio}
-                    onChange={handleInputChange}
-                    placeholder="Vertel iets over jezelf..."
-                    rows={4}
-                  />
-                </div>
-                <Button onClick={handleSaveProfile} disabled={isSaving}>
-                  {isSaving ? 'Opslaan...' : 'Profiel opslaan'}
-                </Button>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              </>
+            )}
           </TabsContent>
 
-          <TabsContent value="security" className="space-y-6">
-            {/* Security Dashboard */}
-            <SecurityDashboard />
+          <TabsContent value="security" className="space-y-6 animate-fade-in">
+            {isInitialLoading ? (
+              <SettingsSecuritySkeleton />
+            ) : (
+              <>
+                {/* Security Dashboard */}
+                <div className="transition-all animate-scale-in">
+                  <SecurityDashboard />
+                </div>
 
-            {/* Two-Factor Authentication */}
-            <TwoFactorSetup 
-              currentStatus={twoFactorAuth} 
-              onStatusChange={refreshData}
-            />
-
-            {/* Password Change Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Wachtwoord wijzigen</CardTitle>
-                <CardDescription>
-                  Update je wachtwoord voor betere beveiliging
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="currentPassword">Huidig wachtwoord</Label>
-                  <Input
-                    id="currentPassword"
-                    name="currentPassword"
-                    type="password"
-                    value={passwordData.currentPassword}
-                    onChange={handlePasswordChange}
-                    placeholder="Voer je huidige wachtwoord in"
+                {/* Two-Factor Authentication */}
+                <div className="transition-all animate-scale-in">
+                  <TwoFactorSetup 
+                    currentStatus={twoFactorAuth} 
+                    onStatusChange={refreshData}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="newPassword">Nieuw wachtwoord</Label>
-                  <Input
-                    id="newPassword"
-                    name="newPassword"
-                    type="password"
-                    value={passwordData.newPassword}
-                    onChange={handlePasswordChange}
-                    placeholder="Voer je nieuwe wachtwoord in"
-                  />
-                  {passwordData.newPassword && (
-                    <PasswordStrengthMeter password={passwordData.newPassword} />
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Bevestig nieuw wachtwoord</Label>
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    value={passwordData.confirmPassword}
-                    onChange={handlePasswordChange}
-                    placeholder="Bevestig je nieuwe wachtwoord"
-                  />
-                </div>
-                <Button 
-                  onClick={handleChangePassword} 
-                  variant="outline"
-                  disabled={isChangingPassword}
-                >
-                  {isChangingPassword ? 'Wijzigen...' : 'Wachtwoord wijzigen'}
-                </Button>
-              </CardContent>
-            </Card>
 
-            {/* Additional Security Settings */}
-            <SecuritySection />
+                {/* Password Change Section */}
+                <Card className="transition-all hover:shadow-md border-border/50">
+                  <CardHeader className="space-y-1">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Shield className="h-5 w-5 text-primary" />
+                      Wachtwoord wijzigen
+                    </CardTitle>
+                    <CardDescription>
+                      Update je wachtwoord regelmatig voor optimale beveiliging
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="currentPassword" className="text-sm font-medium">Huidig wachtwoord</Label>
+                      <Input
+                        id="currentPassword"
+                        name="currentPassword"
+                        type="password"
+                        value={passwordData.currentPassword}
+                        onChange={handlePasswordChange}
+                        placeholder="Voer je huidige wachtwoord in"
+                        className="transition-all focus:ring-2 focus:ring-primary/20"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="newPassword" className="text-sm font-medium">Nieuw wachtwoord</Label>
+                      <Input
+                        id="newPassword"
+                        name="newPassword"
+                        type="password"
+                        value={passwordData.newPassword}
+                        onChange={handlePasswordChange}
+                        placeholder="Voer je nieuwe wachtwoord in"
+                        className="transition-all focus:ring-2 focus:ring-primary/20"
+                      />
+                      {passwordData.newPassword && (
+                        <div className="mt-3">
+                          <PasswordStrengthMeter password={passwordData.newPassword} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword" className="text-sm font-medium">Bevestig nieuw wachtwoord</Label>
+                      <Input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type="password"
+                        value={passwordData.confirmPassword}
+                        onChange={handlePasswordChange}
+                        placeholder="Bevestig je nieuwe wachtwoord"
+                        className="transition-all focus:ring-2 focus:ring-primary/20"
+                      />
+                    </div>
+                    <Button 
+                      onClick={handleChangePassword} 
+                      variant="outline"
+                      disabled={isChangingPassword}
+                      className="transition-all hover:scale-105"
+                    >
+                      {isChangingPassword ? 'Wijzigen...' : 'Wachtwoord wijzigen'}
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Additional Security Settings */}
+                <div className="transition-all animate-scale-in">
+                  <SecuritySection />
+                </div>
+              </>
+            )}
           </TabsContent>
 
-          <TabsContent value="privacy" className="space-y-6">
-            {/* Data Export */}
-            <DataExportSection />
+          <TabsContent value="privacy" className="space-y-6 animate-fade-in">
+            {isInitialLoading ? (
+              <SettingsPrivacySkeleton />
+            ) : (
+              <>
+                {/* Data Export */}
+                <div className="transition-all animate-scale-in">
+                  <DataExportSection />
+                </div>
 
-            {/* Account Deletion */}
-            <AccountDeletionSection />
+                {/* Account Deletion */}
+                <div className="transition-all animate-scale-in">
+                  <AccountDeletionSection />
+                </div>
 
-            {/* Privacy Settings */}
-            <SecuritySection />
+                {/* Privacy Settings */}
+                <div className="transition-all animate-scale-in">
+                  <SecuritySection />
+                </div>
+              </>
+            )}
           </TabsContent>
         </Tabs>
       </div>
