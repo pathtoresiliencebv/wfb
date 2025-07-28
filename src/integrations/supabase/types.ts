@@ -1018,6 +1018,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_online_status: {
+        Row: {
+          created_at: string
+          id: string
+          is_online: boolean
+          last_seen: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_online?: boolean
+          last_seen?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_online?: boolean
+          last_seen?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_privacy_settings: {
         Row: {
           activity_tracking: boolean

@@ -7,6 +7,10 @@ import { Separator } from '@/components/ui/separator';
 import { PostCard } from './PostCard';
 import { RecentActivity } from './RecentActivity';
 import { OnlineMembers } from './OnlineMembers';
+import { PullToRefresh } from '@/components/mobile/PullToRefresh';
+import { FloatingActionButton } from '@/components/mobile/FloatingActionButton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -82,6 +86,8 @@ const stats = [
 
 export function FeedPage() {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [recentTopics, setRecentTopics] = useState(mockPosts);
   const [stats, setStats] = useState([
     {
@@ -177,14 +183,19 @@ export function FeedPage() {
     fetchDashboardData();
   }, []);
 
+  const handleRefresh = async () => {
+    // Re-fetch dashboard data
+    // fetchDashboardData();
+  };
+
   if (!user) {
     return null; // This should not happen as LandingPage handles non-authenticated users
   }
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      {/* Main Content */}
-      <div className="lg:col-span-3 space-y-6">
-        {/* Welcome Card */}
+
+  const mainContent = (
+    <div className="lg:col-span-3 space-y-6">
+      {/* Welcome Card - only show on desktop */}
+      {!isMobile && (
         <Card className="cannabis-gradient text-primary-foreground">
           <CardHeader>
             <CardTitle className="font-heading text-xl">
@@ -204,48 +215,86 @@ export function FeedPage() {
             </Button>
           </CardContent>
         </Card>
+      )}
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {stats.map((stat) => (
-            <Card key={stat.title}>
-              <CardContent className="flex items-center p-6">
-                <stat.icon className="h-8 w-8 text-primary mr-4" />
-                <div>
-                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                  <p className="text-sm text-muted-foreground">{stat.title}</p>
-                  <p className="text-xs text-muted-foreground">{stat.description}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Recent Posts */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-heading text-xl font-semibold">Recente Activiteit</h2>
-            <Button variant="outline" size="sm" asChild>
-              <a href="/forums">
-                Alle Topics
-              </a>
-            </Button>
-          </div>
-          
-          <div className="space-y-3">
-            {recentTopics.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
-          </div>
-        </div>
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {stats.map((stat) => (
+          <Card key={stat.title}>
+            <CardContent className="flex items-center p-6">
+              <stat.icon className="h-8 w-8 text-primary mr-4" />
+              <div>
+                <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                <p className="text-sm text-muted-foreground">{stat.title}</p>
+                <p className="text-xs text-muted-foreground">{stat.description}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Sidebar */}
-      <div className="space-y-6">
+      {/* Recent Posts */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="font-heading text-xl font-semibold">Recente Activiteit</h2>
+          <Button variant="outline" size="sm" asChild>
+            <a href="/forums">
+              Alle Topics
+            </a>
+          </Button>
+        </div>
+        
+        <div className="space-y-3">
+          {recentTopics.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      {/* Main Content with Pull to Refresh on Mobile */}
+      {isMobile ? (
+        <PullToRefresh onRefresh={handleRefresh}>
+          {mainContent}
+        </PullToRefresh>
+      ) : (
+        mainContent
+      )}
+
+      {/* Sidebar - Hidden on mobile */}
+      <div className={`space-y-6 ${isMobile ? 'hidden' : ''}`}>
         <RecentActivity />
         <Separator />
         <OnlineMembers />
       </div>
+
+      {/* Mobile FAB for creating topics */}
+      {isMobile && (
+        <FloatingActionButton onClick={() => setShowCreateDialog(true)} />
+      )}
+
+      {/* Mobile Create Topic Dialog */}
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Nieuw Topic</DialogTitle>
+          </DialogHeader>
+          <div className="p-4">
+            <Button 
+              onClick={() => {
+                window.location.href = '/create-topic';
+                setShowCreateDialog(false);
+              }}
+              className="w-full"
+            >
+              Ga naar Topic Creator
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
