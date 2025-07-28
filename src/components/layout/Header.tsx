@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Search, User, Settings, LogOut } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, User, Settings, LogOut, Wifi, WifiOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,21 @@ import { NotificationDropdown } from '@/components/notifications/NotificationDro
 export function Header() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  // Online/offline status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -58,6 +73,18 @@ export function Header() {
 
         {/* Actions */}
         <div className="flex items-center space-x-2">
+          {/* Online/Offline indicator */}
+          <div className="flex items-center gap-1 text-xs">
+            {isOnline ? (
+              <Wifi className="w-4 h-4 text-green-500" />
+            ) : (
+              <WifiOff className="w-4 h-4 text-red-500" />
+            )}
+            <span className={isOnline ? "text-green-500" : "text-red-500"}>
+              {isOnline ? "Online" : "Offline"}
+            </span>
+          </div>
+          
           <ThemeToggle />
           
           {/* Notifications */}
