@@ -39,7 +39,7 @@ export const useSearch = () => {
   const performSearch = async (params: SearchParams) => {
     setSearchLoading(true);
     try {
-      // Search in topics
+      // Search in topics with full-text search capability
       let topicsQuery = supabase
         .from('topics')
         .select(`
@@ -57,15 +57,31 @@ export const useSearch = () => {
           categories!topics_category_id_fkey (
             name,
             slug
+          ),
+          topic_tags!inner (
+            tags!inner (
+              name,
+              slug
+            )
           )
         `);
 
+      // Enhanced search with better relevance
       if (params.query) {
-        topicsQuery = topicsQuery.or(`title.ilike.%${params.query}%,content.ilike.%${params.query}%`);
+        const searchQuery = params.query.trim();
+        topicsQuery = topicsQuery.or(`title.ilike.%${searchQuery}%,content.ilike.%${searchQuery}%`);
       }
 
       if (params.category) {
         topicsQuery = topicsQuery.eq('categories.slug', params.category);
+      }
+
+      if (params.author) {
+        topicsQuery = topicsQuery.eq('profiles.username', params.author);
+      }
+
+      if (params.tags && params.tags.length > 0) {
+        topicsQuery = topicsQuery.in('topic_tags.tags.slug', params.tags);
       }
 
       if (params.dateFrom) {
@@ -76,7 +92,7 @@ export const useSearch = () => {
         topicsQuery = topicsQuery.lte('created_at', params.dateTo);
       }
 
-      // Search in replies if contentType is 'all' or 'reply'
+      // Search in replies with enhanced filtering
       let repliesQuery = null;
       if (!params.contentType || params.contentType === 'all' || params.contentType === 'reply') {
         repliesQuery = supabase
@@ -101,7 +117,12 @@ export const useSearch = () => {
           `);
 
         if (params.query) {
-          repliesQuery = repliesQuery.ilike('content', `%${params.query}%`);
+          const searchQuery = params.query.trim();
+          repliesQuery = repliesQuery.ilike('content', `%${searchQuery}%`);
+        }
+
+        if (params.author) {
+          repliesQuery = repliesQuery.eq('profiles.username', params.author);
         }
 
         if (params.dateFrom) {
@@ -113,10 +134,10 @@ export const useSearch = () => {
         }
       }
 
-      // Execute queries
-      const promises = [topicsQuery.limit(10)];
+      // Execute queries with better limits
+      const promises = [topicsQuery.limit(20)];
       if (repliesQuery) {
-        promises.push(repliesQuery.limit(10));
+        promises.push(repliesQuery.limit(20));
       }
 
       const results = await Promise.all(promises);

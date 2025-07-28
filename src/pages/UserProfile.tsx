@@ -1,74 +1,66 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, MapPin, Award, MessageSquare, Eye, Clock, Edit, Mail, Shield } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Award, MessageSquare, Eye, Clock, Edit, Mail, Shield, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
-
-const mockUserProfile = {
-  id: 'user1',
-  username: 'CannabisExpert',
-  email: 'expert@example.com',
-  avatar: null,
-  bio: 'Cannabis onderzoeker en enthousiasteling met 10+ jaar ervaring in de sector. Gespecialiseerd in medicinaal gebruik en teelt technieken. Altijd bereid om kennis te delen!',
-  location: 'Brussel, België',
-  joinedAt: '2023-02-15',
-  lastSeen: '2024-01-20T15:30:00Z',
-  isOnline: true,
-  role: 'expert',
-  reputation: 2840,
-  badges: ['Expert', 'CBD Specialist', 'Community Helper', 'Early Adopter'],
-  stats: {
-    posts: 187,
-    topics: 23,
-    upvotes: 1240,
-    helped: 89,
-  },
-};
-
-const mockUserPosts = [
-  {
-    id: 'p1',
-    title: 'CBD dosering voor beginners: Een complete gids',
-    content: 'Voor iedereen die net begint met CBD, hier een overzicht van de belangrijkste punten om rekening mee te houden bij dosering...',
-    category: 'Medicinaal Gebruik',
-    createdAt: '2024-01-18T14:20:00Z',
-    upvotes: 34,
-    replies: 12,
-    views: 567,
-  },
-  {
-    id: 'p2',
-    title: 'Nieuwe onderzoeksresultaten over terpenen',
-    content: 'Ik kwam recent een interessant onderzoek tegen over de rol van terpenen in het entourage effect...',
-    category: 'Wetgeving & Nieuws',
-    createdAt: '2024-01-15T09:45:00Z',
-    upvotes: 28,
-    replies: 8,
-    views: 423,
-  },
-  {
-    id: 'p3',
-    title: 'Tips voor eerste kweek setup',
-    content: 'Voor alle beginners die overwegen om te gaan kweken, hier mijn top tips voor een succesvolle eerste setup...',
-    category: 'Teelt & Horticultuur',
-    createdAt: '2024-01-12T16:10:00Z',
-    upvotes: 45,
-    replies: 19,
-    views: 789,
-  },
-];
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 export default function UserProfile() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('posts');
+  const { profile, stats, posts, topics, activity, loading, error, fetchUserData } = useUserProfile();
 
   const isOwnProfile = user?.id === userId;
+
+  useEffect(() => {
+    if (userId) {
+      fetchUserData(userId);
+    }
+  }, [userId]);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Terug
+          </Button>
+          <h1 className="font-heading text-2xl font-bold">Gebruikersprofiel</h1>
+        </div>
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Terug
+          </Button>
+          <h1 className="font-heading text-2xl font-bold">Gebruikersprofiel</h1>
+        </div>
+        <Card>
+          <CardContent className="text-center py-8">
+            <p className="text-muted-foreground">
+              {error || 'Gebruiker niet gevonden'}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('nl-BE', {
@@ -119,17 +111,15 @@ export default function UserProfile() {
           <div className="flex flex-col md:flex-row items-start gap-6">
             <div className="flex flex-col items-center text-center">
               <Avatar className="h-24 w-24 mb-4">
-                <AvatarImage src={mockUserProfile.avatar || undefined} />
-                <AvatarFallback className={`${getRoleColor(mockUserProfile.role)} text-white text-lg`}>
-                  {getUserInitials(mockUserProfile.username)}
+                <AvatarImage src={profile.avatar_url || undefined} />
+                <AvatarFallback className={`${getRoleColor(profile.role)} text-white text-lg`}>
+                  {getUserInitials(profile.username)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex items-center gap-1 mb-2">
-                {mockUserProfile.isOnline && (
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                )}
+                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
                 <span className="text-sm text-muted-foreground">
-                  {mockUserProfile.isOnline ? 'Online nu' : getTimeAgo(mockUserProfile.lastSeen)}
+                  Lid sinds {formatDate(profile.created_at)}
                 </span>
               </div>
             </div>
@@ -138,31 +128,34 @@ export default function UserProfile() {
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <div className="flex items-center gap-3 mb-2">
-                    <h2 className="font-heading text-2xl font-bold">{mockUserProfile.username}</h2>
-                    {mockUserProfile.role === 'expert' && (
+                    <h2 className="font-heading text-2xl font-bold">
+                      {profile.display_name || profile.username}
+                    </h2>
+                    {profile.role === 'expert' && (
                       <Badge variant="default" className="gap-1">
                         <Award className="h-3 w-3" />
                         EXPERT
                       </Badge>
                     )}
-                    {mockUserProfile.role === 'moderator' && (
+                    {profile.role === 'moderator' && (
                       <Badge variant="secondary" className="gap-1">
                         <Shield className="h-3 w-3" />
                         MOD
                       </Badge>
                     )}
+                    {profile.is_verified && (
+                      <Badge variant="outline" className="gap-1">
+                        <Award className="h-3 w-3" />
+                        VERIFIED
+                      </Badge>
+                    )}
                   </div>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                    <span>@{profile.username}</span>
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
-                      <span>Lid sinds {formatDate(mockUserProfile.joinedAt)}</span>
+                      <span>Lid sinds {formatDate(profile.created_at)}</span>
                     </div>
-                    {mockUserProfile.location && (
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        <span>{mockUserProfile.location}</span>
-                      </div>
-                    )}
                   </div>
                 </div>
                 
@@ -179,37 +172,29 @@ export default function UserProfile() {
                 )}
               </div>
 
-              {mockUserProfile.bio && (
-                <p className="text-muted-foreground mb-4">{mockUserProfile.bio}</p>
+              {profile.bio && (
+                <p className="text-muted-foreground mb-4">{profile.bio}</p>
               )}
-
-              {/* Badges */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                {mockUserProfile.badges.map(badge => (
-                  <Badge key={badge} variant="outline" className="gap-1">
-                    <Award className="h-3 w-3" />
-                    {badge}
-                  </Badge>
-                ))}
-              </div>
 
               {/* Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center">
-                  <div className="font-bold text-lg text-primary">{mockUserProfile.reputation}</div>
+                  <div className="font-bold text-lg text-primary">{profile.reputation}</div>
                   <div className="text-sm text-muted-foreground">Reputatie</div>
                 </div>
                 <div className="text-center">
-                  <div className="font-bold text-lg text-primary">{mockUserProfile.stats.posts}</div>
+                  <div className="font-bold text-lg text-primary">
+                    {stats ? stats.topics_count + stats.replies_count : 0}
+                  </div>
                   <div className="text-sm text-muted-foreground">Posts</div>
                 </div>
                 <div className="text-center">
-                  <div className="font-bold text-lg text-primary">{mockUserProfile.stats.topics}</div>
+                  <div className="font-bold text-lg text-primary">{stats?.topics_count || 0}</div>
                   <div className="text-sm text-muted-foreground">Topics</div>
                 </div>
                 <div className="text-center">
-                  <div className="font-bold text-lg text-primary">{mockUserProfile.stats.helped}</div>
-                  <div className="text-sm text-muted-foreground">Geholpen</div>
+                  <div className="font-bold text-lg text-primary">{stats?.achievements_count || 0}</div>
+                  <div className="text-sm text-muted-foreground">Prestaties</div>
                 </div>
               </div>
             </div>
@@ -226,53 +211,112 @@ export default function UserProfile() {
         </TabsList>
 
         <TabsContent value="posts" className="space-y-4">
-          {mockUserPosts.map(post => (
+          {posts.length > 0 ? posts.map(post => (
             <Card key={post.id} className="hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="pt-4">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <h3 className="font-medium hover:text-primary transition-colors mb-2">
-                      {post.title}
-                    </h3>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-medium hover:text-primary transition-colors">
+                        {post.title}
+                      </h3>
+                      <Badge variant="outline" className="text-xs">
+                        {post.type}
+                      </Badge>
+                    </div>
                     <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                       {post.content}
                     </p>
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <Badge variant="outline" className="text-xs">
-                        {post.category}
-                      </Badge>
-                      <span>{formatDate(post.createdAt)}</span>
+                      {post.category && (
+                        <Badge variant="outline" className="text-xs">
+                          {post.category.name}
+                        </Badge>
+                      )}
+                      <span>{formatDate(post.created_at)}</span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end text-sm text-muted-foreground space-y-1 ml-4">
                     <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-1">
-                        <MessageSquare className="h-3 w-3" />
-                        <span>{post.replies}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Eye className="h-3 w-3" />
-                        <span>{post.views}</span>
-                      </div>
+                      {post.reply_count !== undefined && (
+                        <div className="flex items-center gap-1">
+                          <MessageSquare className="h-3 w-3" />
+                          <span>{post.reply_count}</span>
+                        </div>
+                      )}
+                      {post.view_count !== undefined && (
+                        <div className="flex items-center gap-1">
+                          <Eye className="h-3 w-3" />
+                          <span>{post.view_count}</span>
+                        </div>
+                      )}
                     </div>
                     <div className="text-primary font-medium">+{post.upvotes}</div>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )) : (
+            <Card>
+              <CardContent className="text-center py-8">
+                <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="font-medium mb-2">Geen posts gevonden</h3>
+                <p className="text-muted-foreground">
+                  Deze gebruiker heeft nog geen posts gemaakt.
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="topics" className="space-y-4">
-          <Card>
-            <CardContent className="text-center py-8">
-              <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-medium mb-2">Geen topics gevonden</h3>
-              <p className="text-muted-foreground">
-                Deze gebruiker heeft nog geen topics gestart.
-              </p>
-            </CardContent>
-          </Card>
+          {topics.length > 0 ? topics.map(topic => (
+            <Card key={topic.id} className="hover:shadow-md transition-shadow cursor-pointer">
+              <CardContent className="pt-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <h3 className="font-medium hover:text-primary transition-colors mb-2">
+                      {topic.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                      {topic.content}
+                    </p>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      {topic.category && (
+                        <Badge variant="outline" className="text-xs">
+                          {topic.category.name}
+                        </Badge>
+                      )}
+                      <span>{formatDate(topic.created_at)}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end text-sm text-muted-foreground space-y-1 ml-4">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-1">
+                        <MessageSquare className="h-3 w-3" />
+                        <span>{topic.reply_count || 0}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Eye className="h-3 w-3" />
+                        <span>{topic.view_count || 0}</span>
+                      </div>
+                    </div>
+                    <div className="text-primary font-medium">+{topic.upvotes}</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )) : (
+            <Card>
+              <CardContent className="text-center py-8">
+                <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="font-medium mb-2">Geen topics gevonden</h3>
+                <p className="text-muted-foreground">
+                  Deze gebruiker heeft nog geen topics gestart.
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="activity" className="space-y-4">
@@ -281,21 +325,27 @@ export default function UserProfile() {
               <CardTitle className="text-lg">Recente Activiteit</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center gap-3 text-sm">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-muted-foreground">2 uur geleden</span>
-                <span>Reageerde op "CBD dosering tips"</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span className="text-muted-foreground">1 dag geleden</span>
-                <span>Startte topic "Nieuwe onderzoeksresultaten"</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                <span className="text-muted-foreground">3 dagen geleden</span>
-                <span>Behaalde badge "Community Helper"</span>
-              </div>
+              {activity.length > 0 ? activity.map(item => (
+                <div key={item.id} className="flex items-center gap-3 text-sm">
+                  <div className={`w-2 h-2 rounded-full ${
+                    item.activity_type === 'topic_created' ? 'bg-blue-500' :
+                    item.activity_type === 'reply_created' ? 'bg-green-500' :
+                    'bg-purple-500'
+                  }`}></div>
+                  <span className="text-muted-foreground">
+                    {getTimeAgo(item.created_at)}
+                  </span>
+                  <span>
+                    {item.activity_type === 'topic_created' && 'Startte een nieuw topic'}
+                    {item.activity_type === 'reply_created' && 'Reageerde op een topic'}
+                    {item.activity_type === 'achievement_earned' && 'Behaalde een prestatie'}
+                  </span>
+                </div>
+              )) : (
+                <p className="text-muted-foreground text-center py-4">
+                  Nog geen activiteit zichtbaar
+                </p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
