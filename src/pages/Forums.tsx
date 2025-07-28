@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Users, MessageSquare, Pin } from 'lucide-react';
+import { Plus, Users, MessageSquare, Pin, Heart, Scale, Star, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface Category {
   id: string;
@@ -16,6 +18,8 @@ interface Category {
   slug: string;
   sort_order: number;
   is_active: boolean;
+  topic_count?: number;
+  reply_count?: number;
 }
 
 interface TopicWithCategory {
@@ -30,11 +34,21 @@ interface TopicWithCategory {
   };
 }
 
+const iconMap = {
+  'MessageSquare': MessageSquare,
+  'TrendingUp': TrendingUp,
+  'Users': Users,
+  'Heart': Heart,
+  'Scale': Scale,
+  'Star': Star,
+};
+
 export default function Forums() {
-  const { isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [popularTopics, setPopularTopics] = useState<TopicWithCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -112,7 +126,7 @@ export default function Forums() {
             Ontdek onze verschillende communities en join de discussie
           </p>
         </div>
-        {isAuthenticated && (
+        {user && (
           <Button className="gap-2" asChild>
             <Link to="/create-topic">
               <Plus className="h-4 w-4" />
@@ -129,8 +143,13 @@ export default function Forums() {
             <Card className="h-full hover:shadow-md transition-shadow cursor-pointer group">
               <CardHeader>
                 <div className="flex items-start justify-between">
-                  <div className={`w-12 h-12 rounded-lg ${category.color || 'bg-primary'} flex items-center justify-center mb-3`}>
-                    <MessageSquare className="h-6 w-6 text-white" />
+                <div 
+                    className="w-12 h-12 rounded-lg flex items-center justify-center mb-3 text-white"
+                    style={{ backgroundColor: category.color || '#3b82f6' }}
+                  >
+                    {React.createElement(iconMap[category.icon as keyof typeof iconMap] || MessageSquare, {
+                      className: "h-6 w-6"
+                    })}
                   </div>
                   <Badge variant="secondary" className="text-xs">
                     Publiek
@@ -146,12 +165,12 @@ export default function Forums() {
               <CardContent>
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
-                    <span>Community</span>
+                    <MessageSquare className="h-4 w-4" />
+                    <span>{category.topic_count || 0} topics</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <MessageSquare className="h-4 w-4" />
-                    <span>Topics</span>
+                    <Users className="h-4 w-4" />
+                    <span>{category.reply_count || 0} reacties</span>
                   </div>
                 </div>
               </CardContent>
