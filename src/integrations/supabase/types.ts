@@ -47,6 +47,48 @@ export type Database = {
         }
         Relationships: []
       }
+      achievements: {
+        Row: {
+          category: string
+          created_at: string
+          criteria: Json
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name: string
+          points: number
+          rarity: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          criteria?: Json
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          points?: number
+          rarity?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          criteria?: Json
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          points?: number
+          rarity?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       activity_feed: {
         Row: {
           activity_data: Json
@@ -645,6 +687,38 @@ export type Database = {
         }
         Relationships: []
       }
+      topic_subscriptions: {
+        Row: {
+          id: string
+          notification_type: string
+          subscribed_at: string
+          topic_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          notification_type?: string
+          subscribed_at?: string
+          topic_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          notification_type?: string
+          subscribed_at?: string
+          topic_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topic_subscriptions_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       topic_tags: {
         Row: {
           created_at: string
@@ -816,6 +890,38 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          earned_at: string
+          id: string
+          progress: Json | null
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          earned_at?: string
+          id?: string
+          progress?: Json | null
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          earned_at?: string
+          id?: string
+          progress?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_badges: {
         Row: {
           badge_id: string
@@ -951,6 +1057,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_pwa_settings: {
+        Row: {
+          created_at: string
+          id: string
+          last_sync_at: string | null
+          offline_reading_enabled: boolean
+          push_notifications_enabled: boolean
+          push_subscription: Json | null
+          sync_frequency: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_sync_at?: string | null
+          offline_reading_enabled?: boolean
+          push_notifications_enabled?: boolean
+          push_subscription?: Json | null
+          sync_frequency?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_sync_at?: string | null
+          offline_reading_enabled?: boolean
+          push_notifications_enabled?: boolean
+          push_subscription?: Json | null
+          sync_frequency?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_security_events: {
         Row: {
           created_at: string
@@ -1050,6 +1192,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_streaks: {
+        Row: {
+          created_at: string
+          current_streak: number
+          id: string
+          last_activity_date: string | null
+          longest_streak: number
+          streak_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number
+          streak_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number
+          streak_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       votes: {
         Row: {
           created_at: string
@@ -1090,6 +1265,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      award_achievement: {
+        Args: {
+          target_user_id: string
+          achievement_name: string
+          progress_data?: Json
+        }
+        Returns: boolean
+      }
       calculate_user_security_score: {
         Args: { target_user_id: string }
         Returns: number
@@ -1143,6 +1326,10 @@ export type Database = {
       update_user_security_score: {
         Args: { target_user_id: string }
         Returns: undefined
+      }
+      update_user_streak: {
+        Args: { target_user_id: string; streak_type?: string }
+        Returns: number
       }
       verify_user_password: {
         Args: { user_email: string; password_to_verify: string }
