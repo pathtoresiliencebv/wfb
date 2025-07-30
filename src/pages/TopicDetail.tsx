@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, MessageSquare, Eye, Clock, User, Flag, Bookmark } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Eye, Clock, User, Flag, Bookmark, Bell, BellOff, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,8 @@ import { VotingButtons } from '@/components/interactive/VotingButtons';
 import { PostActions } from '@/components/interactive/PostActions';
 import { useVoting } from '@/hooks/useVoting';
 import { useBookmarks } from '@/hooks/useBookmarks';
+import { useTopicSubscriptions } from '@/hooks/useTopicSubscriptions';
+import { ReportModal } from '@/components/moderation/ReportModal';
 import { supabase } from '@/integrations/supabase/client';
 
 interface TopicData {
@@ -33,6 +35,13 @@ interface TopicData {
     reputation: number;
     created_at: string;
   };
+  topic_tags: Array<{
+    tags: {
+      id: string;
+      name: string;
+      color: string;
+    };
+  }>;
 }
 
 interface ReplyData {
@@ -82,6 +91,7 @@ export default function TopicDetail() {
 
   const { handleVote, getVoteData } = useVoting(initialVotes);
   const { toggleBookmark, isBookmarked } = useBookmarks();
+  const { isSubscribed, toggleSubscription, isToggling } = useTopicSubscriptions(topicId);
 
   useEffect(() => {
     const fetchTopicAndReplies = async () => {
@@ -109,6 +119,13 @@ export default function TopicDetail() {
               role,
               reputation,
               created_at
+            ),
+            topic_tags (
+              tags (
+                id,
+                name,
+                color
+              )
             )
           `)
           .eq('id', topicId)
@@ -303,6 +320,24 @@ export default function TopicDetail() {
         </div>
         <div className="flex items-center gap-2">
           <Button 
+            variant={isSubscribed ? "default" : "outline"} 
+            size="sm"
+            onClick={() => toggleSubscription(topic.id)}
+            disabled={isToggling}
+          >
+            {isSubscribed ? (
+              <>
+                <BellOff className="h-4 w-4 mr-1" />
+                Uitschrijven
+              </>
+            ) : (
+              <>
+                <Bell className="h-4 w-4 mr-1" />
+                Volgen
+              </>
+            )}
+          </Button>
+          <Button 
             variant={isBookmarked(topic.id) ? "default" : "outline"} 
             size="sm"
             onClick={() => toggleBookmark(topic.id, 'topic')}
@@ -318,20 +353,39 @@ export default function TopicDetail() {
         </div>
       </div>
 
-      {/* Topic Stats */}
-      <div className="flex items-center gap-6 text-sm text-muted-foreground">
-        <div className="flex items-center gap-1">
-          <Eye className="h-4 w-4" />
-          <span>{topic.view_count} views</span>
+      {/* Topic Stats & Tags */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-6 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Eye className="h-4 w-4" />
+            <span>{topic.view_count} views</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <MessageSquare className="h-4 w-4" />
+            <span>{topic.reply_count} reacties</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Clock className="h-4 w-4" />
+            <span>{formatDate(topic.created_at)}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-1">
-          <MessageSquare className="h-4 w-4" />
-          <span>{topic.reply_count} reacties</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <Clock className="h-4 w-4" />
-          <span>{formatDate(topic.created_at)}</span>
-        </div>
+
+        {/* Tags */}
+        {topic.topic_tags && topic.topic_tags.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <Tag className="h-4 w-4 text-muted-foreground" />
+            {topic.topic_tags.map(({ tags }) => (
+              <Badge 
+                key={tags.id} 
+                variant="outline" 
+                className="text-xs"
+                style={{ borderColor: tags.color, color: tags.color }}
+              >
+                {tags.name}
+              </Badge>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Original Post */}
@@ -359,9 +413,11 @@ export default function TopicDetail() {
                 </div>
               </div>
             </div>
-            <Button variant="ghost" size="sm">
-              <Flag className="h-4 w-4" />
-            </Button>
+            <ReportModal itemId={topic.id} itemType="topic">
+              <Button variant="ghost" size="sm">
+                <Flag className="h-4 w-4" />
+              </Button>
+            </ReportModal>
           </div>
         </CardHeader>
         <CardContent className="pt-6">
@@ -429,9 +485,11 @@ export default function TopicDetail() {
                     </div>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm">
-                  <Flag className="h-3 w-3" />
-                </Button>
+                <ReportModal itemId={reply.id} itemType="reply">
+                  <Button variant="ghost" size="sm">
+                    <Flag className="h-3 w-3" />
+                  </Button>
+                </ReportModal>
               </div>
             </CardHeader>
             <CardContent className="pt-4">
