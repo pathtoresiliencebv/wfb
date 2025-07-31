@@ -88,7 +88,7 @@ export function RewardsStore({ userId }: RewardsStoreProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredRewards.map((reward) => {
                 const isOwned = claimedRewardIds.includes(reward.id);
-                const canClaim = canClaimReward(reward);
+                const canClaim = canClaimReward(reward as any);
                 const IconComponent = (LucideIcons as any)[reward.icon] || LucideIcons.Gift;
 
                 return (
