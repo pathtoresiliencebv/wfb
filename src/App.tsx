@@ -1,3 +1,4 @@
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { AuthConfigManager } from "@/components/auth/AuthConfigManager";
@@ -28,6 +29,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import PasswordReset from "./pages/PasswordReset";
 import Settings from "./pages/Settings";
+import Gamification from "./pages/Gamification";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -169,6 +171,14 @@ function AppRoutes() {
                         <Settings />
                       </Layout>
                     </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/gamification" 
+                  element={
+                    <Layout>
+                      <Gamification />
+                    </Layout>
                   } 
                 />
                 <Route 

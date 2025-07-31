@@ -2,13 +2,13 @@ import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotifications } from './useNotifications';
-import { useAchievementNotifications } from '@/components/gamification/AchievementNotification';
 import { toast } from 'sonner';
 
 export function useRealTimeNotifications() {
   const { user } = useAuth();
   const { refetch } = useNotifications();
-  const { showAchievementToast } = useAchievementNotifications();
+  // Temporarily removing achievement notifications to fix startup error
+  // const { showAchievementToast } = useAchievementNotifications();
 
   useEffect(() => {
     if (!user?.id) return;
@@ -29,13 +29,9 @@ export function useRealTimeNotifications() {
           
           // Show achievement notification if it's an achievement
           if (notification.type === 'achievement_earned' && notification.data?.achievement_id) {
-            showAchievementToast({
-              id: notification.data.achievement_id,
-              name: notification.data.achievement_name,
+            // Temporarily show regular toast instead of achievement toast
+            toast.success(`🎉 Achievement: ${notification.data.achievement_name}!`, {
               description: notification.message,
-              icon: 'Trophy',
-              points: notification.data.points || 0,
-              rarity: 'common'
             });
           } else {
             // Show regular toast for other notifications
@@ -71,7 +67,7 @@ export function useRealTimeNotifications() {
       notificationChannel.unsubscribe();
       achievementChannel.unsubscribe();
     };
-  }, [user?.id, refetch, showAchievementToast]);
+  }, [user?.id, refetch]);
 
   return null;
 }
