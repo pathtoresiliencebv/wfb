@@ -19,7 +19,8 @@ import Members from "./pages/Members";
 import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
 import Messages from "./pages/Messages";
-import Admin from "./pages/Admin";
+import { AdminLayout } from "@/components/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import Search from "./pages/Search";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -186,9 +187,9 @@ function AppRoutes() {
                   path="/admin" 
                   element={
                     <AdminRoute requireRole="moderator">
-                      <Layout>
-                        <Admin />
-                      </Layout>
+                      <AdminLayout>
+                        <AdminDashboard />
+                      </AdminLayout>
                     </AdminRoute>
                   } 
                 />
