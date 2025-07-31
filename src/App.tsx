@@ -23,6 +23,7 @@ import Admin from "./pages/Admin";
 import Search from "./pages/Search";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { AdminRoute } from "@/components/auth/AdminRoute";
 import { OnboardingWelcome } from "@/components/auth/OnboardingWelcome";
 import { LandingPage } from "@/components/landing/LandingPage";
 import Login from "./pages/Login";
@@ -184,11 +185,11 @@ function AppRoutes() {
                 <Route 
                   path="/admin" 
                   element={
-                    <ProtectedRoute>
+                    <AdminRoute requireRole="moderator">
                       <Layout>
                         <Admin />
                       </Layout>
-                    </ProtectedRoute>
+                    </AdminRoute>
                   } 
                 />
                 
