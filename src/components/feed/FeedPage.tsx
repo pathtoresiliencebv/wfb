@@ -13,6 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { FeedLoadingSkeleton } from '@/components/loading/OptimizedLoadingStates';
+import { useQuery } from '@tanstack/react-query';
 
 // Mock data
 const mockPosts = [
@@ -88,107 +90,80 @@ export function FeedPage() {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [recentTopics, setRecentTopics] = useState(mockPosts);
-  const [stats, setStats] = useState([
-    {
-      title: 'Actieve Topics',
-      value: '...',
-      description: 'Deze week',
-      icon: MessageSquare,
+
+  // Fetch recent topics with React Query
+  const { data: recentTopics = [], isLoading: topicsLoading } = useQuery({
+    queryKey: ['recentTopics'],
+    queryFn: async () => {
+      const { data: topics, error } = await supabase
+        .from('topics')
+        .select(`
+          *,
+          profiles!topics_author_id_fkey(username, avatar_url, is_verified),
+          categories(name)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+
+      return topics?.map(topic => ({
+        id: topic.id,
+        title: topic.title,
+        content: topic.content,
+        author: {
+          username: topic.profiles?.username || 'Anonymous',
+          avatar: topic.profiles?.avatar_url || null,
+          isVerified: topic.profiles?.is_verified || false,
+        },
+        category: topic.categories?.name || 'General',
+        createdAt: new Date(topic.created_at),
+        votes: 0,
+        replyCount: topic.reply_count || 0,
+        isSticky: topic.is_pinned || false,
+      })) || [];
     },
-    {
-      title: 'Online Leden',
-      value: '...',
-      description: 'Nu online',
-      icon: Users,
-    },
-    {
-      title: 'Trending',
-      value: '#CBD',
-      description: 'Populairste tag',
-      icon: TrendingUp,
-    },
-  ]);
+    staleTime: 60000, // 1 minute
+  });
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        // Fetch recent topics with author info and categories
-        const { data: topics, error: topicsError } = await supabase
-          .from('topics')
-          .select(`
-            *,
-            profiles!topics_author_id_fkey(username, avatar_url, is_verified),
-            categories(name)
-          `)
-          .order('created_at', { ascending: false })
-          .limit(5);
-
-        if (topicsError) throw topicsError;
-
-        // Transform data to match PostCard interface
-        if (topics) {
-          const transformedTopics = topics.map(topic => ({
-            id: topic.id,
-            title: topic.title,
-            content: topic.content,
-            author: {
-              username: topic.profiles?.username || 'Anonymous',
-              avatar: topic.profiles?.avatar_url || null,
-              isVerified: topic.profiles?.is_verified || false,
-            },
-            category: topic.categories?.name || 'General',
-            createdAt: new Date(topic.created_at),
-            votes: 0, // Will be calculated from votes table
-            replyCount: topic.reply_count || 0,
-            isSticky: topic.is_pinned || false,
-          }));
-          setRecentTopics(transformedTopics);
-        }
-
-        // Fetch stats correctly using count
-        const { count: topicCount } = await supabase
-          .from('topics')
-          .select('*', { count: 'exact', head: true });
-
-        const { count: profileCount } = await supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true });
-
-        // Get online users count (users active in last 30 minutes)
-        const { count: onlineCount } = await supabase
-          .from('user_online_status')
+  // Fetch stats with React Query
+  const { data: stats = [], isLoading: statsLoading } = useQuery({
+    queryKey: ['dashboardStats'],
+    queryFn: async () => {
+      const [topicCountResult, profileCountResult, onlineCountResult] = await Promise.all([
+        supabase.from('topics').select('*', { count: 'exact', head: true }),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('user_online_status')
           .select('*', { count: 'exact', head: true })
           .eq('is_online', true)
-          .gte('last_seen', new Date(Date.now() - 30 * 60 * 1000).toISOString());
+          .gte('last_seen', new Date(Date.now() - 30 * 60 * 1000).toISOString())
+      ]);
 
-        setStats([
-          {
-            title: 'Actieve Topics',
-            value: topicCount?.toString() || '0',
-            description: 'Totaal',
-            icon: MessageSquare,
-          },
-          {
-            title: 'Online Leden',
-            value: onlineCount?.toString() || '0',
-            description: 'Nu online',
-            icon: Users,
-          },
-          {
-            title: 'Leden',
-            value: profileCount?.toString() || '0',
-            description: 'Geregistreerd',
-            icon: TrendingUp,
-          },
-        ]);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      }
-    };
+      return [
+        {
+          title: 'Actieve Topics',
+          value: topicCountResult.count?.toString() || '0',
+          description: 'Totaal',
+          icon: MessageSquare,
+        },
+        {
+          title: 'Online Leden',
+          value: onlineCountResult.count?.toString() || '0',
+          description: 'Nu online',
+          icon: Users,
+        },
+        {
+          title: 'Leden',
+          value: profileCountResult.count?.toString() || '0',
+          description: 'Geregistreerd',
+          icon: TrendingUp,
+        },
+      ];
+    },
+    staleTime: 300000, // 5 minutes
+  });
 
-    fetchDashboardData();
-  }, []);
+  const isLoading = topicsLoading || statsLoading;
 
   const handleRefresh = async () => {
     // Re-fetch dashboard data
@@ -197,6 +172,10 @@ export function FeedPage() {
 
   if (!user) {
     return null; // This should not happen as LandingPage handles non-authenticated users
+  }
+
+  if (isLoading) {
+    return <FeedLoadingSkeleton />;
   }
 
   const mainContent = (

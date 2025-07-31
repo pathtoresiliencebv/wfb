@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Plus, Users, MessageSquare, Pin, Heart, Scale, Star, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -6,10 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
-import { MobileOptimizedGrid, MobileOptimizedCard } from '@/components/mobile/MobileOptimizedCard';
-import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useQuery } from '@tanstack/react-query';
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { ForumsLoadingSkeleton } from '@/components/loading/OptimizedLoadingStates';
 
 interface Category {
   id: string;
@@ -47,79 +48,73 @@ const iconMap = {
 
 export default function Forums() {
   const { user } = useAuth();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [popularTopics, setPopularTopics] = useState<TopicWithCategory[]>([]);
-  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch categories
-        const { data: categoriesData, error: categoriesError } = await supabase
-          .from('categories')
-          .select('*')
-          .eq('is_active', true)
-          .order('sort_order');
+  // Fetch categories with React Query
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order');
 
-        if (categoriesError) {
-          console.error('Error fetching categories:', categoriesError);
-        } else {
-          setCategories(categoriesData || []);
-        }
+      if (error) throw error;
+      return data || [];
+    },
+    staleTime: 300000, // 5 minutes
+  });
 
-        // Fetch popular topics
-        const { data: topicsData, error: topicsError } = await supabase
-          .from('topics')
-          .select(`
-            id,
-            title,
-            reply_count,
-            view_count,
-            is_pinned,
-            categories (
-              name,
-              slug
-            )
-          `)
-          .order('view_count', { ascending: false })
-          .limit(3);
+  // Fetch popular topics with React Query
+  const { data: popularTopics = [], isLoading: topicsLoading } = useQuery({
+    queryKey: ['popularTopics'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('topics')
+        .select(`
+          id,
+          title,
+          reply_count,
+          view_count,
+          is_pinned,
+          categories (
+            name,
+            slug
+          )
+        `)
+        .order('view_count', { ascending: false })
+        .limit(3);
 
-        if (topicsError) {
-          console.error('Error fetching topics:', topicsError);
-        } else {
-          setPopularTopics(topicsData || []);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      if (error) throw error;
+      return data || [];
+    },
+    staleTime: 60000, // 1 minute
+  });
 
-    fetchData();
-  }, []);
+  const loading = categoriesLoading || topicsLoading;
 
   if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded w-1/3 mb-2"></div>
-          <div className="h-4 bg-muted rounded w-2/3"></div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="h-48 bg-muted rounded-lg"></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+    return <ForumsLoadingSkeleton />;
   }
 
   return (
     <div className="space-y-6">
+      {/* Breadcrumb */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/">Home</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Forums</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

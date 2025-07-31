@@ -87,12 +87,13 @@ export function useGamification(userId?: string) {
         .from('user_levels')
         .select('*')
         .eq('user_id', targetUserId)
-        .single();
+        .maybeSingle();
       
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
       return data;
     },
     enabled: !!targetUserId,
+    staleTime: 30000, // Cache for 30 seconds
   });
 
   // Fetch user points by category
@@ -127,6 +128,7 @@ export function useGamification(userId?: string) {
       if (error) throw error;
       return data || [];
     },
+    staleTime: 300000, // Cache for 5 minutes
   });
 
   // Fetch available rewards
