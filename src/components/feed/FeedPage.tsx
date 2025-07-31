@@ -146,32 +146,39 @@ export function FeedPage() {
           setRecentTopics(transformedTopics);
         }
 
-        // Fetch stats
-        const { data: topicCount } = await supabase
+        // Fetch stats correctly using count
+        const { count: topicCount } = await supabase
           .from('topics')
-          .select('id', { count: 'exact' });
+          .select('*', { count: 'exact', head: true });
 
-        const { data: profileCount } = await supabase
+        const { count: profileCount } = await supabase
           .from('profiles')
-          .select('id', { count: 'exact' });
+          .select('*', { count: 'exact', head: true });
+
+        // Get online users count (users active in last 30 minutes)
+        const { count: onlineCount } = await supabase
+          .from('user_online_status')
+          .select('*', { count: 'exact', head: true })
+          .eq('is_online', true)
+          .gte('last_seen', new Date(Date.now() - 30 * 60 * 1000).toISOString());
 
         setStats([
           {
             title: 'Actieve Topics',
-            value: topicCount?.length?.toString() || '0',
+            value: topicCount?.toString() || '0',
             description: 'Totaal',
             icon: MessageSquare,
           },
           {
-            title: 'Leden',
-            value: profileCount?.length?.toString() || '0',
-            description: 'Geregistreerd',
+            title: 'Online Leden',
+            value: onlineCount?.toString() || '0',
+            description: 'Nu online',
             icon: Users,
           },
           {
-            title: 'Trending',
-            value: '#CBD',
-            description: 'Populairste tag',
+            title: 'Leden',
+            value: profileCount?.toString() || '0',
+            description: 'Geregistreerd',
             icon: TrendingUp,
           },
         ]);
