@@ -21,6 +21,15 @@ import NotFound from "./pages/NotFound";
 import Messages from "./pages/Messages";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminModeration from "./pages/admin/AdminModeration";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminCategories from "./pages/admin/AdminCategories";
+import AdminTopics from "./pages/admin/AdminTopics";
+import AdminTags from "./pages/admin/AdminTags";
+import AdminImages from "./pages/admin/AdminImages";
+import AdminSecurity from "./pages/admin/AdminSecurity";
+import AdminAnalyticsPage from "./pages/admin/AdminAnalytics";
+import AdminSettings from "./pages/admin/AdminSettings";
 import Search from "./pages/Search";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -189,6 +198,96 @@ function AppRoutes() {
                     <AdminRoute requireRole="moderator">
                       <AdminLayout>
                         <AdminDashboard />
+                      </AdminLayout>
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/moderation" 
+                  element={
+                    <AdminRoute requireRole="moderator">
+                      <AdminLayout>
+                        <AdminModeration />
+                      </AdminLayout>
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/users" 
+                  element={
+                    <AdminRoute requireRole="moderator">
+                      <AdminLayout>
+                        <AdminUsers />
+                      </AdminLayout>
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/categories" 
+                  element={
+                    <AdminRoute requireRole="moderator">
+                      <AdminLayout>
+                        <AdminCategories />
+                      </AdminLayout>
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/topics" 
+                  element={
+                    <AdminRoute requireRole="moderator">
+                      <AdminLayout>
+                        <AdminTopics />
+                      </AdminLayout>
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/tags" 
+                  element={
+                    <AdminRoute requireRole="moderator">
+                      <AdminLayout>
+                        <AdminTags />
+                      </AdminLayout>
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/images" 
+                  element={
+                    <AdminRoute requireRole="moderator">
+                      <AdminLayout>
+                        <AdminImages />
+                      </AdminLayout>
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/security" 
+                  element={
+                    <AdminRoute requireRole="moderator">
+                      <AdminLayout>
+                        <AdminSecurity />
+                      </AdminLayout>
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/analytics" 
+                  element={
+                    <AdminRoute requireRole="moderator">
+                      <AdminLayout>
+                        <AdminAnalyticsPage />
+                      </AdminLayout>
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/settings" 
+                  element={
+                    <AdminRoute requireRole="moderator">
+                      <AdminLayout>
+                        <AdminSettings />
                       </AdminLayout>
                     </AdminRoute>
                   } 
