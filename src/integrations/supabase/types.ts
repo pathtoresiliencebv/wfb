@@ -381,6 +381,39 @@ export type Database = {
         }
         Relationships: []
       }
+      level_definitions: {
+        Row: {
+          color: string | null
+          created_at: string
+          icon: string | null
+          id: string
+          level_number: number
+          perks: Json | null
+          required_xp: number
+          title: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          level_number: number
+          perks?: Json | null
+          required_xp: number
+          title: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          level_number?: number
+          perks?: Json | null
+          required_xp?: number
+          title?: string
+        }
+        Relationships: []
+      }
       login_attempts: {
         Row: {
           attempt_count: number
@@ -485,6 +518,33 @@ export type Database = {
           type?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      point_categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
         }
         Relationships: []
       }
@@ -653,6 +713,65 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      rewards: {
+        Row: {
+          cost_category_id: string | null
+          cost_points: number
+          created_at: string
+          current_claims: number | null
+          description: string | null
+          expires_at: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          is_limited: boolean | null
+          max_claims: number | null
+          name: string
+          required_level: number | null
+          reward_type: string
+        }
+        Insert: {
+          cost_category_id?: string | null
+          cost_points?: number
+          created_at?: string
+          current_claims?: number | null
+          description?: string | null
+          expires_at?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_limited?: boolean | null
+          max_claims?: number | null
+          name: string
+          required_level?: number | null
+          reward_type: string
+        }
+        Update: {
+          cost_category_id?: string | null
+          cost_points?: number
+          created_at?: string
+          current_claims?: number | null
+          description?: string | null
+          expires_at?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_limited?: boolean | null
+          max_claims?: number | null
+          name?: string
+          required_level?: number | null
+          reward_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rewards_cost_category_id_fkey"
+            columns: ["cost_category_id"]
+            isOneToOne: false
+            referencedRelation: "point_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tags: {
         Row: {
@@ -1018,6 +1137,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_levels: {
+        Row: {
+          created_at: string
+          current_level: number
+          id: string
+          level_title: string | null
+          total_xp: number
+          updated_at: string
+          user_id: string
+          xp_this_level: number
+        }
+        Insert: {
+          created_at?: string
+          current_level?: number
+          id?: string
+          level_title?: string | null
+          total_xp?: number
+          updated_at?: string
+          user_id: string
+          xp_this_level?: number
+        }
+        Update: {
+          created_at?: string
+          current_level?: number
+          id?: string
+          level_title?: string | null
+          total_xp?: number
+          updated_at?: string
+          user_id?: string
+          xp_this_level?: number
+        }
+        Relationships: []
+      }
       user_online_status: {
         Row: {
           created_at: string
@@ -1044,6 +1196,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_points: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_points_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "point_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_privacy_settings: {
         Row: {
@@ -1119,6 +1306,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_rewards: {
+        Row: {
+          claimed_at: string
+          id: string
+          is_active: boolean | null
+          reward_id: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          id?: string
+          is_active?: boolean | null
+          reward_id: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          id?: string
+          is_active?: boolean | null
+          reward_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_rewards_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_security_events: {
         Row: {
@@ -1299,6 +1518,27 @@ export type Database = {
           progress_data?: Json
         }
         Returns: boolean
+      }
+      award_category_points: {
+        Args: {
+          target_user_id: string
+          category_name: string
+          points_amount: number
+        }
+        Returns: boolean
+      }
+      award_xp: {
+        Args: { target_user_id: string; xp_amount: number; reason?: string }
+        Returns: boolean
+      }
+      calculate_user_level: {
+        Args: { total_xp: number }
+        Returns: {
+          level_number: number
+          title: string
+          xp_for_current: number
+          xp_for_next: number
+        }[]
       }
       calculate_user_security_score: {
         Args: { target_user_id: string }
