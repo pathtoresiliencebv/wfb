@@ -21,6 +21,9 @@ import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { AdminRoute } from '@/components/auth/AdminRoute';
 import { SecurityMonitor } from '@/components/security/SecurityMonitor';
+import { DeploymentReadiness } from '@/components/deployment/DeploymentReadiness';
+import { UserEngagementTracker } from '@/components/analytics/UserEngagementTracker';
+import { PerformanceMonitor } from '@/components/analytics/PerformanceMonitor';
 
 interface Report {
   id: string;
@@ -395,37 +398,49 @@ function AdminContent() {
       </div>
 
       <Tabs defaultValue="dashboard" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8">
-          <TabsTrigger value="dashboard" className="flex items-center gap-1">
+        <TabsList className="grid w-full grid-cols-11">
+          <TabsTrigger value="dashboard" className="text-xs">
             <BarChart3 className="h-4 w-4" />
             Dashboard
           </TabsTrigger>
-          <TabsTrigger value="users" className="flex items-center gap-1">
+          <TabsTrigger value="users" className="text-xs">
             <Users className="h-4 w-4" />
             Gebruikers
           </TabsTrigger>
-          <TabsTrigger value="content" className="flex items-center gap-1">
+          <TabsTrigger value="content" className="text-xs">
             <FileText className="h-4 w-4" />
             Content
           </TabsTrigger>
-          <TabsTrigger value="categories" className="flex items-center gap-1">
+          <TabsTrigger value="categories" className="text-xs">
             <Settings className="h-4 w-4" />
             Categorieën
           </TabsTrigger>
-          <TabsTrigger value="reports" className="flex items-center gap-1">
+          <TabsTrigger value="reports" className="text-xs">
             <AlertTriangle className="h-4 w-4" />
             Rapporten
           </TabsTrigger>
-          <TabsTrigger value="audit" className="flex items-center gap-1">
+          <TabsTrigger value="audit" className="text-xs">
             <Activity className="h-4 w-4" />
             Audit Log
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-1">
+          <TabsTrigger value="analytics" className="text-xs">
             <TrendingUp className="h-4 w-4" />
             Analytics
           </TabsTrigger>
-          <TabsTrigger value="system" className="flex items-center gap-1">
+          <TabsTrigger value="engagement" className="text-xs">
+            <Eye className="h-4 w-4" />
+            Engagement
+          </TabsTrigger>
+          <TabsTrigger value="performance" className="text-xs">
+            <Activity className="h-4 w-4" />
+            Performance
+          </TabsTrigger>
+          <TabsTrigger value="deployment" className="text-xs">
             <Database className="h-4 w-4" />
+            Deployment
+          </TabsTrigger>
+          <TabsTrigger value="system" className="text-xs">
+            <Shield className="h-4 w-4" />
             Systeem
           </TabsTrigger>
         </TabsList>
@@ -1354,6 +1369,18 @@ function AdminContent() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="engagement">
+          <UserEngagementTracker />
+        </TabsContent>
+
+        <TabsContent value="performance">
+          <PerformanceMonitor />
+        </TabsContent>
+
+        <TabsContent value="deployment">
+          <DeploymentReadiness />
         </TabsContent>
         
         <TabsContent value="security" className="space-y-6">
