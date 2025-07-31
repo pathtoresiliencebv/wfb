@@ -5,6 +5,8 @@ import SecurityDashboard from '@/components/settings/SecurityDashboard';
 import { ContentModerationPanel } from '@/components/admin/ContentModerationPanel';
 import { AdminImageManager } from '@/components/admin/AdminImageManager';
 import { Users, Shield, Flag, BarChart3, ImageIcon } from 'lucide-react';
+import { AdminUserManagement } from '@/components/admin/AdminUserManagement';
+import { AdminAnalytics } from '@/components/admin/AdminAnalytics';
 
 export default function Admin() {
   return (
@@ -46,15 +48,7 @@ export default function Admin() {
         </TabsContent>
 
         <TabsContent value="users" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Gebruikers Beheer</CardTitle>
-              <CardDescription>Beheer gebruikersaccounts en rollen</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Gebruikersbeheer komt binnenkort beschikbaar</p>
-            </CardContent>
-          </Card>
+          <AdminUserManagement />
         </TabsContent>
 
         <TabsContent value="images" className="space-y-4">
@@ -66,15 +60,7 @@ export default function Admin() {
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Platform Analytics</CardTitle>
-              <CardDescription>Statistieken en gebruiksgegevens</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Analytics dashboard komt binnenkort beschikbaar</p>
-            </CardContent>
-          </Card>
+          <AdminAnalytics />
         </TabsContent>
       </Tabs>
     </div>
