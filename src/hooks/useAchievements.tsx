@@ -120,7 +120,7 @@ export function useAchievements(userId?: string) {
       
       const { data, error } = await supabase.rpc('update_user_streak', {
         target_user_id: user.id,
-        streak_type: streakType
+        p_streak_type: streakType
       });
       
       if (error) throw error;

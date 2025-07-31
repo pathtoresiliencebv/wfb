@@ -223,8 +223,10 @@ export type Database = {
           id: string
           is_active: boolean | null
           name: string
+          reply_count: number | null
           slug: string
           sort_order: number | null
+          topic_count: number | null
         }
         Insert: {
           color?: string | null
@@ -234,8 +236,10 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name: string
+          reply_count?: number | null
           slug: string
           sort_order?: number | null
+          topic_count?: number | null
         }
         Update: {
           color?: string | null
@@ -245,8 +249,10 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name?: string
+          reply_count?: number | null
           slug?: string
           sort_order?: number | null
+          topic_count?: number | null
         }
         Relationships: []
       }
@@ -1595,7 +1601,7 @@ export type Database = {
         Returns: undefined
       }
       update_user_streak: {
-        Args: { target_user_id: string; streak_type?: string }
+        Args: { target_user_id: string; p_streak_type?: string }
         Returns: number
       }
       verify_user_password: {
