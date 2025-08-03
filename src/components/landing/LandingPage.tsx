@@ -94,8 +94,11 @@ export function LandingPage() {
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-6">
-          <div className="flex items-center">
-            <img src={logoSrc} alt="Logo" className="h-10 w-10 object-contain" />
+          <div className="flex items-center gap-3">
+            <img src={logoSrc} alt="Wiet Forum België Logo" className="h-12 w-auto object-contain" />
+            <span className="font-heading text-xl font-bold text-foreground hidden sm:block">
+              Wiet Forum België
+            </span>
           </div>
           <div className="flex items-center gap-4">
             <Link to="/login">
@@ -114,12 +117,15 @@ export function LandingPage() {
           <Badge variant="secondary" className="mb-6">
             🇧🇪 #1 Cannabis Community in België
           </Badge>
-          <h1 className="mb-6 font-heading text-4xl font-bold tracking-tight sm:text-6xl text-foreground">
-            Welkom bij{' '}
-            <span className="cannabis-gradient bg-clip-text text-transparent">
-              Wiet Forum België
-            </span>
-          </h1>
+          <div className="flex flex-col items-center mb-6">
+            <img src={logoSrc} alt="Wiet Forum België Logo" className="h-24 w-auto object-contain mb-4" />
+            <h1 className="font-heading text-4xl font-bold tracking-tight sm:text-6xl text-foreground text-center">
+              Welkom bij{' '}
+              <span className="cannabis-gradient bg-clip-text text-transparent">
+                Wiet Forum België
+              </span>
+            </h1>
+          </div>
           <p className="mb-8 text-lg text-muted-foreground sm:text-xl">
             De grootste en meest vertrouwde cannabis community van België. 
             Deel kennis, ervaringen en verbind met gelijkgestemden in een gemodereerde, 
