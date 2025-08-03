@@ -88,7 +88,7 @@ export function usePWA() {
       setDeferredPrompt(null);
       toast({
         title: 'App geïnstalleerd!',
-        description: 'WietForum is nu geïnstalleerd op je apparaat.',
+        description: 'Wiet Forum België is nu geïnstalleerd op je apparaat.',
       });
     };
 

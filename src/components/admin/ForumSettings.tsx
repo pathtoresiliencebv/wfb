@@ -53,7 +53,7 @@ export function ForumSettings() {
   const { toast } = useToast();
   const [settings, setSettings] = useState<ForumSettings>({
     // General Settings
-    forum_name: 'Wietforum België',
+    forum_name: 'Wiet Forum België',
     forum_description: 'Het grootste cannabis forum van België',
     forum_url: 'wietforum.be',
     forum_logo: '',

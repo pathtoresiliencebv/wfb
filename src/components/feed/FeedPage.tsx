@@ -185,7 +185,7 @@ export function FeedPage() {
         <Card className="cannabis-gradient text-primary-foreground">
           <CardHeader>
             <CardTitle className="font-heading text-xl">
-              Welkom bij Wietforum België! 🌿
+              Welkom bij Wiet Forum België! 🌿
             </CardTitle>
             <CardDescription className="text-primary-foreground/80">
               De community voor cannabis liefhebbers in België. Deel kennis, ervaringen en 

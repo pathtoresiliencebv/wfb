@@ -164,7 +164,7 @@ export function LandingPage() {
       <section className="container mx-auto px-6 py-16 bg-muted/30">
         <div className="text-center mb-12">
           <h2 className="mb-4 font-heading text-3xl font-bold">
-            Waarom Wietforum België?
+            Waarom Wiet Forum België?
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Meer dan alleen een forum - wij zijn dé community die je nodig hebt voor je cannabis journey

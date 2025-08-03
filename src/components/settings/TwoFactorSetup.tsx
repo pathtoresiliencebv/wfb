@@ -84,7 +84,7 @@ const TwoFactorSetup: React.FC<TwoFactorSetupProps> = ({ currentStatus, onStatus
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'wietforum-backup-codes.txt';
+    a.download = 'wiet-forum-belgie-backup-codes.txt';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

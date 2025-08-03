@@ -29,7 +29,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   defaultTheme = 'system',
 }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    const stored = localStorage.getItem('wietforum-theme') as Theme;
+    const stored = localStorage.getItem('wiet-forum-belgie-theme') as Theme;
     return stored || defaultTheme;
   });
 
@@ -54,7 +54,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   }, [theme]);
 
   useEffect(() => {
-    localStorage.setItem('wietforum-theme', theme);
+    localStorage.setItem('wiet-forum-belgie-theme', theme);
   }, [theme]);
 
   const value = {

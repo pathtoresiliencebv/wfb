@@ -33,7 +33,7 @@ export function PWAInstallPrompt({ onDismiss, compact = false }: PWAInstallPromp
                 <Smartphone className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm">Installeer WietForum</p>
+                <p className="font-semibold text-sm">Installeer Wiet Forum België</p>
                 <p className="text-xs text-muted-foreground">Voor een betere ervaring</p>
               </div>
               <div className="flex items-center space-x-1">
@@ -63,7 +63,7 @@ export function PWAInstallPrompt({ onDismiss, compact = false }: PWAInstallPromp
               <Smartphone className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-lg">Installeer WietForum App</CardTitle>
+              <CardTitle className="text-lg">Installeer Wiet Forum België App</CardTitle>
               <CardDescription>
                 Krijg snelle toegang en push notificaties
               </CardDescription>

@@ -87,7 +87,7 @@ export function PWASettings() {
             <span>App Installatie</span>
           </CardTitle>
           <CardDescription>
-            Installeer WietForum als app voor een betere ervaring
+            Installeer Wiet Forum België als app voor een betere ervaring
           </CardDescription>
         </CardHeader>
         <CardContent>

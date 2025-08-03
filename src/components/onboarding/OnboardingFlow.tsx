@@ -41,7 +41,7 @@ export const OnboardingFlow: React.FC = () => {
   const steps: OnboardingStep[] = [
     {
       id: 'welcome',
-      title: 'Welkom bij Wietforum',
+      title: 'Welkom bij Wiet Forum België',
       description: 'Laten we je profiel instellen zodat je het meeste uit onze community kunt halen',
       icon: <Users className="h-6 w-6" />,
       component: (
@@ -53,7 +53,7 @@ export const OnboardingFlow: React.FC = () => {
             <div>
               <h3 className="text-lg font-semibold">Welkom bij onze community!</h3>
               <p className="text-muted-foreground">
-                Wietforum is de grootste Nederlandse community voor cannabis discussies, 
+                Wiet Forum België is de grootste Belgische community voor cannabis discussies, 
                 wetgeving updates en kennisdeling.
               </p>
             </div>
@@ -227,7 +227,7 @@ export const OnboardingFlow: React.FC = () => {
 
       toast({
         title: "Onboarding voltooid!",
-        description: "Welkom bij de Wietforum community. Je kunt nu beginnen met posten en discussiëren.",
+        description: "Welkom bij de Wiet Forum België community. Je kunt nu beginnen met posten en discussiëren.",
       });
 
       // Award first achievement

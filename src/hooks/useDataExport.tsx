@@ -172,7 +172,7 @@ export const useDataExport = () => {
 
     const link = document.createElement('a');
     link.href = request.file_url;
-    link.download = `wietforum-export-${request.request_type}-${new Date(request.created_at).toISOString().split('T')[0]}.json`;
+    link.download = `wiet-forum-belgie-export-${request.request_type}-${new Date(request.created_at).toISOString().split('T')[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

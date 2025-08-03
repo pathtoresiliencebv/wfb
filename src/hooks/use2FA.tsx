@@ -32,7 +32,7 @@ export const use2FA = () => {
       
       // Create TOTP instance
       const totp = new OTPAuth.TOTP({
-        issuer: 'WietForum',
+        issuer: 'Wiet Forum België',
         label: user.email,
         algorithm: 'SHA1',
         digits: 6,

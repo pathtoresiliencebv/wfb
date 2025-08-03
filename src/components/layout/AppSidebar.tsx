@@ -82,7 +82,7 @@ export function AppSidebar() {
           <div className="flex h-12 w-12 items-center justify-center">
             <img 
               src={logoSrc} 
-              alt="Wietforum België" 
+              alt="Wiet Forum België" 
               className="h-12 w-auto object-contain"
             />
           </div>

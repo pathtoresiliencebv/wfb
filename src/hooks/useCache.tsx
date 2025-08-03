@@ -17,7 +17,7 @@ class CacheManager {
   private cache = new Map<string, CacheItem<any>>();
   private readonly defaultTTL = 5 * 60 * 1000; // 5 minutes
   private readonly maxSize = 100;
-  private readonly keyPrefix = 'wietforum_cache_';
+  private readonly keyPrefix = 'wiet_forum_belgie_cache_';
 
   get<T>(key: string): T | null {
     const item = this.cache.get(key);
