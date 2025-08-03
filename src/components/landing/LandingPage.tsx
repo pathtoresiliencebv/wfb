@@ -115,7 +115,7 @@ export function LandingPage() {
           </Badge>
           <h1 className="mb-6 font-heading text-4xl font-bold tracking-tight sm:text-6xl">
             Welkom bij{' '}
-            <span className="cannabis-gradient bg-gradient-to-r bg-clip-text text-transparent">
+            <span className="cannabis-gradient bg-clip-text text-transparent">
               Wietforum België
             </span>
           </h1>
@@ -151,7 +151,7 @@ export function LandingPage() {
                 {isLoading ? (
                   <Skeleton className="h-8 w-16 mx-auto mb-1" />
                 ) : (
-                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <div className="text-2xl font-bold text-foreground">{stat.value}</div>
                 )}
                 <div className="text-sm text-muted-foreground">{stat.label}</div>
               </div>
