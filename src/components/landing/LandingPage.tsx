@@ -113,7 +113,7 @@ export function LandingPage() {
           <Badge variant="secondary" className="mb-6">
             🇧🇪 #1 Cannabis Community in België
           </Badge>
-          <h1 className="mb-6 font-heading text-4xl font-bold tracking-tight sm:text-6xl">
+          <h1 className="mb-6 font-heading text-4xl font-bold tracking-tight sm:text-6xl text-foreground">
             Welkom bij{' '}
             <span className="cannabis-gradient bg-clip-text text-transparent">
               Wietforum België
