@@ -118,10 +118,10 @@ export function LandingPage() {
             🇧🇪 #1 Cannabis Community in België
           </Badge>
           <div className="flex flex-col items-center mb-6">
-            <img src={logoSrc} alt="Wiet Forum België Logo" className="h-24 w-auto object-contain mb-4" />
+            <img src={logoSrc} alt="Wiet Forum België Logo" className="h-32 w-auto object-contain mb-6" />
             <h1 className="font-heading text-4xl font-bold tracking-tight sm:text-6xl text-foreground text-center">
               Welkom bij{' '}
-              <span className="cannabis-gradient bg-clip-text text-transparent">
+              <span className="text-primary font-bold">
                 Wiet Forum België
               </span>
             </h1>
