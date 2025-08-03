@@ -9,7 +9,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ErrorBoundary } from "@/components/error/ErrorBoundary";
 import { Layout } from "@/components/layout/Layout";
 import { HomeRoute } from "@/components/routes/HomeRoute";
-import Index from "./pages/Index";
+
 import Forums from "./pages/Forums";
 import ForumCategory from "./pages/ForumCategory";
 import TopicDetail from "./pages/TopicDetail";

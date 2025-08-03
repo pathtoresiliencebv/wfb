@@ -1,20 +1,16 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Layout } from "@/components/layout/Layout";
-import { LandingPage } from "@/components/landing/LandingPage";
-import Index from "@/pages/Index";
+import { HomePage } from "@/components/home/HomePage";
 
 export const HomeRoute = () => {
   const { user } = useAuth();
   
-  // Show landing page for non-authenticated users (no sidebar)
-  if (!user) {
-    return <LandingPage />;
-  }
-  
-  // Show feed for authenticated users (with sidebar)
-  return (
+  // Show HomePage component which handles both authenticated and non-authenticated states
+  return user ? (
     <Layout>
-      <Index />
+      <HomePage />
     </Layout>
+  ) : (
+    <HomePage />
   );
 };
