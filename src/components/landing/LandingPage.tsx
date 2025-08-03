@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Users, MessageSquare, Trophy, Shield, Heart, Scale, CheckCircle, Sparkles, Star, ArrowRight, Zap, Globe } from 'lucide-react';
-import wietforumLogoTransparent from '@/assets/wietforum-logo-transparent.png';
+import wietforumLogoLight from '@/assets/wietforum-logo-light.png';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useRealTimeStats } from '@/hooks/useRealTimeStats';
 
@@ -84,7 +84,7 @@ const testimonials = [
 export function LandingPage() {
   const { theme } = useTheme();
   const { stats, isLoading } = useRealTimeStats();
-  const logoSrc = wietforumLogoTransparent;
+  const logoSrc = wietforumLogoLight;
   
   const statsArray = getStatsArray(stats, isLoading);
 
