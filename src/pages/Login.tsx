@@ -185,7 +185,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-primary">Wietforum België</h1>
+          <h1 className="text-3xl font-bold text-primary">Wiet Forum België</h1>
           <p className="text-muted-foreground mt-2">Cannabis community voor België</p>
         </div>
 

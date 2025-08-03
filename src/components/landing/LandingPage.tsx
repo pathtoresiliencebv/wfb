@@ -116,7 +116,7 @@ export function LandingPage() {
           <h1 className="mb-6 font-heading text-4xl font-bold tracking-tight sm:text-6xl text-foreground">
             Welkom bij{' '}
             <span className="cannabis-gradient bg-clip-text text-transparent">
-              Wietforum België
+              Wiet Forum België
             </span>
           </h1>
           <p className="mb-8 text-lg text-muted-foreground sm:text-xl">
