@@ -26,7 +26,7 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   children,
-  defaultTheme = 'system',
+  defaultTheme = 'light',
 }) => {
   const [theme, setTheme] = useState<Theme>(() => {
     const stored = localStorage.getItem('wiet-forum-belgie-theme') as Theme;

@@ -306,7 +306,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <AuthConfigManager />
-          <ThemeProvider defaultTheme="system">
+          <ThemeProvider defaultTheme="light">
             <TooltipProvider>
               <Toaster />
               <Sonner />
