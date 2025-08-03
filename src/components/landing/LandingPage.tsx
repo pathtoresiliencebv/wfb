@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Users, MessageSquare, Trophy, Shield, Heart, Scale, CheckCircle, Sparkles, Star, ArrowRight, Zap, Globe } from 'lucide-react';
-import wietforumLogoLight from '@/assets/wietforum-logo-light.png';
+import wietforumLogoLight from '/lovable-uploads/04bda679-2d76-42bd-8c56-a25799f8e22b.png';
+import wietforumLogoDark from '/lovable-uploads/8265793e-e1eb-42e7-a6cc-c3bb3d5303aa.png';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useRealTimeStats } from '@/hooks/useRealTimeStats';
 
@@ -84,7 +85,7 @@ const testimonials = [
 export function LandingPage() {
   const { theme } = useTheme();
   const { stats, isLoading } = useRealTimeStats();
-  const logoSrc = wietforumLogoLight;
+  const logoSrc = theme === 'dark' ? wietforumLogoDark : wietforumLogoLight;
   
   const statsArray = getStatsArray(stats, isLoading);
 
