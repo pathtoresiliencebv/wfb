@@ -779,6 +779,56 @@ export type Database = {
           },
         ]
       }
+      supplier_profiles: {
+        Row: {
+          business_name: string
+          contact_info: Json | null
+          created_at: string
+          description: string | null
+          features: string[] | null
+          id: string
+          is_active: boolean | null
+          ranking: number | null
+          stats: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          business_name: string
+          contact_info?: Json | null
+          created_at?: string
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          ranking?: number | null
+          stats?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          business_name?: string
+          contact_info?: Json | null
+          created_at?: string
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          ranking?: number | null
+          stats?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       tags: {
         Row: {
           color: string | null
