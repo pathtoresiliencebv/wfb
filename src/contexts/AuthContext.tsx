@@ -66,25 +66,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Helper function to fetch user profile from database
   const fetchUserProfile = async (supabaseUser: SupabaseUser): Promise<User | null> => {
     try {
+      console.log('Fetching user profile for:', supabaseUser.id);
+      
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          user_badges(
-            badges(name)
-          )
-        `)
+        .select('*')
         .eq('user_id', supabaseUser.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching user profile:', error);
         return null;
       }
 
-      if (!profile) return null;
+      if (!profile) {
+        console.log('No profile found for user:', supabaseUser.id);
+        return null;
+      }
 
-      const badges = profile.user_badges?.map((ub: any) => ub.badges.name) || [];
+      console.log('Profile found:', profile);
+
+      // For now, use empty badges array until we implement the badges system properly
+      const badges: string[] = [];
 
       return {
         id: profile.user_id,
