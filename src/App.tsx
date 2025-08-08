@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { AuthConfigManager } from "@/components/auth/AuthConfigManager";
@@ -59,7 +59,7 @@ function AppRoutes() {
   const { showOnboarding, setShowOnboarding, user } = useAuth();
 
   return (
-    <>
+    <React.Fragment>
       {showOnboarding && user && (
         <OnboardingWelcome
           username={user.username}
@@ -314,28 +314,26 @@ function AppRoutes() {
         {/* Catch-all route */}
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </>
+    </React.Fragment>
   );
 }
 
 function App() {
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <BrowserRouter>
-            <AuthConfigManager />
-            <ThemeProvider defaultTheme="light">
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <AppRoutes />
-              </TooltipProvider>
-            </ThemeProvider>
-          </BrowserRouter>
-        </AuthProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <BrowserRouter>
+          <AuthConfigManager />
+          <ThemeProvider defaultTheme="light">
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <AppRoutes />
+            </TooltipProvider>
+          </ThemeProvider>
+        </BrowserRouter>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
