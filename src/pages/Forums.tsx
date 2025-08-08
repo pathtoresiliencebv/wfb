@@ -1,6 +1,6 @@
 import React from 'react';
 import { Plus, Users, MessageSquare, Pin, Heart, Scale, Star, TrendingUp, Image as ImageIcon } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useParams, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -52,6 +52,7 @@ const iconMap = {
 export default function Forums() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { slug } = useParams();
 
   // Fetch categories with React Query
   const { data: categories = [], isLoading: categoriesLoading } = useQuery({
@@ -101,6 +102,14 @@ export default function Forums() {
     return <ForumsLoadingSkeleton />;
   }
 
+  // If there's a slug param but it doesn't match any category, redirect
+  if (slug) {
+    const categoryExists = categories.find(cat => cat.slug === slug);
+    if (!categoryExists) {
+      return <Navigate to="/forums" replace />;
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Breadcrumb */}
@@ -137,7 +146,7 @@ export default function Forums() {
       </div>
 
       {/* Categories Tabs */}
-      <Tabs defaultValue={categories[0]?.id} className="w-full">
+      <Tabs defaultValue={slug ? categories.find(cat => cat.slug === slug)?.id : categories[0]?.id} className="w-full">
         <TabsList className="grid w-full h-auto p-2 gap-2" style={{ gridTemplateColumns: `repeat(${Math.min(categories.length, 4)}, 1fr)` }}>
           {categories.map((category) => {
             const IconComponent = iconMap[category.icon as keyof typeof iconMap] || MessageSquare;
