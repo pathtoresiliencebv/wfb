@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { useToast } from '@/hooks/use-toast';
@@ -56,11 +56,11 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [emailVerified, setEmailVerified] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [user, setUser] = React.useState<User | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [emailVerified, setEmailVerified] = React.useState(false);
+  const [showOnboarding, setShowOnboarding] = React.useState(false);
   const { toast } = useToast();
 
   // Helper function to fetch user profile from database
@@ -117,7 +117,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
       try {
