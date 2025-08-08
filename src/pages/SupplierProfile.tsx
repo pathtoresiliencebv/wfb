@@ -45,6 +45,16 @@ export const SupplierProfile: React.FC = () => {
     enabled: !!username,
   });
 
+  React.useEffect(() => {
+    if ((supplier as any)?.business_name) {
+      document.title = `${(supplier as any).business_name} - Leverancier | Wiet Forum België`;
+      const meta = document.querySelector('meta[name="description"]');
+      if (meta) {
+        meta.setAttribute('content', (supplier as any).description || `Bekijk ${(supplier as any).business_name} leverancier profiel op Wiet Forum België.`);
+      }
+    }
+  }, [supplier]);
+
   if (isLoading) {
     return (
       <Layout>

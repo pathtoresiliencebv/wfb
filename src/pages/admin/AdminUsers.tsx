@@ -258,6 +258,7 @@ export default function AdminUsers() {
                   <SelectItem value="user">Gebruiker</SelectItem>
                   <SelectItem value="moderator">Moderator</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="supplier">Leverancier</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -406,6 +407,7 @@ export default function AdminUsers() {
                   <SelectItem value="user">Gebruiker</SelectItem>
                   <SelectItem value="moderator">Moderator</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="supplier">Leverancier</SelectItem>
                 </SelectContent>
               </Select>
             </div>

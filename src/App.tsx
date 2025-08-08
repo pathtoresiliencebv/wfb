@@ -41,6 +41,7 @@ import Register from "./pages/Register";
 import PasswordReset from "./pages/PasswordReset";
 import Settings from "./pages/Settings";
 import Gamification from "./pages/Gamification";
+import { SupplierProfile as SupplierProfilePage } from "./pages/SupplierProfile";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -291,6 +292,11 @@ function AppRoutes() {
                       </AdminLayout>
                     </AdminRoute>
                   } 
+                />
+                
+                <Route 
+                  path="/leverancier/:username" 
+                  element={<SupplierProfilePage />} 
                 />
                 
         {/* Catch-all route */}

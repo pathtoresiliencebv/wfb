@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Upload, Shield, Eye, User, FileWarning, AlertTriangle, Clock } from 'lucide-react';
+import { ArrowLeft, Upload, Shield, Eye, User, FileWarning, AlertTriangle, Clock, Store } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { SettingsBreadcrumb } from '@/components/ui/settings-breadcrumb';

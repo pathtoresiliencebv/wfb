@@ -149,7 +149,7 @@ export const SupplierDashboard: React.FC = () => {
     }));
   };
 
-  if (user?.role !== 'admin') {
+  if ((user?.role as any) !== 'supplier') {
     return (
       <div className="text-center p-8">
         <Store className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
