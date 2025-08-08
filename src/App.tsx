@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { AuthConfigManager } from "@/components/auth/AuthConfigManager";
@@ -6,7 +6,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { ErrorBoundary } from "@/components/error/ErrorBoundary";
 import { Layout } from "@/components/layout/Layout";
 import { HomeRoute } from "@/components/routes/HomeRoute";
 
