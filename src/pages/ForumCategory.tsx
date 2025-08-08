@@ -12,7 +12,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
 
 export default function ForumCategory() {
-  const { categorySlug } = useParams<{ categorySlug: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const [category, setCategory] = useState<any>(null);
   const [topics, setTopics] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -21,13 +21,13 @@ export default function ForumCategory() {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!categorySlug) return;
+      if (!slug) return;
 
       try {
         const { data: categoryData, error: categoryError } = await supabase
           .from('categories')
           .select('*')
-          .eq('slug', categorySlug)
+          .eq('slug', slug)
           .single();
 
         if (categoryError) throw categoryError;
@@ -56,7 +56,7 @@ export default function ForumCategory() {
     };
 
     fetchData();
-  }, [categorySlug, toast]);
+  }, [slug, toast]);
 
   if (isLoading) {
     return (
@@ -126,7 +126,7 @@ export default function ForumCategory() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <Link to={`/forums/${categorySlug}/topic/${topic.id}`}>
+                    <Link to={`/forums/${slug}/topic/${topic.id}`}>
                       <CardTitle className="hover:text-primary transition-colors">
                         {topic.title}
                       </CardTitle>

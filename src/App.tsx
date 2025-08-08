@@ -103,7 +103,7 @@ function AppRoutes() {
                   } 
                 />
                 <Route 
-                  path="/forums/:categoryId" 
+                  path="/forums/:slug" 
                   element={
                     <Layout>
                       <ForumCategory />
@@ -111,7 +111,7 @@ function AppRoutes() {
                   } 
                 />
                 <Route 
-                  path="/forums/:categoryId/topic/:topicId" 
+                  path="/forums/:slug/topic/:topicId" 
                   element={
                     <Layout>
                       <TopicDetail />
@@ -127,7 +127,7 @@ function AppRoutes() {
                   } 
                 />
                 <Route 
-                  path="/forums/:categoryId/new-topic" 
+                  path="/forums/:slug/new-topic" 
                   element={
                     <Layout>
                       <CreateTopic />

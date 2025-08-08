@@ -155,33 +155,38 @@ export default function Forums() {
               <TabsTrigger 
                 key={category.id} 
                 value={category.id}
-                className="flex flex-col items-center gap-3 p-4 h-auto data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                asChild
               >
-                {category.image_url ? (
-                  <div className="relative w-16 h-16 rounded-lg overflow-hidden">
-                     <LazyImage
-                       src={category.image_url}
-                       alt={category.name}
-                       className="w-full h-full object-cover"
-                     />
+                <Link 
+                  to={`/forums/${category.slug}`}
+                  className="flex flex-col items-center gap-3 p-4 h-auto data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-accent transition-colors"
+                >
+                  {category.image_url ? (
+                    <div className="relative w-16 h-16 rounded-lg overflow-hidden">
+                       <LazyImage
+                         src={category.image_url}
+                         alt={category.name}
+                         className="w-full h-full object-cover"
+                       />
+                    </div>
+                  ) : (
+                    <div 
+                      className="p-3 rounded-lg"
+                      style={{ backgroundColor: `${category.color}20` }}
+                    >
+                      <IconComponent 
+                        className="h-8 w-8" 
+                        style={{ color: category.color }}
+                      />
+                    </div>
+                  )}
+                  <div className="text-center">
+                    <div className="font-medium text-sm">{category.name}</div>
+                    <div className="text-xs opacity-70">
+                      {category.topic_count || 0} topics
+                    </div>
                   </div>
-                ) : (
-                  <div 
-                    className="p-3 rounded-lg"
-                    style={{ backgroundColor: `${category.color}20` }}
-                  >
-                    <IconComponent 
-                      className="h-8 w-8" 
-                      style={{ color: category.color }}
-                    />
-                  </div>
-                )}
-                <div className="text-center">
-                  <div className="font-medium text-sm">{category.name}</div>
-                  <div className="text-xs opacity-70">
-                    {category.topic_count || 0} topics
-                  </div>
-                </div>
+                </Link>
               </TabsTrigger>
             );
           })}
