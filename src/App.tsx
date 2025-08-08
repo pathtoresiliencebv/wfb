@@ -319,8 +319,8 @@ function AppRoutes() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <AuthConfigManager />
           <ThemeProvider defaultTheme="light">
@@ -331,8 +331,8 @@ function App() {
             </TooltipProvider>
           </ThemeProvider>
         </BrowserRouter>
-      </AuthProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </AuthProvider>
   );
 }
 
