@@ -238,7 +238,6 @@ export default function Login() {
                            type="email"
                            placeholder="je@email.com"
                            {...field}
-                           defaultValue={registrationEmail || ''}
                          />
                       </FormControl>
                       <FormMessage />

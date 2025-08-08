@@ -3,16 +3,32 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts"
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
 serve(async (req: Request) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
   if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 })
+    return new Response('Method not allowed', { 
+      status: 405,
+      headers: corsHeaders 
+    })
   }
 
   try {
     const { redirectUrl } = await req.json()
     
     if (!redirectUrl) {
-      return new Response('Missing redirectUrl', { status: 400 })
+      return new Response('Missing redirectUrl', { 
+        status: 400,
+        headers: corsHeaders
+      })
     }
 
     // Update auth settings to include production URL
@@ -37,7 +53,10 @@ serve(async (req: Request) => {
 
     if (!authResponse.ok) {
       console.error('Failed to update auth settings:', await authResponse.text())
-      return new Response('Failed to update auth settings', { status: 500 })
+      return new Response('Failed to update auth settings', { 
+        status: 500,
+        headers: corsHeaders
+      })
     }
 
     return new Response(
@@ -48,7 +67,10 @@ serve(async (req: Request) => {
       }),
       { 
         status: 200,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+          'Content-Type': 'application/json',
+          ...corsHeaders
+        }
       }
     )
 
@@ -58,7 +80,10 @@ serve(async (req: Request) => {
       JSON.stringify({ error: 'Internal server error' }),
       { 
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+          'Content-Type': 'application/json',
+          ...corsHeaders
+        }
       }
     )
   }
