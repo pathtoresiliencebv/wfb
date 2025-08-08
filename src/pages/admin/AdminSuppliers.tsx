@@ -12,12 +12,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CrownBadge } from '@/components/ui/crown-badge';
 import { 
   Store, Search, Crown, Settings, MoreHorizontal, 
-  Star, Users, TrendingUp, Edit, Eye, ToggleLeft, ToggleRight
+  Star, Users, TrendingUp, Edit, Eye, ToggleLeft, ToggleRight, Plus, UserPlus
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { SupplierProfile, SupplierStats } from '@/types/supplier';
+import { AssignSupplierDialog } from '@/components/admin/AssignSupplierDialog';
+import { CreateSupplierDialog } from '@/components/admin/CreateSupplierDialog';
 
 export default function AdminSuppliers() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -25,6 +27,8 @@ export default function AdminSuppliers() {
   const [selectedSupplier, setSelectedSupplier] = useState<SupplierProfile | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingRanking, setEditingRanking] = useState<number>(0);
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -158,6 +162,14 @@ export default function AdminSuppliers() {
           <p className="text-muted-foreground">Beheer alle leveranciers, rankings en status</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button onClick={() => setIsAssignDialogOpen(true)}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            Leverancier Toewijzen
+          </Button>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nieuwe Leverancier
+          </Button>
           <Badge variant="outline" className="px-3 py-1">
             {totalSuppliers} leveranciers
           </Badge>
@@ -443,6 +455,18 @@ export default function AdminSuppliers() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Assign Supplier Dialog */}
+      <AssignSupplierDialog 
+        open={isAssignDialogOpen} 
+        onOpenChange={setIsAssignDialogOpen} 
+      />
+
+      {/* Create Supplier Dialog */}
+      <CreateSupplierDialog 
+        open={isCreateDialogOpen} 
+        onOpenChange={setIsCreateDialogOpen} 
+      />
     </div>
   );
 }

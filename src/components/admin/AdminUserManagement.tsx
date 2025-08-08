@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Users, Search, Filter, MoreHorizontal, Shield, UserCheck, UserX, Crown, Trash2, Ban, CheckCircle, XCircle } from 'lucide-react';
+import { Users, Search, Filter, MoreHorizontal, Shield, UserCheck, UserX, Crown, Trash2, Ban, CheckCircle, XCircle, Store } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -140,6 +140,7 @@ export function AdminUserManagement() {
     switch (role) {
       case 'admin': return 'bg-red-500 text-white';
       case 'moderator': return 'bg-blue-500 text-white';
+      case 'supplier': return 'bg-purple-500 text-white';
       case 'verified': return 'bg-green-500 text-white';
       default: return 'bg-gray-500 text-white';
     }
@@ -149,6 +150,7 @@ export function AdminUserManagement() {
     switch (role) {
       case 'admin': return <Crown className="h-3 w-3" />;
       case 'moderator': return <Shield className="h-3 w-3" />;
+      case 'supplier': return <Store className="h-3 w-3" />;
       default: return null;
     }
   };
@@ -201,6 +203,7 @@ export function AdminUserManagement() {
               <SelectItem value="all">Alle rollen</SelectItem>
               <SelectItem value="admin">Beheerders</SelectItem>
               <SelectItem value="moderator">Moderators</SelectItem>
+              <SelectItem value="supplier">Leveranciers</SelectItem>
               <SelectItem value="verified">Geverifieerd</SelectItem>
               <SelectItem value="user">Gebruikers</SelectItem>
             </SelectContent>
@@ -321,6 +324,16 @@ export function AdminUserManagement() {
                         >
                           <Shield className="h-4 w-4 mr-2" />
                           {user.role === 'moderator' ? 'Moderator rechten intrekken' : 'Maak moderator'}
+                        </DropdownMenuItem>
+                        
+                        <DropdownMenuItem 
+                          onClick={() => updateRoleMutation.mutate({
+                            userId: user.user_id,
+                            role: user.role === 'supplier' ? 'user' : 'supplier'
+                          })}
+                        >
+                          <Store className="h-4 w-4 mr-2" />
+                          {user.role === 'supplier' ? 'Leverancier rechten intrekken' : 'Maak leverancier'}
                         </DropdownMenuItem>
                         
                         {user.role !== 'admin' && (
