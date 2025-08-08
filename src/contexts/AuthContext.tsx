@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { useToast } from '@/hooks/use-toast';
@@ -42,10 +41,10 @@ interface RegisterData {
   birthDate: string;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
+  const context = React.useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
@@ -53,7 +52,7 @@ export const useAuth = () => {
 };
 
 interface AuthProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
@@ -64,22 +63,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const { toast } = useToast();
 
   // Helper function to fetch user profile from database
-  const fetchUserProfile = async (supabaseUser: SupabaseUser): Promise<User | null> => {
+  const fetchUserProfile = React.useCallback(async (supabaseUser: SupabaseUser): Promise<User | null> => {
     try {
       console.log('🔍 [AuthContext] Fetching user profile for:', supabaseUser.id);
       
-      // Add timeout to prevent infinite loading
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Profile fetch timeout')), 10000)
-      );
-      
-      const profilePromise = supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', supabaseUser.id)
         .maybeSingle();
-
-      const { data: profile, error } = await Promise.race([profilePromise, timeoutPromise]) as any;
 
       if (error) {
         console.error('❌ [AuthContext] Error fetching user profile:', error);
@@ -93,7 +85,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       console.log('✅ [AuthContext] Profile found:', profile);
 
-      // For now, use empty badges array until we implement the badges system properly
       const badges: string[] = [];
 
       return {
@@ -115,15 +106,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
       console.error('❌ [AuthContext] Error fetching user profile:', error);
       return null;
     }
-  };
+  }, []);
 
   React.useEffect(() => {
-    // Get initial session
+    let isMounted = true;
+
     const getInitialSession = async () => {
       try {
         console.log('🚀 [AuthContext] Getting initial session...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
+        if (!isMounted) return;
+
         if (error) {
           console.error('❌ [AuthContext] Error getting session:', error);
           setIsLoading(false);
@@ -133,52 +127,54 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (session?.user) {
           console.log('👤 [AuthContext] Session found, fetching profile...');
           const userProfile = await fetchUserProfile(session.user);
-          setUser(userProfile);
-          setEmailVerified(!!session.user.email_confirmed_at);
-          console.log('✅ [AuthContext] User profile set:', userProfile?.role);
+          if (isMounted) {
+            setUser(userProfile);
+            setEmailVerified(!!session.user.email_confirmed_at);
+            console.log('✅ [AuthContext] User profile set:', userProfile?.role);
+          }
         } else {
           console.log('ℹ️ [AuthContext] No session found');
         }
       } catch (error) {
         console.error('❌ [AuthContext] Error getting initial session:', error);
       } finally {
-        console.log('✅ [AuthContext] Initial session check complete');
-        setIsLoading(false);
+        if (isMounted) {
+          console.log('✅ [AuthContext] Initial session check complete');
+          setIsLoading(false);
+        }
       }
     };
 
-    // Add timeout fallback to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      console.warn('⚠️ [AuthContext] Session timeout - forcing loading to false');
-      setIsLoading(false);
-    }, 15000);
-
-    getInitialSession().then(() => {
-      clearTimeout(timeoutId);
-    });
+    getInitialSession();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!isMounted) return;
+        
         console.log('🔄 [AuthContext] Auth state change:', event);
         if (event === 'SIGNED_IN' && session?.user) {
           const userProfile = await fetchUserProfile(session.user);
-          setUser(userProfile);
-          setEmailVerified(!!session.user.email_confirmed_at);
+          if (isMounted) {
+            setUser(userProfile);
+            setEmailVerified(!!session.user.email_confirmed_at);
+          }
         } else if (event === 'SIGNED_OUT') {
-          setUser(null);
-          setEmailVerified(false);
+          if (isMounted) {
+            setUser(null);
+            setEmailVerified(false);
+          }
         }
       }
     );
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
-      clearTimeout(timeoutId);
     };
-  }, []);
+  }, [fetchUserProfile]);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = React.useCallback(async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     
     try {
@@ -231,9 +227,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     
     setIsLoading(false);
     return false;
-  };
+  }, [fetchUserProfile, toast]);
 
-  const register = async (userData: RegisterData): Promise<boolean> => {
+  const register = React.useCallback(async (userData: RegisterData): Promise<boolean> => {
     setIsLoading(true);
     
     try {
@@ -241,7 +237,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const birthDate = new Date(userData.birthDate);
       const today = new Date();
       
-      // Calculate age more accurately
       let age = today.getFullYear() - birthDate.getFullYear();
       const monthDiff = today.getMonth() - birthDate.getMonth();
       
@@ -259,12 +254,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return false;
       }
 
-      // Use production URL for email confirmation redirects
-      const baseUrl = window.location.hostname === 'localhost' 
-        ? window.location.origin 
-        : window.location.origin;
+      const baseUrl = window.location.origin;
 
-      // Sign up with Supabase
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
@@ -299,43 +290,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       if (data.user) {
-        // Check if username already exists (before the trigger creates the profile)
-        const { data: existingProfile } = await supabase
-          .from('profiles')
-          .select('username')
-          .eq('username', userData.username)
-          .single();
-
-        if (existingProfile) {
-          toast({
-            title: 'Registratie mislukt',
-            description: 'Deze gebruikersnaam is al in gebruik.',
-            variant: 'destructive',
-          });
-          setIsLoading(false);
-          return false;
-        }
-
-        // Wait a moment for the trigger to create the profile
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Assign Newcomer badge
-        const { data: newcomerBadge } = await supabase
-          .from('badges')
-          .select('id')
-          .eq('name', 'Newcomer')
-          .single();
-
-        if (newcomerBadge) {
-          await supabase
-            .from('user_badges')
-            .insert({
-              user_id: data.user.id,
-              badge_id: newcomerBadge.id,
-            });
-        }
-
-        // Show clear registration success message with email verification steps
         toast({
           title: 'Account succesvol aangemaakt! 🎉',
           description: 'Check je inbox en klik op de bevestigingslink om je account te activeren.',
@@ -346,28 +300,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     } catch (error: any) {
       console.error('Registration error:', error);
-      let errorMessage = 'Er is een onverwachte fout opgetreden.';
-      
-      if (error?.message?.includes('email')) {
-        errorMessage = 'Dit e-mailadres is al in gebruik.';
-      } else if (error?.message?.includes('username')) {
-        errorMessage = 'Deze gebruikersnaam is al in gebruik.';
-      } else if (error?.message?.includes('password')) {
-        errorMessage = 'Het wachtwoord voldoet niet aan de eisen.';
-      }
-      
       toast({
         title: 'Registratie mislukt',
-        description: errorMessage,
+        description: 'Er is een onverwachte fout opgetreden.',
         variant: 'destructive',
       });
     }
     
     setIsLoading(false);
     return false;
-  };
+  }, [toast]);
 
-  const logout = async () => {
+  const logout = React.useCallback(async () => {
     try {
       await supabase.auth.signOut();
       setUser(null);
@@ -383,19 +327,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
         variant: 'destructive',
       });
     }
-  };
+  }, [toast]);
 
-  const updateUser = (userData: Partial<User>) => {
+  const updateUser = React.useCallback((userData: Partial<User>) => {
     if (!user) return;
     setUser({ ...user, ...userData });
-  };
+  }, [user]);
 
-  const resetPassword = async (email: string): Promise<boolean> => {
+  const resetPassword = React.useCallback(async (email: string): Promise<boolean> => {
     try {
-      // Use production URL for redirects
-      const baseUrl = window.location.hostname === 'localhost' 
-        ? window.location.origin 
-        : window.location.origin;
+      const baseUrl = window.location.origin;
         
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${baseUrl}/auth/reset-password`,
@@ -403,17 +344,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (error) {
         console.error('Password reset error:', error);
-        let errorMessage = 'Er is een fout opgetreden bij het resetten van je wachtwoord.';
-        
-        if (error.message.includes('not found')) {
-          errorMessage = 'Er is geen account gevonden met dit e-mailadres.';
-        } else if (error.message.includes('rate limit')) {
-          errorMessage = 'Te veel reset pogingen. Probeer het later opnieuw.';
-        }
-        
         toast({
           title: 'Reset mislukt',
-          description: errorMessage,
+          description: 'Er is een fout opgetreden bij het resetten van je wachtwoord.',
           variant: 'destructive',
         });
         return false;
@@ -429,9 +362,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
       return false;
     }
-  };
+  }, [toast]);
 
-  const resendVerificationEmail = async (): Promise<boolean> => {
+  const resendVerificationEmail = React.useCallback(async (): Promise<boolean> => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -451,15 +384,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (error) {
         console.error('Resend verification error:', error);
-        let errorMessage = 'Er is een fout opgetreden bij het versturen van de verificatie-email.';
-        
-        if (error.message.includes('rate limit')) {
-          errorMessage = 'Te veel pogingen. Probeer het later opnieuw.';
-        }
-        
         toast({
           title: 'Versturen mislukt',
-          description: errorMessage,
+          description: 'Er is een fout opgetreden bij het versturen van de verificatie-email.',
           variant: 'destructive',
         });
         return false;
@@ -480,9 +407,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
       return false;
     }
-  };
+  }, [toast]);
 
-  const value: AuthContextType = {
+  const value: AuthContextType = React.useMemo(() => ({
     user,
     isAuthenticated: !!user,
     isLoading,
@@ -490,16 +417,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
     login,
     register,
     logout,
-      updateUser,
-      resetPassword,
-      resendVerificationEmail,
-      showOnboarding,
-      setShowOnboarding,
-  };
+    updateUser,
+    resetPassword,
+    resendVerificationEmail,
+    showOnboarding,
+    setShowOnboarding,
+  }), [
+    user,
+    isLoading,
+    emailVerified,
+    login,
+    register,
+    logout,
+    updateUser,
+    resetPassword,
+    resendVerificationEmail,
+    showOnboarding,
+  ]);
 
   return (
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
