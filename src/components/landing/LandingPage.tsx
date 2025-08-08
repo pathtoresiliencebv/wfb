@@ -62,48 +62,24 @@ const whyChooseUs = [
   }
 ];
 
-const testimonials = [
+const communityBenefits = [
   {
-    name: 'Dr. Sarah Van Damme',
-    role: 'Geneeskunde Specialist',
-    content: 'Een onmisbare bron voor patiënten die meer willen weten over medicinale cannabis. De kwaliteit van de discussies is uitzonderlijk.',
-    rating: 5,
-    verified: true,
+    title: 'Expertkennis',
+    description: 'Toegang tot medische professionals en ervaren gebruikers',
+    icon: Trophy,
+    color: 'text-yellow-600'
   },
   {
-    name: 'Thomas M.',
-    role: 'Community Member',
-    content: 'Eindelijk een plaats waar ik open kan praten over cannabis zonder oordeel. De community is zeer ondersteunend en informatief.',
-    rating: 5,
-    verified: true,
+    title: 'Veilige Omgeving',
+    description: 'Gemodereerde discussies binnen legale kaders',
+    icon: Shield,
+    color: 'text-green-600'
   },
   {
-    name: 'Jan Peeters',
-    role: 'Expert Grower',
-    content: 'De teelt-sectie heeft mij enorm geholpen bij mijn eerste indoor setup. Dankzij de community ben ik nu een succesvolle kweker.',
-    rating: 5,
-    verified: true,
-  },
-  {
-    name: 'Maria Lopez',
-    role: 'Medicinale Gebruiker',
-    content: 'Dankzij deze community heb ik de juiste informatie gevonden voor mijn behandeling. De experts zijn altijd bereid te helpen.',
-    rating: 5,
-    verified: true,
-  },
-  {
-    name: 'Philippe Janssen',
-    role: 'Cannabis Ondernemer',
-    content: 'Als ondernemer in de sector is dit de plaats waar je de laatste trends en wetgeving volgt. Onmisbaar voor professionals.',
-    rating: 5,
-    verified: true,
-  },
-  {
-    name: 'Sofie Declercq',
-    role: 'Nieuw Lid',
-    content: 'Als beginneling voelde ik me meteen welkom. De moderatoren zorgen voor een veilige en leerzame omgeving.',
-    rating: 5,
-    verified: true,
+    title: 'Ondersteuning',
+    description: 'Hulp en begeleiding van de community',
+    icon: Heart,
+    color: 'text-red-600'
   }
 ];
 
@@ -165,33 +141,24 @@ const faqData = [
   }
 ];
 
-const communityHighlights = [
+const forumCategories = [
   {
-    title: 'Expert van de Maand',
-    name: 'Dr. Marc Vandenberghe',
-    role: 'Cannabis Research Specialist',
-    description: 'Meer dan 15 jaar ervaring in cannabinoïd onderzoek',
-    avatar: '👨‍⚕️',
-    posts: 247,
-    helpfulAnswers: 189
+    title: 'Medicinaal Gebruik',
+    description: 'Informatie over therapeutische toepassingen',
+    icon: Heart,
+    color: 'text-red-600'
   },
   {
-    title: 'Rising Star',
-    name: 'Emma Cannabis Guru',
-    role: 'Medicinale Expert',
-    description: 'Helpt dagelijks gebruikers met dosering en toepassingen',
-    avatar: '👩‍🔬',
-    posts: 156,
-    helpfulAnswers: 134
+    title: 'Wetgeving & Nieuws',
+    description: 'Updates over Belgische cannabis wetgeving',
+    icon: Scale,
+    color: 'text-blue-600'
   },
   {
-    title: 'Community Helper',
-    name: 'GreenThumb_BE',
-    role: 'Teelt Specialist',
-    description: 'Deelt kennis over biologische teeltmethoden',
-    avatar: '🌱',
-    posts: 312,
-    helpfulAnswers: 245
+    title: 'Community Support',
+    description: 'Ondersteuning en ervaringen delen',
+    icon: Users,
+    color: 'text-green-600'
   }
 ];
 
@@ -464,37 +431,33 @@ export function LandingPage() {
               Community Spotlights
             </Badge>
             <h2 className="mb-6 font-heading text-4xl font-bold">
-              Leer van Onze Experts
+              Verken Onze Forum Categorieën
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Ontmoet de experts die onze community zo bijzonder maken
+              Ontdek de verschillende onderwerpen waar onze community over praat
             </p>
           </div>
           
           <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
-            {communityHighlights.map((member, index) => (
+            {forumCategories.map((category, index) => (
               <Card key={index} className="relative overflow-hidden group hover:shadow-2xl transition-all duration-300 border-0 bg-gradient-to-br from-background to-muted/50">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <CardContent className="relative p-8 text-center">
-                  <div className="mb-4">
-                    <div className="text-4xl mb-3">{member.avatar}</div>
-                    <Badge variant="secondary" className="mb-3">{member.title}</Badge>
-                  </div>
-                  
-                  <h3 className="font-bold text-xl mb-2">{member.name}</h3>
-                  <p className="text-primary font-medium mb-3">{member.role}</p>
-                  <p className="text-muted-foreground text-sm mb-6">{member.description}</p>
-                  
-                  <div className="flex justify-around text-center">
-                    <div>
-                      <div className="font-bold text-lg text-primary">{member.posts}</div>
-                      <div className="text-xs text-muted-foreground">Posts</div>
-                    </div>
-                    <div>
-                      <div className="font-bold text-lg text-primary">{member.helpfulAnswers}</div>
-                      <div className="text-xs text-muted-foreground">Helpful</div>
+                  <div className="mb-6">
+                    <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-primary-foreground shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                      <category.icon className="h-8 w-8" />
                     </div>
                   </div>
+                  
+                  <h3 className="font-bold text-xl mb-3">{category.title}</h3>
+                  <p className="text-muted-foreground text-sm mb-6 leading-relaxed">{category.description}</p>
+                  
+                  <Link to="/forums">
+                    <Button variant="outline" size="sm" className="group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                      Verken Categorie
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             ))}
@@ -548,47 +511,33 @@ export function LandingPage() {
               Community Reviews
             </Badge>
             <h2 className="mb-6 font-heading text-4xl font-bold">
-              Wat Onze Leden Zeggen
+              Waarom Onze Community?
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Ontdek waarom meer dan {isLoading ? '1000' : stats?.userCount || 1000}+ Belgen vertrouwen op onze community voor hun cannabis journey
+              Ontdek waarom meer dan {isLoading ? '1000' : stats?.userCount || 1000}+ Belgen kiezen voor onze veilige cannabis community
             </p>
           </div>
           
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
-            {testimonials.map((testimonial, index) => (
+          <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
+            {communityBenefits.map((benefit, index) => (
               <Card key={index} className="group border-0 shadow-xl hover:shadow-2xl transition-all duration-300 bg-background/80 backdrop-blur overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <CardContent className="relative p-8">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex">
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                    {testimonial.verified && (
-                      <Badge variant="secondary" className="text-xs">
-                        <Verified className="mr-1 h-3 w-3" />
-                        Verified
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  <blockquote className="text-base mb-6 italic leading-relaxed group-hover:text-foreground transition-colors">
-                    "{testimonial.content}"
-                  </blockquote>
-                  
-                  <div className="border-t pt-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-semibold text-base">{testimonial.name}</div>
-                        <div className="text-sm text-muted-foreground">{testimonial.role}</div>
-                      </div>
-                      <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-primary-foreground font-bold">
-                        {testimonial.name.charAt(0)}
-                      </div>
+                <CardContent className="relative p-8 text-center">
+                  <div className="mb-6">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-primary-foreground shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      <benefit.icon className="h-8 w-8" />
                     </div>
                   </div>
+                  
+                  <h3 className="font-bold text-xl mb-3 group-hover:text-primary transition-colors">{benefit.title}</h3>
+                  <p className="text-muted-foreground text-base leading-relaxed mb-6">{benefit.description}</p>
+                  
+                  <Link to="/register">
+                    <Button variant="outline" size="sm" className="group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                      Ontdek Meer
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             ))}
