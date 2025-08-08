@@ -14,13 +14,35 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({
 }) => {
   const { user, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
+  const [showTimeout, setShowTimeout] = React.useState(false);
+
+  React.useEffect(() => {
+    // Show timeout message after 10 seconds of loading
+    const timer = setTimeout(() => {
+      if (isLoading) {
+        console.warn('⚠️ [AdminRoute] Loading timeout reached');
+        setShowTimeout(true);
+      }
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, [isLoading]);
+
+  console.log('🔐 [AdminRoute] State:', { isLoading, isAuthenticated, userRole: user?.role });
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Toegang controleren...</p>
+          <p className="text-muted-foreground">
+            {showTimeout ? 'Verbinding controleren...' : 'Toegang controleren...'}
+          </p>
+          {showTimeout && (
+            <p className="text-sm text-muted-foreground mt-2">
+              Dit duurt langer dan verwacht. Probeer de pagina te vernieuwen.
+            </p>
+          )}
         </div>
       </div>
     );

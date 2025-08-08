@@ -66,25 +66,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Helper function to fetch user profile from database
   const fetchUserProfile = async (supabaseUser: SupabaseUser): Promise<User | null> => {
     try {
-      console.log('Fetching user profile for:', supabaseUser.id);
+      console.log('🔍 [AuthContext] Fetching user profile for:', supabaseUser.id);
       
-      const { data: profile, error } = await supabase
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 10000)
+      );
+      
+      const profilePromise = supabase
         .from('profiles')
         .select('*')
         .eq('user_id', supabaseUser.id)
         .maybeSingle();
 
+      const { data: profile, error } = await Promise.race([profilePromise, timeoutPromise]) as any;
+
       if (error) {
-        console.error('Error fetching user profile:', error);
+        console.error('❌ [AuthContext] Error fetching user profile:', error);
         return null;
       }
 
       if (!profile) {
-        console.log('No profile found for user:', supabaseUser.id);
+        console.log('⚠️ [AuthContext] No profile found for user:', supabaseUser.id);
         return null;
       }
 
-      console.log('Profile found:', profile);
+      console.log('✅ [AuthContext] Profile found:', profile);
 
       // For now, use empty badges array until we implement the badges system properly
       const badges: string[] = [];
@@ -105,7 +112,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         role: profile.role as 'user' | 'moderator' | 'expert' | 'admin',
       };
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      console.error('❌ [AuthContext] Error fetching user profile:', error);
       return null;
     }
   };
@@ -114,31 +121,46 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Get initial session
     const getInitialSession = async () => {
       try {
+        console.log('🚀 [AuthContext] Getting initial session...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Error getting session:', error);
+          console.error('❌ [AuthContext] Error getting session:', error);
           setIsLoading(false);
           return;
         }
 
         if (session?.user) {
+          console.log('👤 [AuthContext] Session found, fetching profile...');
           const userProfile = await fetchUserProfile(session.user);
           setUser(userProfile);
           setEmailVerified(!!session.user.email_confirmed_at);
+          console.log('✅ [AuthContext] User profile set:', userProfile?.role);
+        } else {
+          console.log('ℹ️ [AuthContext] No session found');
         }
       } catch (error) {
-        console.error('Error getting initial session:', error);
+        console.error('❌ [AuthContext] Error getting initial session:', error);
       } finally {
+        console.log('✅ [AuthContext] Initial session check complete');
         setIsLoading(false);
       }
     };
 
-    getInitialSession();
+    // Add timeout fallback to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      console.warn('⚠️ [AuthContext] Session timeout - forcing loading to false');
+      setIsLoading(false);
+    }, 15000);
+
+    getInitialSession().then(() => {
+      clearTimeout(timeoutId);
+    });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('🔄 [AuthContext] Auth state change:', event);
         if (event === 'SIGNED_IN' && session?.user) {
           const userProfile = await fetchUserProfile(session.user);
           setUser(userProfile);
@@ -150,7 +172,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
