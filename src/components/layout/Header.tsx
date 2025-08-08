@@ -47,7 +47,7 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-[100] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
         <SidebarTrigger className="mr-4" />
         
@@ -63,7 +63,7 @@ export function Header() {
                 if (e.key === 'Enter') {
                   const query = (e.target as HTMLInputElement).value;
                   if (query.trim()) {
-                    window.location.href = `/search?q=${encodeURIComponent(query)}`;
+                    navigate(`/search?q=${encodeURIComponent(query)}`);
                   }
                 }
               }}
@@ -103,7 +103,7 @@ export function Header() {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuContent className="w-56 z-[110] bg-popover border" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">{user.displayName || user.username}</p>

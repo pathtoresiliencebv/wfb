@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Plus, TrendingUp, Users, MessageSquare } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -88,6 +89,7 @@ const stats = [
 
 export function FeedPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
@@ -193,11 +195,9 @@ export function FeedPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="secondary" className="gap-2" asChild>
-              <a href="/create-topic">
-                <Plus className="h-4 w-4" />
-                Nieuw Topic Starten
-              </a>
+            <Button variant="secondary" className="gap-2" onClick={() => navigate('/create-topic')}>
+              <Plus className="h-4 w-4" />
+              Nieuw Topic Starten
             </Button>
           </CardContent>
         </Card>
@@ -223,10 +223,8 @@ export function FeedPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="font-heading text-xl font-semibold">Recente Activiteit</h2>
-          <Button variant="outline" size="sm" asChild>
-            <a href="/forums">
-              Alle Topics
-            </a>
+          <Button variant="outline" size="sm" onClick={() => navigate('/forums')}>
+            Alle Topics
           </Button>
         </div>
         
@@ -271,7 +269,7 @@ export function FeedPage() {
           <div className="p-4">
             <Button 
               onClick={() => {
-                window.location.href = '/create-topic';
+                navigate('/create-topic');
                 setShowCreateDialog(false);
               }}
               className="w-full"

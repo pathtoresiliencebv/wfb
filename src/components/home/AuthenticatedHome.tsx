@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PullToRefresh } from '@/components/mobile/PullToRefresh';
 import { FloatingActionButton } from '@/components/mobile/FloatingActionButton';
@@ -13,6 +14,7 @@ import { StatsOverview } from './StatsOverview';
 import { RecentPosts } from './RecentPosts';
 
 export function AuthenticatedHome() {
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -68,7 +70,7 @@ export function AuthenticatedHome() {
           <div className="p-4">
             <Button 
               onClick={() => {
-                window.location.href = '/create-topic';
+                navigate('/create-topic');
                 setShowCreateDialog(false);
               }}
               className="w-full"

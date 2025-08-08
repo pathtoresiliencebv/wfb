@@ -75,7 +75,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar 
-      className={`${collapsed ? "w-16" : "w-64"} ${isMobile ? 'fixed z-50' : ''}`} 
+      className={`${collapsed ? "w-16" : "w-64"} ${isMobile ? 'fixed z-[90]' : ''}`} 
       collapsible={isMobile ? "offcanvas" : "icon"}
     >
       <SidebarContent className={isMobile ? "p-2" : "p-4"}>

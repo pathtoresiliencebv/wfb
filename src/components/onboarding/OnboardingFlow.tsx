@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +21,7 @@ interface OnboardingStep {
 }
 
 export const OnboardingFlow: React.FC = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [formData, setFormData] = useState({
@@ -237,7 +239,7 @@ export const OnboardingFlow: React.FC = () => {
       });
 
       // Redirect to main forum
-      window.location.href = '/';
+      navigate('/');
     } catch (error) {
       console.error('Error completing onboarding:', error);
       toast({
