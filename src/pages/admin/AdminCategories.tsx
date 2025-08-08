@@ -13,7 +13,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Folder, Tag, Plus, Edit, Trash2, Save, X, 
-  MessageSquare, TrendingUp, Eye, Settings, Hash, Image
+  MessageSquare, TrendingUp, Eye, Settings, Hash, Image,
+  Filter, CheckCircle, XCircle
 } from 'lucide-react';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { supabase } from '@/integrations/supabase/client';
@@ -48,6 +49,7 @@ interface TagData {
 
 export default function AdminCategories() {
   const [activeTab, setActiveTab] = useState('categories');
+  const [showOnlyActive, setShowOnlyActive] = useState(false);
   const [isCreateCategoryOpen, setIsCreateCategoryOpen] = useState(false);
   const [isCreateTagOpen, setIsCreateTagOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -240,10 +242,36 @@ export default function AdminCategories() {
       .replace(/(^-|-$)/g, '');
   };
 
+  // Quick toggle category status mutation
+  const toggleCategoryStatusMutation = useMutation({
+    mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
+      const { error } = await supabase
+        .from('categories')
+        .update({ is_active })
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
+      toast.success('Status bijgewerkt');
+    },
+    onError: (error) => {
+      toast.error('Fout bij bijwerken status');
+      console.error('Error updating category status:', error);
+    }
+  });
+
   const totalCategories = categories?.length || 0;
   const activeCategories = categories?.filter(c => c.is_active).length || 0;
+  const inactiveCategories = totalCategories - activeCategories;
   const totalTags = tags?.length || 0;
   const totalTopics = categories?.reduce((sum, cat) => sum + cat.topic_count, 0) || 0;
+
+  // Filter categories based on view preference
+  const filteredCategories = showOnlyActive 
+    ? categories?.filter(c => c.is_active) 
+    : categories;
 
   return (
     <div className="space-y-6">
@@ -263,7 +291,9 @@ export default function AdminCategories() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalCategories}</div>
-            <p className="text-xs text-muted-foreground">{activeCategories} actief</p>
+            <p className="text-xs text-muted-foreground">
+              {activeCategories} actief • {inactiveCategories} inactief
+            </p>
           </CardContent>
         </Card>
 
@@ -315,7 +345,23 @@ export default function AdminCategories() {
         {/* Categories Tab */}
         <TabsContent value="categories" className="space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Forum Categorieën</h2>
+            <div className="flex items-center gap-4">
+              <h2 className="text-xl font-semibold">Forum Categorieën</h2>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={showOnlyActive ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowOnlyActive(!showOnlyActive)}
+                  className="h-8"
+                >
+                  <Filter className="h-4 w-4 mr-2" />
+                  {showOnlyActive ? 'Alleen Actief' : 'Alle'}
+                </Button>
+                <Badge variant="outline" className="text-xs">
+                  {showOnlyActive ? `${activeCategories} zichtbaar voor gebruikers` : `${totalCategories} totaal`}
+                </Badge>
+              </div>
+            </div>
             <Dialog open={isCreateCategoryOpen} onOpenChange={setIsCreateCategoryOpen}>
               <DialogTrigger asChild>
                 <Button>
@@ -420,7 +466,13 @@ export default function AdminCategories() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {categories?.map((category) => (
+                    {filteredCategories?.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                          {showOnlyActive ? 'Geen actieve categorieën gevonden' : 'Geen categorieën gevonden'}
+                        </TableCell>
+                      </TableRow>
+                    ) : filteredCategories?.map((category) => (
                       <TableRow key={category.id}>
                         <TableCell>
                           <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
@@ -459,12 +511,48 @@ export default function AdminCategories() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={category.is_active ? 'default' : 'secondary'}>
-                            {category.is_active ? 'Actief' : 'Inactief'}
-                          </Badge>
+                          <div className="flex items-center gap-2">
+                            <Badge 
+                              variant={category.is_active ? 'default' : 'secondary'}
+                              className="gap-1"
+                            >
+                              {category.is_active ? (
+                                <>
+                                  <CheckCircle className="h-3 w-3" />
+                                  Actief
+                                </>
+                              ) : (
+                                <>
+                                  <XCircle className="h-3 w-3" />
+                                  Inactief
+                                </>
+                              )}
+                            </Badge>
+                            {!category.is_active && (
+                              <Badge variant="destructive" className="text-xs">
+                                Niet zichtbaar voor gebruikers
+                              </Badge>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => toggleCategoryStatusMutation.mutate({
+                                id: category.id,
+                                is_active: !category.is_active
+                              })}
+                              disabled={toggleCategoryStatusMutation.isPending}
+                              title={category.is_active ? 'Deactiveren' : 'Activeren'}
+                            >
+                              {category.is_active ? (
+                                <XCircle className="h-4 w-4" />
+                              ) : (
+                                <CheckCircle className="h-4 w-4" />
+                              )}
+                            </Button>
                             <Button
                               variant="outline"
                               size="sm"
