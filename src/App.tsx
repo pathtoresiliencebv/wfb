@@ -30,6 +30,7 @@ import AdminImages from "./pages/admin/AdminImages";
 import AdminSecurity from "./pages/admin/AdminSecurity";
 import AdminAnalyticsPage from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminSuppliers from "./pages/admin/AdminSuppliers";
 import Search from "./pages/Search";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -289,6 +290,16 @@ function AppRoutes() {
                     <AdminRoute requireRole="moderator">
                       <AdminLayout>
                         <AdminSettings />
+                      </AdminLayout>
+                    </AdminRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/suppliers" 
+                  element={
+                    <AdminRoute requireRole="moderator">
+                      <AdminLayout>
+                        <AdminSuppliers />
                       </AdminLayout>
                     </AdminRoute>
                   } 

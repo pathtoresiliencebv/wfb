@@ -12,6 +12,7 @@ import {
   Settings,
   Home,
   ChevronDown,
+  Store,
 } from "lucide-react";
 import {
   Sidebar,
@@ -33,6 +34,7 @@ const adminItems = [
   { title: "Categorieën", url: "/admin/categories", icon: Folder },
   { title: "Topics", url: "/admin/topics", icon: MessageSquare },
   { title: "Tags", url: "/admin/tags", icon: Tag },
+  { title: "Leveranciers", url: "/admin/suppliers", icon: Store },
   { title: "Afbeeldingen", url: "/admin/images", icon: ImageIcon },
   { title: "Beveiliging", url: "/admin/security", icon: Shield },
   { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
