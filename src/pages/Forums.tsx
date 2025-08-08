@@ -1,16 +1,18 @@
 import React from 'react';
-import { Plus, Users, MessageSquare, Pin, Heart, Scale, Star, TrendingUp } from 'lucide-react';
+import { Plus, Users, MessageSquare, Pin, Heart, Scale, Star, TrendingUp, Image as ImageIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { LazyImage } from '@/components/ui/lazy-image';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { ForumsLoadingSkeleton } from '@/components/loading/OptimizedLoadingStates';
+import { CategoryTopics } from '@/components/forums/CategoryTopics';
 
 interface Category {
   id: string;
@@ -18,6 +20,7 @@ interface Category {
   description: string;
   color: string;
   icon: string;
+  image_url?: string;
   slug: string;
   sort_order: number;
   is_active: boolean;
@@ -133,79 +136,71 @@ export default function Forums() {
         )}
       </div>
 
-      {/* Forum Categories Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {categories.map((category) => (
-          <Link key={category.id} to={`/forums/${category.slug}`}>
-            <Card className="h-full hover:shadow-md transition-shadow cursor-pointer group">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                <div 
-                    className="w-12 h-12 rounded-lg flex items-center justify-center mb-3 text-white"
-                    style={{ backgroundColor: category.color || '#3b82f6' }}
+      {/* Categories Tabs */}
+      <Tabs defaultValue={categories[0]?.id} className="w-full">
+        <TabsList className="grid w-full h-auto p-2 gap-2" style={{ gridTemplateColumns: `repeat(${Math.min(categories.length, 4)}, 1fr)` }}>
+          {categories.map((category) => {
+            const IconComponent = iconMap[category.icon as keyof typeof iconMap] || MessageSquare;
+            
+            return (
+              <TabsTrigger 
+                key={category.id} 
+                value={category.id}
+                className="flex flex-col items-center gap-3 p-4 h-auto data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                {category.image_url ? (
+                  <div className="relative w-16 h-16 rounded-lg overflow-hidden">
+                     <LazyImage
+                       src={category.image_url}
+                       alt={category.name}
+                       className="w-full h-full object-cover"
+                     />
+                  </div>
+                ) : (
+                  <div 
+                    className="p-3 rounded-lg"
+                    style={{ backgroundColor: `${category.color}20` }}
                   >
-                    {React.createElement(iconMap[category.icon as keyof typeof iconMap] || MessageSquare, {
-                      className: "h-6 w-6"
-                    })}
+                    <IconComponent 
+                      className="h-8 w-8" 
+                      style={{ color: category.color }}
+                    />
                   </div>
-                  <Badge variant="secondary" className="text-xs">
-                    Publiek
-                  </Badge>
-                </div>
-                <CardTitle className="group-hover:text-primary transition-colors">
-                  {category.name}
-                </CardTitle>
-                <CardDescription className="line-clamp-2">
-                  {category.description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <MessageSquare className="h-4 w-4" />
-                    <span>{category.topic_count || 0} topics</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
-                    <span>{category.reply_count || 0} reacties</span>
+                )}
+                <div className="text-center">
+                  <div className="font-medium text-sm">{category.name}</div>
+                  <div className="text-xs opacity-70">
+                    {category.topic_count || 0} topics
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
 
-      {/* Popular Topics */}
-      {popularTopics.length > 0 && (
-        <div className="mt-12">
-          <h2 className="font-heading text-2xl font-semibold mb-6">Populaire Topics</h2>
-          <div className="space-y-4">
-            {popularTopics.map((topic) => (
-              <Card key={topic.id} className="p-4">
-                <div className="flex items-center gap-4">
-                  {topic.is_pinned && <Pin className="h-4 w-4 text-primary flex-shrink-0" />}
-                  <div className="flex-1">
-                    <Link 
-                      to={`/forums/${topic.categories?.slug}/topic/${topic.id}`}
-                      className="font-medium hover:text-primary cursor-pointer"
-                    >
-                      {topic.title}
-                    </Link>
-                    <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                      <Badge variant="outline" className="text-xs">
-                        {topic.categories?.name}
-                      </Badge>
-                      <span>{topic.reply_count} reacties</span>
-                      <span>{topic.view_count} views</span>
-                    </div>
-                  </div>
+        {categories.map((category) => (
+          <TabsContent key={category.id} value={category.id} className="space-y-4 mt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-semibold">{category.name}</h2>
+                <p className="text-muted-foreground">{category.description}</p>
+              </div>
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <MessageSquare className="h-4 w-4" />
+                  <span>{category.topic_count || 0} topics</span>
                 </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
+                <div className="flex items-center gap-1">
+                  <Users className="h-4 w-4" />
+                  <span>{category.reply_count || 0} replies</span>
+                </div>
+              </div>
+            </div>
+
+            <CategoryTopics categoryId={category.id} />
+          </TabsContent>
+        ))}
+      </Tabs>
     </div>
   );
 }
