@@ -22,6 +22,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Layout } from '@/components/layout/Layout';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SupplierMenu } from '@/components/supplier/SupplierMenu';
 
 export const SupplierProfile: React.FC = () => {
   const { username } = useParams<{ username: string }>();
@@ -194,27 +195,15 @@ export const SupplierProfile: React.FC = () => {
           )}
           </div>
 
-          {/* Features */}
-          {supplier.features && supplier.features.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Truck className="h-5 w-5" />
-                  Waarom bestellen bij {supplier.business_name}?
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-3">
-                  {supplier.features.map((feature, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          {/* Menu / Prijzen */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Menukaart / Prijzen</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SupplierMenu supplierId={supplier.id} />
+            </CardContent>
+          </Card>
 
           {/* Contact */}
           <Card>

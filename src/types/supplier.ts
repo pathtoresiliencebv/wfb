@@ -11,6 +11,21 @@ export interface SupplierContact {
   email?: string;
 }
 
+export interface SupplierMenuItem {
+  id: string;
+  supplier_id: string;
+  name: string;
+  description?: string;
+  price: number;
+  unit?: string;
+  category?: string;
+  tags?: string[];
+  is_available: boolean;
+  position: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface SupplierProfile {
   id: string;
   user_id: string;

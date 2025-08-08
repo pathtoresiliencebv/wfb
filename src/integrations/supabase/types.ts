@@ -779,6 +779,59 @@ export type Database = {
           },
         ]
       }
+      supplier_menu_items: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_available: boolean
+          name: string
+          position: number
+          price: number
+          supplier_id: string
+          tags: string[] | null
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_available?: boolean
+          name: string
+          position?: number
+          price?: number
+          supplier_id: string
+          tags?: string[] | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_available?: boolean
+          name?: string
+          position?: number
+          price?: number
+          supplier_id?: string
+          tags?: string[] | null
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_supplier_menu_supplier"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplier_profiles: {
         Row: {
           business_name: string

@@ -21,6 +21,7 @@ import {
   X
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { SupplierMenuManager } from '@/components/supplier/SupplierMenuManager';
 
 export const SupplierDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -417,6 +418,11 @@ export const SupplierDashboard: React.FC = () => {
           </form>
         </CardContent>
       </Card>
+
+      {/* Menu Manager */}
+      {supplierProfile?.id && (
+        <SupplierMenuManager supplierId={supplierProfile.id} />
+      )}
     </div>
   );
 };
