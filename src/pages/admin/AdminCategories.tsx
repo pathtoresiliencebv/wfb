@@ -13,8 +13,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Folder, Tag, Plus, Edit, Trash2, Save, X, 
-  MessageSquare, TrendingUp, Eye, Settings, Hash
+  MessageSquare, TrendingUp, Eye, Settings, Hash, Image
 } from 'lucide-react';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -26,6 +27,7 @@ interface Category {
   slug: string;
   color: string | null;
   icon: string | null;
+  image_url: string | null;
   is_active: boolean;
   sort_order: number;
   topic_count: number;
@@ -57,6 +59,7 @@ export default function AdminCategories() {
     slug: '',
     color: '#10b981',
     icon: 'folder',
+    image_url: '',
     sort_order: 0
   });
 
@@ -115,7 +118,7 @@ export default function AdminCategories() {
       queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
       toast.success('Categorie aangemaakt');
       setIsCreateCategoryOpen(false);
-      setNewCategory({ name: '', description: '', slug: '', color: '#10b981', icon: 'folder', sort_order: 0 });
+      setNewCategory({ name: '', description: '', slug: '', color: '#10b981', icon: 'folder', image_url: '', sort_order: 0 });
     },
     onError: (error) => {
       toast.error('Fout bij aanmaken categorie');
@@ -371,6 +374,15 @@ export default function AdminCategories() {
                       onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
                     />
                   </div>
+                  <div>
+                    <Label>Categorie Afbeelding</Label>
+                    <ImageUpload
+                      value={newCategory.image_url}
+                      onImageUploaded={(url) => setNewCategory(prev => ({ ...prev, image_url: url }))}
+                      onImageRemoved={() => setNewCategory(prev => ({ ...prev, image_url: '' }))}
+                      showPreview={true}
+                    />
+                  </div>
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setIsCreateCategoryOpen(false)}>
@@ -399,6 +411,7 @@ export default function AdminCategories() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>Afbeelding</TableHead>
                       <TableHead>Naam</TableHead>
                       <TableHead>Beschrijving</TableHead>
                       <TableHead>Topics</TableHead>
@@ -409,6 +422,19 @@ export default function AdminCategories() {
                   <TableBody>
                     {categories?.map((category) => (
                       <TableRow key={category.id}>
+                        <TableCell>
+                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                            {category.image_url ? (
+                              <img 
+                                src={category.image_url} 
+                                alt={category.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <Image className="w-6 h-6 text-muted-foreground" />
+                            )}
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <div 
@@ -681,6 +707,19 @@ export default function AdminCategories() {
                   onChange={(e) => setEditingCategory(prev => 
                     prev ? { ...prev, description: e.target.value } : null
                   )}
+                />
+              </div>
+              <div>
+                <Label>Categorie Afbeelding</Label>
+                <ImageUpload
+                  value={editingCategory.image_url || ''}
+                  onImageUploaded={(url) => setEditingCategory(prev => 
+                    prev ? { ...prev, image_url: url } : null
+                  )}
+                  onImageRemoved={() => setEditingCategory(prev => 
+                    prev ? { ...prev, image_url: null } : null
+                  )}
+                  showPreview={true}
                 />
               </div>
               <div>
