@@ -26,6 +26,7 @@ import { useUserSecurity } from '@/hooks/useUserSecurity';
 import { useSecurityDashboard } from '@/hooks/useSecurityDashboard';
 import { useDataExport } from '@/hooks/useDataExport';
 import { validatePassword } from '@/lib/security';
+import { SupplierDashboard } from '@/components/supplier/SupplierDashboard';
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -38,6 +39,7 @@ const Settings = () => {
   const { exportRequests } = useDataExport();
   const isMobile = useIsMobile();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isSupplier = ((user?.role as any) === 'supplier') || user?.role === 'admin';
   
   // Get active tab from URL params or default to profile
   const activeTab = searchParams.get('tab') || 'profile';
@@ -365,6 +367,15 @@ const Settings = () => {
               <span>Privacy</span>
               {tabBadges.privacy}
             </TabsTrigger>
+            {isSupplier && (
+              <TabsTrigger 
+                value="supplier" 
+                className={`flex items-center gap-2 transition-all ${isMobile ? 'justify-start px-4 py-3' : 'justify-center'} data-[state=active]:bg-background data-[state=active]:shadow-sm`}
+              >
+                <Store className="h-4 w-4" />
+                <span>Leverancier</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="profile" className="space-y-6 animate-fade-in">
@@ -589,6 +600,24 @@ const Settings = () => {
               </>
             )}
           </TabsContent>
+          {isSupplier && (
+            <TabsContent value="supplier" className="space-y-6 animate-fade-in">
+              <Card className="transition-all hover:shadow-md border-border/50">
+                <CardHeader className="space-y-1">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Store className="h-5 w-5 text-primary" />
+                    Leverancier Instellingen
+                  </CardTitle>
+                  <CardDescription>
+                    Beheer je leverancier profiel, contact en voordelen
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <SupplierDashboard />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </div>

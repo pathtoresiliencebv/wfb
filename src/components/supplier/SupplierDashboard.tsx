@@ -149,7 +149,8 @@ export const SupplierDashboard: React.FC = () => {
     }));
   };
 
-  if ((user?.role as any) !== 'supplier') {
+  const canAccess = ((user?.role as any) === 'supplier') || (user?.role === 'admin');
+  if (!canAccess) {
     return (
       <div className="text-center p-8">
         <Store className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
