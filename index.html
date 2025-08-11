@@ -34,18 +34,29 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script>
-      // Register service worker
+    <script type="module">
+      // Register service worker only in production; cleanup in dev to avoid stale caches
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-              console.log('SW registered: ', registration);
-            })
-            .catch(registrationError => {
-              console.log('SW registration failed: ', registrationError);
-            });
-        });
+        if (import.meta.env.PROD) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+              .then(registration => {
+                console.log('SW registered: ', registration);
+              })
+              .catch(registrationError => {
+                console.log('SW registration failed: ', registrationError);
+              });
+          });
+        } else {
+          // Dev: ensure no SW/caches interfere with module resolution
+          navigator.serviceWorker.getRegistrations().then(registrations => {
+            for (const reg of registrations) reg.unregister();
+          });
+          if ('caches' in window) {
+            caches.keys().then(keys => keys.forEach(key => caches.delete(key)));
+          }
+          console.log('Service worker disabled in development and caches cleared');
+        }
       }
     </script>
   </body>
