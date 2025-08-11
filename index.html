@@ -35,28 +35,15 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script type="module">
-      // Register service worker only in production; cleanup in dev to avoid stale caches
+      // Disable service worker entirely to avoid stale cached bundles causing React duplication
       if ('serviceWorker' in navigator) {
-        if (import.meta.env.PROD) {
-          window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
-              .then(registration => {
-                console.log('SW registered: ', registration);
-              })
-              .catch(registrationError => {
-                console.log('SW registration failed: ', registrationError);
-              });
-          });
-        } else {
-          // Dev: ensure no SW/caches interfere with module resolution
-          navigator.serviceWorker.getRegistrations().then(registrations => {
-            for (const reg of registrations) reg.unregister();
-          });
-          if ('caches' in window) {
-            caches.keys().then(keys => keys.forEach(key => caches.delete(key)));
-          }
-          console.log('Service worker disabled in development and caches cleared');
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          for (const reg of registrations) reg.unregister();
+        });
+        if ('caches' in window) {
+          caches.keys().then(keys => keys.forEach(key => caches.delete(key)));
         }
+        console.log('Service worker disabled and caches cleared');
       }
     </script>
   </body>
