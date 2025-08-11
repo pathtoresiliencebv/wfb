@@ -241,9 +241,9 @@ export function LandingPage() {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-secondary/10 to-background"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary)/0.3),transparent_50%)]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(var(--secondary)/0.2),transparent_50%)]"></div>
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/20 via-secondary/10 to-background"></div>
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary)/0.3),transparent_50%)]"></div>
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(var(--secondary)/0.2),transparent_50%)]"></div>
         
         <div className="relative container mx-auto px-6 py-20 text-center">
           <div className="mx-auto max-w-4xl">
@@ -307,7 +307,7 @@ export function LandingPage() {
 
       {/* Enhanced Stats Section */}
       <section className="relative border-y bg-gradient-to-r from-muted/50 via-background to-muted/50">
-        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-5"></div>
         <div className="relative container mx-auto px-6 py-16">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold mb-2">Live Community Statistieken</h2>
@@ -501,8 +501,8 @@ export function LandingPage() {
 
       {/* Enhanced Testimonials Section */}
       <section className="relative border-y bg-gradient-to-br from-muted/50 via-background to-muted/30 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,hsl(var(--primary)/0.1),transparent_50%)]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,hsl(var(--secondary)/0.1),transparent_50%)]"></div>
+         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,hsl(var(--primary)/0.1),transparent_50%)]"></div>
+         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,hsl(var(--secondary)/0.1),transparent_50%)]"></div>
         
         <div className="relative container mx-auto px-6 py-20">
           <div className="text-center mb-16">
@@ -723,8 +723,8 @@ export function LandingPage() {
 
       {/* Enhanced Newsletter Signup */}
       <section className="relative py-20 bg-gradient-to-br from-primary via-primary-muted to-secondary overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.1),transparent_70%)]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,rgba(255,255,255,0.05),transparent_70%)]"></div>
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.1),transparent_70%)]"></div>
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,rgba(255,255,255,0.05),transparent_70%)]"></div>
         
         <div className="relative container mx-auto px-6">
           <Card className="bg-white/10 backdrop-blur border-white/20 text-white shadow-2xl max-w-2xl mx-auto">
@@ -771,7 +771,7 @@ export function LandingPage() {
 
       {/* Enhanced CTA Section */}
       <section className="relative py-24 bg-gradient-to-br from-background via-muted/30 to-background overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--primary)/0.1),transparent_70%)]"></div>
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--primary)/0.1),transparent_70%)]"></div>
         
         <div className="relative container mx-auto px-6 text-center">
           <div className="max-w-4xl mx-auto">
