@@ -262,6 +262,69 @@ export default function AdminCategories() {
     }
   });
 
+  // Standaard categorieën voor bulk-actie
+  const defaultCategories = [
+    { name: 'Top Verkopers [Gescreend]', slug: 'top-verkopers-gescreend', description: 'Bekijk de advertenties van onze gescreende top verkopers en bestel vandaag nog je wiet veilig online met 100% kwaliteitsgarantie! Deze betrouwbare verkopers zijn zorgvuldig geselecteerd op basis van klantvriendelijkheid, klantenservice en kwaliteit.', color: '#10b981', icon: 'trending-up', is_active: true, sort_order: 10, image_url: '' },
+    { name: 'Wiet Online Kopen', slug: 'wiet-online-kopen', description: 'Het forum waar leden wiet te koop aan kunnen bieden en waar je het aanbod van betrouwbare verkopers kunt bekijken om online wiet te kopen!', color: '#f59e0b', icon: 'star', is_active: true, sort_order: 20, image_url: '' },
+    { name: 'Wiet Gezocht', slug: 'wiet-gezocht', description: 'Ben jij op zoek naar wiet binnen het Wietforum? Plaats een advertentie zodat leveranciers direct contact op kunnen nemen.', color: '#3b82f6', icon: 'message-square', is_active: true, sort_order: 30, image_url: '' },
+    { name: 'Lokale Leveranciers', slug: 'lokale-leveranciers', description: 'Bekijk het aanbod van onze lokale leveranciers in jouw regio voor snelle bezorging (Leuven, Gent, Antwerpen, Kortrijk, Oostende, Brugge, Roeselare, Eeklo, Blankenberge, ...).', color: '#8b5cf6', icon: 'users', is_active: true, sort_order: 40, image_url: '' },
+    { name: 'Forum Regelement', slug: 'forum-regelement', description: 'Belangrijkste regels van het forum waaraan ieder lid moet voldoen. Niet naleven kan resulteren in een (tijdelijke of permanente) ban.', color: '#ef4444', icon: 'scale', is_active: true, sort_order: 50, image_url: '' },
+    { name: 'Algemeen Forum', slug: 'algemeen-forum', description: 'Voor algemene zaken binnen het forum.', color: '#64748b', icon: 'message-square', is_active: true, sort_order: 60, image_url: '' },
+    { name: 'Wiet Kweken Forum', slug: 'wiet-kweken-forum', description: 'Alles over het kweken van wiet: tips, ervaringen en kennisdeling.', color: '#22c55e', icon: 'heart', is_active: true, sort_order: 70, image_url: '' },
+    { name: 'Eigen Gekweekte Wiet Verkopen', slug: 'eigen-gekweekte-wiet-verkopen', description: 'Ben jij wietkweker en zoek je betrouwbare afnemers voor je eigen gekweekte wiet? Plaats je aanbod en kom in contact met verkopers.', color: '#14b8a6', icon: 'trending-up', is_active: true, sort_order: 80, image_url: '' },
+    { name: 'Vragen Wiet Kweken', slug: 'vragen-wiet-kweken', description: 'Stel je vragen over het kweken van wiet en krijg antwoord van ervaren kwekers!', color: '#06b6d4', icon: 'message-square', is_active: true, sort_order: 90, image_url: '' },
+    { name: 'Cali Wietforum', slug: 'cali-wietforum', description: 'Forum gericht op Cali wiet in België: informatie, ervaringen en aanbod.', color: '#eab308', icon: 'star', is_active: true, sort_order: 100, image_url: '' },
+    { name: 'Cali Wiet te Koop', slug: 'cali-wiet-te-koop', description: 'Advertenties van verkopers die Cali wietsoorten aanbieden in België. Vermeld je regio en hoe je te bereiken bent.', color: '#f97316', icon: 'trending-up', is_active: true, sort_order: 110, image_url: '' },
+    { name: 'Cali Packs', slug: 'cali-packs', description: 'In dit forum delen leden info en aanbod rondom Cali Packs: ervaringen, te koop, en leveranciers.', color: '#a855f7', icon: 'package', is_active: true, sort_order: 120, image_url: '' },
+  ] as const;
+
+  // Idempotente bulk-actie: voeg toe of werk bij op basis van slug
+  const bulkDefaultsMutation = useMutation({
+    mutationFn: async () => {
+      const slugs = defaultCategories.map((c) => c.slug);
+      const { data: existing, error: fetchError } = await supabase
+        .from('categories')
+        .select('id, slug')
+        .in('slug', slugs);
+      if (fetchError) throw fetchError;
+      const existingMap = new Map((existing || []).map((c: any) => [c.slug, c.id]));
+
+      const toInsert = defaultCategories
+        .filter((c) => !existingMap.has(c.slug))
+        .map((c) => ({ ...c, topic_count: 0, reply_count: 0 }));
+
+      const toUpdate = defaultCategories.filter((c) => existingMap.has(c.slug));
+
+      if (toInsert.length) {
+        const { error: insertError } = await supabase.from('categories').insert(toInsert as any[]);
+        if (insertError) throw insertError;
+      }
+
+      for (const c of toUpdate) {
+        const { error: updateError } = await supabase
+          .from('categories')
+          .update({
+            name: c.name,
+            description: c.description,
+            color: c.color,
+            icon: c.icon,
+            is_active: c.is_active,
+            sort_order: c.sort_order,
+          })
+          .eq('slug', c.slug);
+        if (updateError) throw updateError;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
+      toast.success('Standaard forums toegevoegd/bijgewerkt');
+    },
+    onError: (error) => {
+      console.error('Bulk defaults error:', error);
+      toast.error('Fout bij toevoegen standaard forums');
+    },
+  });
+
   const totalCategories = categories?.length || 0;
   const activeCategories = categories?.filter(c => c.is_active).length || 0;
   const inactiveCategories = totalCategories - activeCategories;
@@ -360,6 +423,16 @@ export default function AdminCategories() {
                 <Badge variant="outline" className="text-xs">
                   {showOnlyActive ? `${activeCategories} zichtbaar voor gebruikers` : `${totalCategories} totaal`}
                 </Badge>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => bulkDefaultsMutation.mutate()}
+                  disabled={bulkDefaultsMutation.isPending}
+                  className="h-8"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Standaard forums toevoegen
+                </Button>
               </div>
             </div>
             <Dialog open={isCreateCategoryOpen} onOpenChange={setIsCreateCategoryOpen}>
