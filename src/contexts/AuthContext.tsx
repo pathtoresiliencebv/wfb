@@ -56,6 +56,9 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
+  // Debug: detect potential duplicate React copies
+  // eslint-disable-next-line no-console
+  console.log('[Debug] React.version:', (React as any).version);
   const [user, setUser] = React.useState<User | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [emailVerified, setEmailVerified] = React.useState(false);
