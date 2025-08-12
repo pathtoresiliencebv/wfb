@@ -18,11 +18,12 @@ export function Layout({ children }: LayoutProps) {
   const { user } = useAuth();
   const isHome = location.pathname === '/';
   const showAppHeader = !(isHome && !user);
+  const showSidebar = !(isHome && !user);
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
       <div className="min-h-screen flex w-full bg-background">
-        <AppSidebar />
+        {showSidebar && <AppSidebar />}
         
         <div className="flex-1 flex flex-col min-w-0">
           {showAppHeader && <Header />}
