@@ -55,6 +55,9 @@ export function AppSidebar() {
   const isMobile = useIsMobile();
   const collapsed = state === "collapsed";
   
+  // Show mini icons on mobile for specific routes (e.g., user and supplier profiles)
+  const allowMiniOnMobile = currentPath.startsWith('/user') || currentPath.startsWith('/leverancier');
+  
   // Use theme-appropriate logo
   const logoSrc = theme === 'dark' ? wietforumLogoDark : wietforumLogoLight;
 
@@ -75,8 +78,8 @@ export function AppSidebar() {
 
   return (
     <Sidebar 
-      className={`${collapsed ? "w-16" : "w-64"} ${isMobile ? 'fixed z-[90]' : ''}`} 
-      collapsible={isMobile ? "offcanvas" : "icon"}
+      allowMiniOnMobile={allowMiniOnMobile}
+      collapsible="icon"
     >
       <SidebarContent className={isMobile ? "p-2" : "p-4"}>
         {/* Logo Section */}
