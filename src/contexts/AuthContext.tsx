@@ -114,27 +114,62 @@ export function AuthProvider({ children }: AuthProviderProps) {
   React.useEffect(() => {
     let isMounted = true;
 
-    const getInitialSession = async () => {
+    // Safety: force-stop loading after 10s in case of network issues
+    const safetyTimer = window.setTimeout(() => {
+      if (isMounted) setIsLoading(false);
+    }, 10000);
+
+    // Set up auth state listener FIRST (sync only)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return;
+      console.log('🔄 [AuthContext] Auth state change:', event);
+
+      if (event === 'SIGNED_IN' && session?.user) {
+        setEmailVerified(!!session.user.email_confirmed_at);
+        // Defer profile fetch to avoid blocking the callback
+        setTimeout(() => {
+          if (!isMounted) return;
+          fetchUserProfile(session.user)
+            .then((userProfile) => {
+              if (!isMounted) return;
+              setUser(userProfile);
+            })
+            .catch((err) => {
+              console.error('❌ [AuthContext] Profile fetch error in onAuthStateChange:', err);
+            });
+        }, 0);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setEmailVerified(false);
+      }
+    });
+
+    // THEN check for existing session
+    (async () => {
       try {
         console.log('🚀 [AuthContext] Getting initial session...');
         const { data: { session }, error } = await supabase.auth.getSession();
-        
         if (!isMounted) return;
 
         if (error) {
           console.error('❌ [AuthContext] Error getting session:', error);
-          setIsLoading(false);
           return;
         }
 
         if (session?.user) {
-          console.log('👤 [AuthContext] Session found, fetching profile...');
-          const userProfile = await fetchUserProfile(session.user);
-          if (isMounted) {
-            setUser(userProfile);
-            setEmailVerified(!!session.user.email_confirmed_at);
-            console.log('✅ [AuthContext] User profile set:', userProfile?.role);
-          }
+          setEmailVerified(!!session.user.email_confirmed_at);
+          // Defer profile fetch; do not block loading
+          setTimeout(() => {
+            if (!isMounted) return;
+            fetchUserProfile(session.user)
+              .then((userProfile) => {
+                if (!isMounted) return;
+                setUser(userProfile);
+              })
+              .catch((err) => {
+                console.error('❌ [AuthContext] Profile fetch error in initial session:', err);
+              });
+          }, 0);
         } else {
           console.log('ℹ️ [AuthContext] No session found');
         }
@@ -146,33 +181,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setIsLoading(false);
         }
       }
-    };
-
-    getInitialSession();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!isMounted) return;
-        
-        console.log('🔄 [AuthContext] Auth state change:', event);
-        if (event === 'SIGNED_IN' && session?.user) {
-          const userProfile = await fetchUserProfile(session.user);
-          if (isMounted) {
-            setUser(userProfile);
-            setEmailVerified(!!session.user.email_confirmed_at);
-          }
-        } else if (event === 'SIGNED_OUT') {
-          if (isMounted) {
-            setUser(null);
-            setEmailVerified(false);
-          }
-        }
-      }
-    );
+    })();
 
     return () => {
       isMounted = false;
+      clearTimeout(safetyTimer);
       subscription.unsubscribe();
     };
   }, [fetchUserProfile]);

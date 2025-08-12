@@ -17,8 +17,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
+  const [timedOut, setTimedOut] = React.useState(false);
+  React.useEffect(() => {
+    const t = setTimeout(() => setTimedOut(true), 10000);
+    return () => clearTimeout(t);
+  }, []);
 
-  if (isLoading) {
+  if (isLoading && !timedOut) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
