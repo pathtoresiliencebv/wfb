@@ -19,6 +19,7 @@ export function Layout({ children }: LayoutProps) {
   const isHome = location.pathname === '/';
   const showAppHeader = !(isHome && !user);
   const showSidebar = !(isHome && !user);
+  const mainInnerClass = showSidebar ? `container mx-auto ${isMobile ? 'p-4' : 'p-6'}` : 'p-0';
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
@@ -30,7 +31,7 @@ export function Layout({ children }: LayoutProps) {
           <EmailVerificationBanner />
           
           <main className="flex-1 overflow-auto">
-            <div className={`container mx-auto ${isMobile ? 'p-4' : 'p-6'}`}>
+            <div className={mainInnerClass}>
               {children}
             </div>
           </main>
