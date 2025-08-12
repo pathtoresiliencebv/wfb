@@ -7,7 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Layout } from "@/components/layout/Layout";
-import { HomeRoute } from "@/components/routes/HomeRoute";
+import { HomePage } from "@/components/home/HomePage";
 
 import Forums from "./pages/Forums";
 import ForumCategory from "./pages/ForumCategory";
@@ -92,8 +92,15 @@ function AppRoutes() {
                   } 
                 />
                 
-                {/* Home route - conditional rendering based on auth */}
-                <Route path="/" element={<HomeRoute />} />
+                {/* Home route */}
+                <Route 
+                  path="/" 
+                  element={
+                    <Layout>
+                      <HomePage />
+                    </Layout>
+                  } 
+                />
                 <Route 
                   path="/forums" 
                   element={
