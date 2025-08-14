@@ -222,8 +222,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
             
             const usernameToEmail: Record<string, string> = {
               'admin': 'jason__m@outlook.com',
-              'leverancier': 'leverancier@test.com', 
-              'testuser': 'testuser@test.com'
+              'leverancier': 'leverancier@wietforumbelgie.com', 
+              'testuser': 'testuser@wietforumbelgie.com'
             };
             
             const mappedEmail = usernameToEmail[email];
