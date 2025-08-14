@@ -18,7 +18,7 @@ export default function SupplierPublic() {
   const { username } = useParams<{ username: string }>();
 
   // Fetch supplier by username
-  const { data: supplier, isLoading } = useQuery<SupplierProfile>({
+  const { data: supplier, isLoading } = useQuery({
     queryKey: ['public-supplier', username],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -32,7 +32,14 @@ export default function SupplierPublic() {
         .single();
       
       if (error) throw error;
-      return data;
+      return {
+        ...data,
+        contact_info: data.contact_info || {},
+        stats: data.stats || {},
+        features: data.features || [],
+        delivery_areas: data.delivery_areas || [],
+        why_choose_us: data.why_choose_us || []
+      } as SupplierProfile;
     },
     enabled: !!username
   });

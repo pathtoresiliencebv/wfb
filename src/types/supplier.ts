@@ -26,7 +26,7 @@ export interface SupplierMenuItem {
   created_at: string;
   updated_at: string;
   // New fields
-  pricing_tiers?: any;
+  pricing_tiers?: Record<string, number> | any;
   weight_options?: string[];
   in_stock?: boolean;
   image_url?: string;
@@ -38,8 +38,8 @@ export interface SupplierProfile {
   user_id: string;
   business_name: string;
   description?: string;
-  contact_info: SupplierContact;
-  stats: SupplierStats;
+  contact_info: SupplierContact | any;
+  stats: SupplierStats | any;
   features: string[];
   ranking: number;
   is_active: boolean;

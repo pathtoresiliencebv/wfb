@@ -29,7 +29,7 @@ interface MenuItem {
   id: string;
   name: string;
   description?: string;
-  pricing_tiers: Record<string, number>;
+  pricing_tiers: Record<string, number> | any;
   weight_options: string[];
   category_id?: string;
   is_available: boolean;
@@ -67,7 +67,7 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
   });
 
   // Fetch menu items
-  const { data: menuItems = [] } = useQuery<MenuItem[]>({
+  const { data: menuItems = [] } = useQuery({
     queryKey: ['supplier-menu-items', supplierId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -76,7 +76,11 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
         .eq('supplier_id', supplierId)
         .order('position');
       if (error) throw error;
-      return data;
+      return data.map(item => ({
+        ...item,
+        pricing_tiers: item.pricing_tiers || {},
+        weight_options: item.weight_options || []
+      })) as MenuItem[];
     }
   });
 
@@ -116,7 +120,7 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
           category_id: item.category_id || null,
           is_available: item.is_available,
           in_stock: item.in_stock,
-          position: menuItems.length
+          position: (menuItems as MenuItem[]).length
         })
         .select()
         .single();
@@ -163,8 +167,8 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
   };
 
   const filteredItems = selectedCategory 
-    ? menuItems.filter(item => item.category_id === selectedCategory)
-    : menuItems;
+    ? (menuItems as MenuItem[]).filter(item => item.category_id === selectedCategory)
+    : (menuItems as MenuItem[]);
 
   return (
     <Card>
