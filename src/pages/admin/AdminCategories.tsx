@@ -270,12 +270,6 @@ export default function AdminCategories() {
     { name: 'Lokale Leveranciers', slug: 'lokale-leveranciers', description: 'Bekijk het aanbod van onze lokale leveranciers in jouw regio voor snelle bezorging (Leuven, Gent, Antwerpen, Kortrijk, Oostende, Brugge, Roeselare, Eeklo, Blankenberge, ...).', color: '#8b5cf6', icon: 'users', is_active: true, sort_order: 40, image_url: '' },
     { name: 'Forum Regelement', slug: 'forum-regelement', description: 'Belangrijkste regels van het forum waaraan ieder lid moet voldoen. Niet naleven kan resulteren in een (tijdelijke of permanente) ban.', color: '#ef4444', icon: 'scale', is_active: true, sort_order: 50, image_url: '' },
     { name: 'Algemeen Forum', slug: 'algemeen-forum', description: 'Voor algemene zaken binnen het forum.', color: '#64748b', icon: 'message-square', is_active: true, sort_order: 60, image_url: '' },
-    { name: 'Wiet Kweken Forum', slug: 'wiet-kweken-forum', description: 'Alles over het kweken van wiet: tips, ervaringen en kennisdeling.', color: '#22c55e', icon: 'heart', is_active: true, sort_order: 70, image_url: '' },
-    { name: 'Eigen Gekweekte Wiet Verkopen', slug: 'eigen-gekweekte-wiet-verkopen', description: 'Ben jij wietkweker en zoek je betrouwbare afnemers voor je eigen gekweekte wiet? Plaats je aanbod en kom in contact met verkopers.', color: '#14b8a6', icon: 'trending-up', is_active: true, sort_order: 80, image_url: '' },
-    { name: 'Vragen Wiet Kweken', slug: 'vragen-wiet-kweken', description: 'Stel je vragen over het kweken van wiet en krijg antwoord van ervaren kwekers!', color: '#06b6d4', icon: 'message-square', is_active: true, sort_order: 90, image_url: '' },
-    { name: 'Cali Wietforum', slug: 'cali-wietforum', description: 'Forum gericht op Cali wiet in België: informatie, ervaringen en aanbod.', color: '#eab308', icon: 'star', is_active: true, sort_order: 100, image_url: '' },
-    { name: 'Cali Wiet te Koop', slug: 'cali-wiet-te-koop', description: 'Advertenties van verkopers die Cali wietsoorten aanbieden in België. Vermeld je regio en hoe je te bereiken bent.', color: '#f97316', icon: 'trending-up', is_active: true, sort_order: 110, image_url: '' },
-    { name: 'Cali Packs', slug: 'cali-packs', description: 'In dit forum delen leden info en aanbod rondom Cali Packs: ervaringen, te koop, en leveranciers.', color: '#a855f7', icon: 'package', is_active: true, sort_order: 120, image_url: '' },
   ] as const;
 
   // Idempotente bulk-actie: voeg toe of werk bij op basis van slug
