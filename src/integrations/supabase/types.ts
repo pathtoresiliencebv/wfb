@@ -1771,6 +1771,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: unknown
       }
+      get_profile_visibility: {
+        Args: { target_user_id: string }
+        Returns: string
+      }
       handle_login_attempt: {
         Args: {
           attempt_email: string
