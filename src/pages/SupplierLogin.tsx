@@ -19,7 +19,7 @@ import { TwoFactorModal } from '@/components/auth/TwoFactorModal';
 import { use2FA } from '@/hooks/use2FA';
 
 const supplierLoginSchema = z.object({
-  email: z.string().email('Voer een geldig leverancier emailadres in'),
+  email: z.string().min(1, 'Voer je leverancier gebruikersnaam of e-mailadres in'),
   password: z.string().min(6, 'Wachtwoord moet minimaal 6 karakters bevatten'),
 });
 
@@ -57,10 +57,10 @@ export default function SupplierLogin() {
   });
 
   const onSubmit = async (data: SupplierLoginFormData) => {
-    const email = data.email.toLowerCase().trim();
+    const emailOrUsername = data.email.toLowerCase().trim();
     
-    // Validate email format
-    if (!validateEmail(email)) {
+    // If it contains @, validate as email
+    if (emailOrUsername.includes('@') && !validateEmail(emailOrUsername)) {
       toast({
         variant: "destructive",
         title: "Ongeldig leverancier e-mailadres",
@@ -86,7 +86,7 @@ export default function SupplierLogin() {
     
     try {
       // First, try basic authentication
-      const loginSuccess = await login(email, data.password);
+      const loginSuccess = await login(emailOrUsername, data.password);
       
       if (loginSuccess) {
         // Check if user has 2FA enabled
@@ -94,16 +94,16 @@ export default function SupplierLogin() {
         
         if (twoFAStatus?.is_enabled) {
           // Store pending login data and show 2FA modal
-          setPendingLogin({ email, password: data.password });
+          setPendingLogin({ email: emailOrUsername, password: data.password });
           setShow2FAModal(true);
           setIsLoading(false);
           return;
         }
         
         // No 2FA required, complete login
-        await recordSuccessfulLogin(email);
+        await recordSuccessfulLogin(emailOrUsername);
         setRateLimitInfo(null);
-        logSecurityEvent('supplier_login_success', { email });
+        logSecurityEvent('supplier_login_success', { email: emailOrUsername });
         
         toast({
           title: "Leverancier toegang verleend",
@@ -115,11 +115,11 @@ export default function SupplierLogin() {
       }
     } catch (error) {
       // Record failed attempt and check rate limit
-      const rateLimitResult = await recordFailedAttempt(email);
+      const rateLimitResult = await recordFailedAttempt(emailOrUsername);
       setRateLimitInfo(rateLimitResult);
       
       // Log failed supplier login attempt
-      logSecurityEvent('supplier_login_failed', { email, error: error instanceof Error ? error.message : 'Unknown error' });
+      logSecurityEvent('supplier_login_failed', { email: emailOrUsername, error: error instanceof Error ? error.message : 'Unknown error' });
       
       if (rateLimitResult?.locked) {
         toast({
@@ -230,15 +230,15 @@ export default function SupplierLogin() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Leverancier Email</FormLabel>
+                      <FormLabel>Leverancier Gebruikersnaam/E-mail</FormLabel>
                        <FormControl>
-                         <Input
-                           type="email"
-                           placeholder="shop@cannabiswinkel.be"
-                           {...field}
-                           className="border-green-200 dark:border-green-800 focus:border-green-500"
-                         />
-                      </FormControl>
+                          <Input
+                            type="text"
+                            placeholder="leverancier gebruikersnaam of shop@cannabiswinkel.be"
+                            {...field}
+                            className="border-green-200 dark:border-green-800 focus:border-green-500"
+                          />
+                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

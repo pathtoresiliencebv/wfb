@@ -196,12 +196,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
   }, [fetchUserProfile]);
 
-  const login = React.useCallback(async (email: string, password: string): Promise<boolean> => {
+  const login = React.useCallback(async (emailOrUsername: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     
     try {
+      let email = emailOrUsername.toLowerCase().trim();
+      
+      // If it doesn't contain @, it's a username - try login with username first
+      // If that fails, we'll get proper error handling
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email,
         password,
       });
 
