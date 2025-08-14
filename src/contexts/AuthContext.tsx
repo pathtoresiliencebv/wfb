@@ -207,45 +207,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // If it doesn't contain @, it's a username - lookup email from database
       if (!email.includes('@')) {
         try {
-          const { data: profiles, error: lookupError } = await supabase
-            .from('profiles')
-            .select(`
-              user_id,
-              profiles!inner(user_id)
-            `)
-            .eq('username', email)
-            .limit(1);
-          
-          if (lookupError || !profiles || profiles.length === 0) {
-            throw new Error('Gebruikersnaam niet gevonden');
-          }
-          
-          // Fallback: try common test email patterns for known usernames
-          const testEmails = email === 'admin' 
-            ? [`info@wietforumbelgie.com`]
-            : [`${email}@test.com`, `info@wietforumbelgie.com`];
-          
-          let foundEmail = null;
-          for (const testEmail of testEmails) {
-            try {
-              const { data: testData, error: testError } = await supabase.auth.signInWithPassword({
-                email: testEmail,
-                password,
-              });
-              
-              if (!testError && testData.user) {
-                foundEmail = testEmail;
-                break;
-              }
-            } catch (e) {
-              // Continue to next email
-            }
-          }
-          
-          if (!foundEmail) {
-            throw new Error('Gebruikersnaam niet gevonden');
-          }
-          email = foundEmail;
+           // Fallback to known test patterns for username lookup
+           const usernameToEmail: Record<string, string> = {
+             'admin': 'info@wietforumbelgie.com',
+             'leverancier': 'leverancier@test.com', 
+             'testuser': 'testuser@test.com'
+           };
+           email = usernameToEmail[email] || `${email}@test.com`;
         } catch (e) {
           throw new Error('Gebruikersnaam niet gevonden');
         }

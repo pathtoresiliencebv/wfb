@@ -99,23 +99,6 @@ export const TestCredentials: React.FC = () => {
               continue;
             }
 
-            // If supplier, create supplier profile
-            if (account.username === 'leverancier' && data.user) {
-              await supabase
-                .from('supplier_profiles')
-                .insert({
-                  user_id: data.user.id,
-                  business_name: 'Test Leverancier Shop',
-                  description: 'Test leverancier voor ontwikkeling',
-                  contact_info: {},
-                  stats: {},
-                  features: [],
-                  ranking: 0,
-                  is_active: true
-                })
-                .maybeSingle();
-            }
-
             console.log(`✅ Account created/verified for ${account.username}`);
           } catch (e) {
             console.error(`Failed to create ${account.username}:`, e);
