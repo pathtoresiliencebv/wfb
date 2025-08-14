@@ -1,16 +1,15 @@
-
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Eye, EyeOff, Loader2, AlertCircle, Mail } from 'lucide-react';
+import { Eye, EyeOff, Loader2, AlertCircle, Store, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { useServerSideRateLimit } from '@/hooks/useServerSideRateLimit';
@@ -19,24 +18,20 @@ import { validateEmail } from '@/lib/security';
 import { TwoFactorModal } from '@/components/auth/TwoFactorModal';
 import { use2FA } from '@/hooks/use2FA';
 
-const loginSchema = z.object({
-  email: z.string().email('Voer een geldig emailadres in'),
+const supplierLoginSchema = z.object({
+  email: z.string().email('Voer een geldig leverancier emailadres in'),
   password: z.string().min(6, 'Wachtwoord moet minimaal 6 karakters bevatten'),
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type SupplierLoginFormData = z.infer<typeof supplierLoginSchema>;
 
-export default function Login() {
+export default function SupplierLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [show2FAModal, setShow2FAModal] = useState(false);
   const [pendingLogin, setPendingLogin] = useState<{email: string, password: string} | null>(null);
   const { login, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   
-  // Check for registration success message from state
-  const registrationMessage = location.state?.message;
-  const registrationEmail = location.state?.email;
   const [isLoading, setIsLoading] = useState(false);
   const [rateLimitInfo, setRateLimitInfo] = useState<{
     locked: boolean;
@@ -52,26 +47,24 @@ export default function Login() {
     getRemainingLockoutTime 
   } = useServerSideRateLimit();
   const { logSecurityEvent } = useAuditLog();
-  
-  const from = location.state?.from?.pathname || '/';
 
-  const form = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<SupplierLoginFormData>({
+    resolver: zodResolver(supplierLoginSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: SupplierLoginFormData) => {
     const email = data.email.toLowerCase().trim();
     
     // Validate email format
     if (!validateEmail(email)) {
       toast({
         variant: "destructive",
-        title: "Ongeldig e-mailadres",
-        description: "Voer een geldig e-mailadres in.",
+        title: "Ongeldig leverancier e-mailadres",
+        description: "Voer een geldig leverancier e-mailadres in.",
       });
       return;
     }
@@ -83,8 +76,8 @@ export default function Login() {
       
       toast({
         variant: "destructive",
-        title: "Account vergrendeld",
-        description: `Je account is vergrendeld vanwege te veel mislukte inlogpogingen. Probeer het over ${minutes} minuten opnieuw.`,
+        title: "Leverancier account vergrendeld",
+        description: `Je leverancier account is vergrendeld vanwege te veel mislukte inlogpogingen. Probeer het over ${minutes} minuten opnieuw.`,
       });
       return;
     }
@@ -110,40 +103,41 @@ export default function Login() {
         // No 2FA required, complete login
         await recordSuccessfulLogin(email);
         setRateLimitInfo(null);
-        logSecurityEvent('login_success', { email });
+        logSecurityEvent('supplier_login_success', { email });
         
         toast({
-          title: "Welkom terug!",
-          description: "Je bent succesvol ingelogd.",
+          title: "Leverancier toegang verleend",
+          description: "Welkom in je leverancier dashboard.",
         });
         
-        navigate(from, { replace: true });
+        // Always redirect to supplier dashboard
+        navigate('/leverancier/dashboard', { replace: true });
       }
     } catch (error) {
       // Record failed attempt and check rate limit
       const rateLimitResult = await recordFailedAttempt(email);
       setRateLimitInfo(rateLimitResult);
       
-      // Log failed login attempt
-      logSecurityEvent('login_failed', { email, error: error instanceof Error ? error.message : 'Unknown error' });
+      // Log failed supplier login attempt
+      logSecurityEvent('supplier_login_failed', { email, error: error instanceof Error ? error.message : 'Unknown error' });
       
       if (rateLimitResult?.locked) {
         toast({
           variant: "destructive",
-          title: "Account vergrendeld",
-          description: "Je account is vergrendeld vanwege te veel mislukte inlogpogingen. Probeer het over 15 minuten opnieuw.",
+          title: "Leverancier account vergrendeld",
+          description: "Je leverancier account is vergrendeld vanwege te veel mislukte inlogpogingen. Probeer het over 15 minuten opnieuw.",
         });
       } else if (rateLimitResult) {
         toast({
           variant: "destructive",
-          title: "Inloggen mislukt",
-          description: `Ongeldige inloggegevens. Je hebt nog ${rateLimitResult.remaining_attempts} pogingen over.`,
+          title: "Leverancier inloggen mislukt",
+          description: `Ongeldige leverancier inloggegevens. Je hebt nog ${rateLimitResult.remaining_attempts} pogingen over.`,
         });
       } else {
         toast({
           variant: "destructive",
-          title: "Inloggen mislukt",
-          description: "Ongeldige inloggegevens.",
+          title: "Leverancier inloggen mislukt",
+          description: "Ongeldige leverancier inloggegevens.",
         });
       }
     } finally {
@@ -158,23 +152,23 @@ export default function Login() {
       // Complete the login process
       await recordSuccessfulLogin(pendingLogin.email);
       setRateLimitInfo(null);
-      logSecurityEvent('login_success', { email: pendingLogin.email, twofa_verified: true });
+      logSecurityEvent('supplier_login_success', { email: pendingLogin.email, twofa_verified: true });
       
       toast({
-        title: "Welkom terug!",
-        description: "Je bent succesvol ingelogd.",
+        title: "Leverancier toegang verleend",
+        description: "Welkom in je leverancier dashboard.",
       });
       
-      navigate(from, { replace: true });
+      navigate('/leverancier/dashboard', { replace: true });
     } else {
       // 2FA failed, logout the user
       await recordFailedAttempt(pendingLogin?.email || '');
-      logSecurityEvent('login_failed', { email: pendingLogin?.email, error: '2FA verification failed' });
+      logSecurityEvent('supplier_login_failed', { email: pendingLogin?.email, error: '2FA verification failed' });
       
       toast({
         variant: "destructive",
-        title: "2FA verificatie mislukt",
-        description: "Inloggen geannuleerd.",
+        title: "Leverancier 2FA verificatie mislukt",
+        description: "Leverancier toegang geweigerd.",
       });
     }
     
@@ -182,35 +176,39 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-500/10 via-background to-emerald-500/10 p-4">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-primary">Wiet Forum België</h1>
-          <p className="text-muted-foreground mt-2">Cannabis community voor België</p>
+          <div className="flex items-center justify-center mb-4">
+            <div className="relative">
+              <Store className="h-16 w-16 text-green-600" />
+              <Leaf className="h-6 w-6 text-green-500 absolute -top-2 -right-2" />
+            </div>
+          </div>
+          <h1 className="text-3xl font-bold text-green-700 dark:text-green-400">Leverancier Portal</h1>
+          <p className="text-muted-foreground mt-2">Wiet Forum België - Leverancier Toegang</p>
+          <Badge variant="secondary" className="mt-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+            <Store className="h-3 w-3 mr-1" />
+            Leverancier Zone
+          </Badge>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Inloggen</CardTitle>
+        <Card className="border-green-200 dark:border-green-800 shadow-lg">
+          <CardHeader className="text-center">
+            <CardTitle className="flex items-center justify-center gap-2 text-green-700 dark:text-green-400">
+              <Store className="h-5 w-5" />
+              Leverancier Inloggen
+            </CardTitle>
             <CardDescription>
-              Welkom terug! Log in om deel te nemen aan de discussies.
+              Toegang voor cannabis leveranciers en shops
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {registrationMessage && (
-              <Alert className="mb-4 border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
-                <Mail className="h-4 w-4 text-green-600 dark:text-green-400" />
-                <AlertDescription className="text-green-800 dark:text-green-200">
-                  {registrationMessage}
-                </AlertDescription>
-              </Alert>
-            )}
-
             {rateLimitInfo?.locked && (
               <Alert className="mb-4 border-destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Je account is vergrendeld vanwege te veel mislukte inlogpogingen. 
+                  Je leverancier account is vergrendeld vanwege te veel mislukte inlogpogingen. 
                   Probeer het over {Math.ceil(getRemainingLockoutTime(rateLimitInfo.locked_until) / (1000 * 60))} minuten opnieuw.
                 </AlertDescription>
               </Alert>
@@ -220,7 +218,7 @@ export default function Login() {
               <Alert className="mb-4 border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
                 <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 <AlertDescription className="text-amber-800 dark:text-amber-200">
-                  Je hebt nog {rateLimitInfo.remaining_attempts} inlogpogingen over voordat je account wordt vergrendeld.
+                  Je hebt nog {rateLimitInfo.remaining_attempts} leverancier inlogpogingen over voordat je account wordt vergrendeld.
                 </AlertDescription>
               </Alert>
             )}
@@ -232,12 +230,13 @@ export default function Login() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>Leverancier Email</FormLabel>
                        <FormControl>
                          <Input
                            type="email"
-                           placeholder="je@email.com"
+                           placeholder="shop@cannabiswinkel.be"
                            {...field}
+                           className="border-green-200 dark:border-green-800 focus:border-green-500"
                          />
                       </FormControl>
                       <FormMessage />
@@ -250,13 +249,14 @@ export default function Login() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Wachtwoord</FormLabel>
+                      <FormLabel>Leverancier Wachtwoord</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showPassword ? 'text' : 'password'}
                             placeholder="••••••••"
                             {...field}
+                            className="border-green-200 dark:border-green-800 focus:border-green-500"
                           />
                           <Button
                             type="button"
@@ -278,32 +278,33 @@ export default function Login() {
                   )}
                 />
 
-                <Button type="submit" className="w-full" disabled={isLoading || rateLimitInfo?.locked}>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-green-600 hover:bg-green-700 text-white" 
+                  disabled={isLoading || rateLimitInfo?.locked}
+                >
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {isLoading ? 'Inloggen...' : 'Inloggen'}
+                  <Store className="mr-2 h-4 w-4" />
+                  {isLoading ? 'Leverancier toegang controleren...' : 'Leverancier Toegang'}
                 </Button>
               </form>
             </Form>
 
-            <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">Nog geen account? </span>
-              <Link to="/register" className="text-primary hover:underline font-medium">
-                Registreer hier
-              </Link>
-            </div>
-
-            <div className="mt-4 space-y-2 text-center">
-              <Link to="/password-reset" className="block text-sm text-muted-foreground hover:text-primary">
-                Wachtwoord vergeten?
-              </Link>
+            <div className="mt-6 text-center text-sm space-y-2">
+              <div>
+                <span className="text-muted-foreground">Nog geen leverancier account? </span>
+                <Link to="/" className="text-green-600 hover:underline font-medium">
+                  Ga naar hoofdpagina
+                </Link>
+              </div>
               
               <div className="flex justify-center gap-4 text-sm text-muted-foreground">
-                <Link to="/admin/login" className="hover:text-primary">
-                  Admin login
+                <Link to="/login" className="hover:text-green-600">
+                  Gewone gebruiker
                 </Link>
                 <span>•</span>
-                <Link to="/supplier-login" className="hover:text-primary">
-                  Leverancier login
+                <Link to="/admin/login" className="hover:text-green-600">
+                  Admin toegang
                 </Link>
               </div>
             </div>
@@ -317,12 +318,10 @@ export default function Login() {
         />
 
         <div className="text-center text-sm text-muted-foreground">
-          <p>Door in te loggen ga je akkoord met onze</p>
-          <div className="space-x-2">
-            <Link to="/terms" className="hover:text-primary">Gebruiksvoorwaarden</Link>
-            <span>en</span>
-            <Link to="/privacy" className="hover:text-primary">Privacybeleid</Link>
-          </div>
+          <p className="flex items-center justify-center gap-1">
+            <Leaf className="h-3 w-3 text-green-500" />
+            Leverancier toegang voor Wiet Forum België
+          </p>
         </div>
       </div>
     </div>

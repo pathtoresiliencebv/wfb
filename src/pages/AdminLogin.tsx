@@ -297,10 +297,16 @@ export default function AdminLogin() {
               </Link>
             </div>
 
-            <div className="mt-4 text-center">
-              <Link to="/login" className="text-sm text-muted-foreground hover:text-primary">
-                Gewone gebruiker inloggen
-              </Link>
+            <div className="mt-4 text-center space-y-2">
+              <div className="flex justify-center gap-4 text-sm text-muted-foreground">
+                <Link to="/login" className="hover:text-primary">
+                  Gewone gebruiker
+                </Link>
+                <span>•</span>
+                <Link to="/supplier-login" className="hover:text-primary">
+                  Leverancier login
+                </Link>
+              </div>
             </div>
           </CardContent>
         </Card>
