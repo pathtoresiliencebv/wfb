@@ -2,22 +2,21 @@
 
 ## Test Leverancier Account Setup
 
-To test the new supplier functionality, you need to create a test account:
+To test the new supplier functionality, follow these steps:
 
-### Option 1: Manual Account Creation (Recommended)
+### Step 1: Create Auth User (REQUIRED)
 
-1. **Register a new account:**
+Since the database now has a complete supplier profile ready, you just need to create the auth user:
+
+1. **Register the test account:**
    - Go to `/register`
    - Use email: `leverancier@test.com`
-   - Use username: `leverancier`
    - Use password: `12345678`
-   - Complete registration and email verification
+   - Complete registration
 
-2. **Promote to supplier role:**
-   - Go to admin panel (`/admin/users`) as admin
-   - Find the user "leverancier"
-   - Change role from "user" to "supplier"
-   - The supplier profile will be created automatically
+2. **Link to existing profile:**
+   - The system will automatically link to the existing "leverancier" profile
+   - No manual admin promotion needed - the profile already has supplier role
 
 ### Option 2: Database Setup (If needed)
 
