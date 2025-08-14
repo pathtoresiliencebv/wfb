@@ -204,45 +204,64 @@ export function AuthProvider({ children }: AuthProviderProps) {
       let loginSuccess = false;
       let userData = null;
       
-      // If it doesn't contain @, it's a username - try common email patterns
+      // If it doesn't contain @, it's a username - lookup email from database
       if (!email.includes('@')) {
-        const testEmails = [
-          `${email}@wietforum.com`,
-          `${email}@test.com`
-        ];
-        
-        for (const testEmail of testEmails) {
-          try {
-            const { data: testData, error: testError } = await supabase.auth.signInWithPassword({
-              email: testEmail,
-              password,
-            });
-            
-            if (!testError && testData.user) {
-              email = testEmail;
-              userData = testData;
-              loginSuccess = true;
-              break;
-            }
-          } catch (e) {
-            // Continue to next email
-          }
-        }
-      } else {
-        // Direct email login
         try {
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password,
-          });
-
-          if (!error && data.user) {
-            userData = data;
-            loginSuccess = true;
+          const { data: profiles, error: lookupError } = await supabase
+            .from('profiles')
+            .select(`
+              user_id,
+              profiles!inner(user_id)
+            `)
+            .eq('username', email)
+            .limit(1);
+          
+          if (lookupError || !profiles || profiles.length === 0) {
+            throw new Error('Gebruikersnaam niet gevonden');
           }
+          
+          // Fallback: try common test email patterns for known usernames
+          const testEmails = email === 'admin' 
+            ? [`info@wietforumbelgie.com`]
+            : [`${email}@test.com`, `info@wietforumbelgie.com`];
+          
+          let foundEmail = null;
+          for (const testEmail of testEmails) {
+            try {
+              const { data: testData, error: testError } = await supabase.auth.signInWithPassword({
+                email: testEmail,
+                password,
+              });
+              
+              if (!testError && testData.user) {
+                foundEmail = testEmail;
+                break;
+              }
+            } catch (e) {
+              // Continue to next email
+            }
+          }
+          
+          if (!foundEmail) {
+            throw new Error('Gebruikersnaam niet gevonden');
+          }
+          email = foundEmail;
         } catch (e) {
-          // Will handle error below
+          throw new Error('Gebruikersnaam niet gevonden');
         }
+      }
+      
+      // Now try login with the email
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password,
+      });
+
+      if (!error && data.user) {
+        userData = data;
+        loginSuccess = true;
+      } else {
+        throw new Error(error?.message || 'Inloggen mislukt');
       }
 
       if (!loginSuccess || !userData) {
