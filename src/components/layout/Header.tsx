@@ -51,24 +51,26 @@ export function Header() {
       <div className="container flex h-14 items-center">
         <SidebarTrigger className="mr-4" />
         
-        {/* Primary navigation (desktop) */}
-        <nav aria-label="Hoofdnavigatie" className="hidden md:flex items-center gap-1 mr-4">
-          {[
-            { title: 'Feed', to: '/' },
-            { title: 'Forums', to: '/forums' },
-            { title: 'Leden', to: '/members' },
-            { title: 'Berichten', to: '/messages' },
-            { title: 'Leaderboard', to: '/leaderboard' },
-          ].map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent"
-            >
-              {item.title}
-            </Link>
-          ))}
-        </nav>
+        {/* Primary navigation (desktop) - only show for logged-in users */}
+        {user && (
+          <nav aria-label="Hoofdnavigatie" className="hidden md:flex items-center gap-1 mr-4">
+            {[
+              { title: 'Feed', to: '/' },
+              { title: 'Forums', to: '/forums' },
+              { title: 'Leden', to: '/members' },
+              { title: 'Berichten', to: '/messages' },
+              { title: 'Leaderboard', to: '/leaderboard' },
+            ].map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent"
+              >
+                {item.title}
+              </Link>
+            ))}
+          </nav>
+        )}
         
         {/* Search */}
         <div className="flex flex-1 items-center space-x-4">

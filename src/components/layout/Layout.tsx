@@ -17,7 +17,7 @@ export function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const { user } = useAuth();
   const isHome = location.pathname === '/';
-  const showAppHeader = true; // Always show header for login/register buttons
+  const showAppHeader = !(isHome && !user); // Don't show header on homepage for unauthenticated users
   const showSidebar = !(isHome && !user);
   const mainInnerClass = showSidebar ? `container mx-auto ${isMobile ? 'p-4' : 'p-6'}` : 'p-0';
 
