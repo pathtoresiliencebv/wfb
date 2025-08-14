@@ -42,6 +42,7 @@ import PasswordReset from "./pages/PasswordReset";
 import Settings from "./pages/Settings";
 import Gamification from "./pages/Gamification";
 import { SupplierProfile as SupplierProfilePage } from "./pages/SupplierProfile";
+import SupplierDashboard from "./pages/SupplierDashboard";
 
 // Create QueryClient instance outside of component to prevent recreation
 const queryClient = new QueryClient({
@@ -315,6 +316,11 @@ function AppRoutes() {
                 <Route 
                   path="/leverancier/:username" 
                   element={<SupplierProfilePage />} 
+                />
+                
+                <Route 
+                  path="/leverancier/dashboard" 
+                  element={<SupplierDashboard />} 
                 />
                 
         {/* Catch-all route */}

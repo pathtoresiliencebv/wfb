@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { 
   Users, Search, UserCheck, UserX, Crown, Shield, MoreHorizontal, 
-  Mail, Calendar, TrendingUp, Settings, Ban, CheckCircle, Edit, Trash2
+  Mail, Calendar, TrendingUp, Settings, Ban, CheckCircle, Edit, Trash2, Store
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -126,6 +126,7 @@ export default function AdminUsers() {
     switch (role) {
       case 'admin': return <Crown className="h-4 w-4" />;
       case 'moderator': return <Shield className="h-4 w-4" />;
+      case 'supplier': return <Store className="h-4 w-4" />;
       default: return <Users className="h-4 w-4" />;
     }
   };
@@ -134,6 +135,7 @@ export default function AdminUsers() {
     switch (role) {
       case 'admin': return 'destructive';
       case 'moderator': return 'secondary';
+      case 'supplier': return 'default';
       default: return 'outline';
     }
   };
@@ -163,6 +165,7 @@ export default function AdminUsers() {
   const verifiedUsers = filteredUsers.filter(u => u.is_verified).length;
   const adminUsers = filteredUsers.filter(u => u.role === 'admin').length;
   const moderatorUsers = filteredUsers.filter(u => u.role === 'moderator').length;
+  const supplierUsers = filteredUsers.filter(u => u.role === 'supplier').length;
 
   return (
     <div className="space-y-6">
@@ -179,7 +182,7 @@ export default function AdminUsers() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Totaal Gebruikers</CardTitle>
@@ -206,8 +209,19 @@ export default function AdminUsers() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Leveranciers</CardTitle>
+            <Store className="h-4 w-4 text-purple-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{supplierUsers}</div>
+            <p className="text-xs text-muted-foreground">Actieve leveranciers</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Moderators</CardTitle>
-            <Shield className="h-4 w-4 text-purple-600" />
+            <Shield className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{moderatorUsers}</div>

@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -1625,22 +1625,22 @@ export type Database = {
     Functions: {
       award_achievement: {
         Args: {
-          target_user_id: string
           achievement_name: string
           progress_data?: Json
+          target_user_id: string
         }
         Returns: boolean
       }
       award_category_points: {
         Args: {
-          target_user_id: string
           category_name: string
           points_amount: number
+          target_user_id: string
         }
         Returns: boolean
       }
       award_xp: {
-        Args: { target_user_id: string; xp_amount: number; reason?: string }
+        Args: { reason?: string; target_user_id: string; xp_amount: number }
         Returns: boolean
       }
       calculate_user_level: {
@@ -1657,26 +1657,26 @@ export type Database = {
         Returns: number
       }
       create_activity_entry: {
-        Args: { user_id: string; activity_type: string; activity_data?: Json }
+        Args: { activity_data?: Json; activity_type: string; user_id: string }
         Returns: string
       }
       create_notification: {
         Args: {
-          recipient_id: string
-          notification_type: string
-          notification_title: string
-          notification_message?: string
           notification_data?: Json
+          notification_message?: string
+          notification_title: string
+          notification_type: string
+          recipient_id: string
         }
         Returns: string
       }
       create_security_event: {
         Args: {
-          target_user_id: string
-          event_type: string
           event_description: string
-          risk_level?: string
+          event_type: string
           metadata?: Json
+          risk_level?: string
+          target_user_id: string
         }
         Returns: string
       }
@@ -1694,11 +1694,11 @@ export type Database = {
       }
       update_user_reputation: {
         Args: {
-          target_user_id: string
           change_amount: number
           reason: string
           related_item_id?: string
           related_item_type?: string
+          target_user_id: string
         }
         Returns: undefined
       }
@@ -1707,11 +1707,11 @@ export type Database = {
         Returns: undefined
       }
       update_user_streak: {
-        Args: { target_user_id: string; p_streak_type?: string }
+        Args: { p_streak_type?: string; target_user_id: string }
         Returns: number
       }
       verify_user_password: {
-        Args: { user_email: string; password_to_verify: string }
+        Args: { password_to_verify: string; user_email: string }
         Returns: boolean
       }
     }

@@ -16,7 +16,7 @@ export interface User {
   joinedAt: Date;
   lastSeen: Date;
   isOnline: boolean;
-  role: 'user' | 'moderator' | 'expert' | 'admin';
+  role: 'user' | 'moderator' | 'supplier' | 'admin';
 }
 
 interface AuthContextType {
@@ -103,7 +103,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         joinedAt: new Date(profile.created_at),
         lastSeen: new Date(profile.updated_at),
         isOnline: true,
-        role: profile.role as 'user' | 'moderator' | 'expert' | 'admin',
+        role: profile.role as 'user' | 'moderator' | 'supplier' | 'admin',
       };
     } catch (error) {
       console.error('❌ [AuthContext] Error fetching user profile:', error);

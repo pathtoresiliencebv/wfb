@@ -12,12 +12,12 @@ import { useNavigate } from 'react-router-dom';
 
 const getRoleIcon = (role: string) => {
   switch (role) {
-    case 'Expert':
-      return <Star className="h-4 w-4 text-yellow-500" />;
-    case 'Moderator':
+    case 'supplier':
+      return <Star className="h-4 w-4 text-purple-500" />;
+    case 'moderator':
       return <Shield className="h-4 w-4 text-blue-500" />;
-    case 'Admin':
-      return <Crown className="h-4 w-4 text-purple-500" />;
+    case 'admin':
+      return <Crown className="h-4 w-4 text-red-500" />;
     default:
       return <User className="h-4 w-4 text-muted-foreground" />;
   }
@@ -25,11 +25,11 @@ const getRoleIcon = (role: string) => {
 
 const getRoleBadgeVariant = (role: string) => {
   switch (role) {
-    case 'Expert':
+    case 'supplier':
       return 'default';
-    case 'Moderator':
+    case 'moderator':
       return 'secondary';
-    case 'Admin':
+    case 'admin':
       return 'destructive';
     default:
       return 'outline';
@@ -53,8 +53,8 @@ export default function Members() {
       searchMembers(searchQuery);
     } else if (tab === 'online') {
       filterByOnlineStatus(true);
-    } else if (tab === 'experts') {
-      filterByRole('expert');
+    } else if (tab === 'suppliers') {
+      filterByRole('supplier');
     } else if (tab === 'moderators') {
       filterByRole('moderator');
     }
@@ -99,7 +99,7 @@ export default function Members() {
         <TabsList>
           <TabsTrigger value="all">Alle Leden</TabsTrigger>
           <TabsTrigger value="online">Online Nu</TabsTrigger>
-          <TabsTrigger value="experts">Experts</TabsTrigger>
+          <TabsTrigger value="suppliers">Leveranciers</TabsTrigger>
           <TabsTrigger value="moderators">Moderators</TabsTrigger>
         </TabsList>
 

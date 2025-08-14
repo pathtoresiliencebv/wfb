@@ -23,6 +23,7 @@ import wietforumLogoLight from '/lovable-uploads/04bda679-2d76-42bd-8c56-a25799f
 import wietforumLogoDark from '/lovable-uploads/8265793e-e1eb-42e7-a6cc-c3bb3d5303aa.png';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   Sidebar,
   SidebarContent,
@@ -60,6 +61,7 @@ const iconMap = {
 export function AppSidebar() {
   const { state } = useSidebar();
   const { theme } = useTheme();
+  const { user } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
   const isMobile = useIsMobile();
@@ -177,6 +179,25 @@ export function AppSidebar() {
             <TopSuppliers />
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Supplier Navigation - Only show for suppliers */}
+        {user?.role === 'supplier' && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Leverancier</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink to="/leverancier/dashboard" className={getNavClass('/leverancier/dashboard')}>
+                      <Package className="h-4 w-4 shrink-0" />
+                      {!collapsed && <span>Dashboard</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {/* Settings */}
         <div className="mt-auto pt-4">
