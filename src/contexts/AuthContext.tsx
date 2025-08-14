@@ -209,7 +209,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         try {
            // Fallback to known test patterns for username lookup
            const usernameToEmail: Record<string, string> = {
-             'admin': 'info@wietforumbelgie.com',
+             'admin': 'jason__m@outlook.com',
              'leverancier': 'leverancier@test.com', 
              'testuser': 'testuser@test.com'
            };

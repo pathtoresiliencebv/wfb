@@ -15,9 +15,9 @@ interface TestAccount {
 
 export const TestCredentials: React.FC = () => {
   const [testAccounts, setTestAccounts] = useState<TestAccount[]>([
-    { username: 'admin', password: 'admin123', role: 'Admin', exists: false },
-    { username: 'leverancier', password: '12345678', role: 'Leverancier', exists: false },
-    { username: 'testuser', password: 'testuser123', role: 'Gebruiker', exists: false }
+    { username: 'admin', password: 'admin123', role: 'Admin', email: 'jason__m@outlook.com', exists: false },
+    { username: 'leverancier', password: '12345678', role: 'Leverancier', email: 'leverancier@test.com', exists: false },
+    { username: 'testuser', password: 'testuser123', role: 'Gebruiker', email: 'testuser@test.com', exists: false }
   ]);
   
   const [copiedField, setCopiedField] = useState<string | null>(null);
@@ -67,9 +67,7 @@ export const TestCredentials: React.FC = () => {
       for (const account of testAccounts) {
         if (!account.exists) {
           try {
-            const email = account.username === 'admin' 
-              ? 'info@wietforumbelgie.com'
-              : `${account.username}@test.com`;
+            const email = account.email || `${account.username}@test.com`;
 
             console.log(`Creating account for ${account.username}...`);
             
