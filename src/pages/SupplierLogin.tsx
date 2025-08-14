@@ -3,13 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Eye, EyeOff, Loader2, AlertCircle, Store, Leaf } from 'lucide-react';
+import { Eye, EyeOff, Loader2, AlertCircle, Store, Leaf, User, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { useServerSideRateLimit } from '@/hooks/useServerSideRateLimit';
@@ -19,15 +20,22 @@ import { TwoFactorModal } from '@/components/auth/TwoFactorModal';
 import { TestCredentials } from '@/components/auth/TestCredentials';
 import { use2FA } from '@/hooks/use2FA';
 
-const supplierLoginSchema = z.object({
-  email: z.string().min(1, 'Voer je leverancier gebruikersnaam of e-mailadres in'),
+const supplierUsernameSchema = z.object({
+  username: z.string().min(1, 'Voer je leverancier gebruikersnaam in'),
   password: z.string().min(6, 'Wachtwoord moet minimaal 6 karakters bevatten'),
 });
 
-type SupplierLoginFormData = z.infer<typeof supplierLoginSchema>;
+const supplierEmailSchema = z.object({
+  email: z.string().email('Voer een geldig leverancier e-mailadres in'),
+  password: z.string().min(6, 'Wachtwoord moet minimaal 6 karakters bevatten'),
+});
+
+type SupplierUsernameFormData = z.infer<typeof supplierUsernameSchema>;
+type SupplierEmailFormData = z.infer<typeof supplierEmailSchema>;
 
 export default function SupplierLogin() {
   const [showPassword, setShowPassword] = useState(false);
+  const [loginMethod, setLoginMethod] = useState<'username' | 'email'>('username');
   const [show2FAModal, setShow2FAModal] = useState(false);
   const [pendingLogin, setPendingLogin] = useState<{email: string, password: string} | null>(null);
   const { login, isLoading: authLoading } = useAuth();
@@ -49,19 +57,31 @@ export default function SupplierLogin() {
   } = useServerSideRateLimit();
   const { logSecurityEvent } = useAuditLog();
 
-  const form = useForm<SupplierLoginFormData>({
-    resolver: zodResolver(supplierLoginSchema),
+  const usernameForm = useForm<SupplierUsernameFormData>({
+    resolver: zodResolver(supplierUsernameSchema),
+    defaultValues: {
+      username: '',
+      password: '',
+    },
+  });
+
+  const emailForm = useForm<SupplierEmailFormData>({
+    resolver: zodResolver(supplierEmailSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   });
 
-  const onSubmit = async (data: SupplierLoginFormData) => {
+  const onUsernameSubmit = async (data: SupplierUsernameFormData) => {
+    const emailOrUsername = data.username.toLowerCase().trim();
+    await handleLogin(emailOrUsername, data.password);
+  };
+
+  const onEmailSubmit = async (data: SupplierEmailFormData) => {
     const emailOrUsername = data.email.toLowerCase().trim();
     
-    // If it contains @, validate as email
-    if (emailOrUsername.includes('@') && !validateEmail(emailOrUsername)) {
+    if (!validateEmail(emailOrUsername)) {
       toast({
         variant: "destructive",
         title: "Ongeldig leverancier e-mailadres",
@@ -69,6 +89,11 @@ export default function SupplierLogin() {
       });
       return;
     }
+    
+    await handleLogin(emailOrUsername, data.password);
+  };
+
+  const handleLogin = async (emailOrUsername: string, password: string) => {
     
     // Check rate limit
     if (rateLimitInfo?.locked) {
@@ -87,7 +112,7 @@ export default function SupplierLogin() {
     
     try {
       // First, try basic authentication
-      const loginSuccess = await login(emailOrUsername, data.password);
+      const loginSuccess = await login(emailOrUsername, password);
       
       if (loginSuccess) {
         // Check if user has 2FA enabled
@@ -95,7 +120,7 @@ export default function SupplierLogin() {
         
         if (twoFAStatus?.is_enabled) {
           // Store pending login data and show 2FA modal
-          setPendingLogin({ email: emailOrUsername, password: data.password });
+          setPendingLogin({ email: emailOrUsername, password });
           setShow2FAModal(true);
           setIsLoading(false);
           return;
@@ -224,72 +249,156 @@ export default function SupplierLogin() {
               </Alert>
             )}
             
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Leverancier Gebruikersnaam/E-mail</FormLabel>
-                       <FormControl>
-                          <Input
-                            type="text"
-                            placeholder="leverancier gebruikersnaam of shop@cannabiswinkel.be"
-                            {...field}
-                            className="border-green-200 dark:border-green-800 focus:border-green-500"
-                          />
-                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            <Tabs value={loginMethod} onValueChange={(value) => setLoginMethod(value as 'username' | 'email')} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="username" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Gebruikersnaam
+                </TabsTrigger>
+                <TabsTrigger value="email" className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  E-mailadres
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="username" className="mt-4">
+                <Form {...usernameForm}>
+                  <form onSubmit={usernameForm.handleSubmit(onUsernameSubmit)} className="space-y-4">
+                    <FormField
+                      control={usernameForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Leverancier Gebruikersnaam</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="text"
+                              placeholder="leverancier gebruikersnaam"
+                              {...field}
+                              className="border-green-200 dark:border-green-800 focus:border-green-500"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Leverancier Wachtwoord</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? 'text' : 'password'}
-                            placeholder="••••••••"
-                            {...field}
-                            className="border-green-200 dark:border-green-800 focus:border-green-500"
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowPassword(!showPassword)}
-                          >
-                            {showPassword ? (
-                              <EyeOff className="h-4 w-4" />
-                            ) : (
-                              <Eye className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    <FormField
+                      control={usernameForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Leverancier Wachtwoord</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                type={showPassword ? 'text' : 'password'}
+                                placeholder="••••••••"
+                                {...field}
+                                className="border-green-200 dark:border-green-800 focus:border-green-500"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                onClick={() => setShowPassword(!showPassword)}
+                              >
+                                {showPassword ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <Button 
-                  type="submit" 
-                  className="w-full bg-green-600 hover:bg-green-700 text-white" 
-                  disabled={isLoading || rateLimitInfo?.locked}
-                >
-                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  <Store className="mr-2 h-4 w-4" />
-                  {isLoading ? 'Leverancier toegang controleren...' : 'Leverancier Toegang'}
-                </Button>
-              </form>
-            </Form>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-green-600 hover:bg-green-700 text-white" 
+                      disabled={isLoading || rateLimitInfo?.locked}
+                    >
+                      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      <Store className="mr-2 h-4 w-4" />
+                      {isLoading ? 'Leverancier toegang controleren...' : 'Leverancier Toegang'}
+                    </Button>
+                  </form>
+                </Form>
+              </TabsContent>
+
+              <TabsContent value="email" className="mt-4">
+                <Form {...emailForm}>
+                  <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-4">
+                    <FormField
+                      control={emailForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Leverancier E-mailadres</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              placeholder="shop@cannabiswinkel.be"
+                              {...field}
+                              className="border-green-200 dark:border-green-800 focus:border-green-500"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={emailForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Leverancier Wachtwoord</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                type={showPassword ? 'text' : 'password'}
+                                placeholder="••••••••"
+                                {...field}
+                                className="border-green-200 dark:border-green-800 focus:border-green-500"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                onClick={() => setShowPassword(!showPassword)}
+                              >
+                                {showPassword ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-green-600 hover:bg-green-700 text-white" 
+                      disabled={isLoading || rateLimitInfo?.locked}
+                    >
+                      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      <Store className="mr-2 h-4 w-4" />
+                      {isLoading ? 'Leverancier toegang controleren...' : 'Leverancier Toegang'}
+                    </Button>
+                  </form>
+                </Form>
+              </TabsContent>
+            </Tabs>
 
             <div className="mt-6 text-center text-sm space-y-2">
               <div>

@@ -3,13 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Eye, EyeOff, Loader2, AlertCircle, Shield, Crown } from 'lucide-react';
+import { Eye, EyeOff, Loader2, AlertCircle, Shield, Crown, User, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { useServerSideRateLimit } from '@/hooks/useServerSideRateLimit';
@@ -19,15 +20,22 @@ import { TwoFactorModal } from '@/components/auth/TwoFactorModal';
 import { TestCredentials } from '@/components/auth/TestCredentials';
 import { use2FA } from '@/hooks/use2FA';
 
-const adminLoginSchema = z.object({
-  email: z.string().min(1, 'Voer je admin gebruikersnaam of e-mailadres in'),
+const adminUsernameSchema = z.object({
+  username: z.string().min(1, 'Voer je admin gebruikersnaam in'),
   password: z.string().min(6, 'Wachtwoord moet minimaal 6 karakters bevatten'),
 });
 
-type AdminLoginFormData = z.infer<typeof adminLoginSchema>;
+const adminEmailSchema = z.object({
+  email: z.string().email('Voer een geldig admin e-mailadres in'),
+  password: z.string().min(6, 'Wachtwoord moet minimaal 6 karakters bevatten'),
+});
+
+type AdminUsernameFormData = z.infer<typeof adminUsernameSchema>;
+type AdminEmailFormData = z.infer<typeof adminEmailSchema>;
 
 export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
+  const [loginMethod, setLoginMethod] = useState<'username' | 'email'>('username');
   const [show2FAModal, setShow2FAModal] = useState(false);
   const [pendingLogin, setPendingLogin] = useState<{email: string, password: string} | null>(null);
   const { login, isLoading: authLoading } = useAuth();
@@ -49,19 +57,31 @@ export default function AdminLogin() {
   } = useServerSideRateLimit();
   const { logSecurityEvent } = useAuditLog();
 
-  const form = useForm<AdminLoginFormData>({
-    resolver: zodResolver(adminLoginSchema),
+  const usernameForm = useForm<AdminUsernameFormData>({
+    resolver: zodResolver(adminUsernameSchema),
+    defaultValues: {
+      username: '',
+      password: '',
+    },
+  });
+
+  const emailForm = useForm<AdminEmailFormData>({
+    resolver: zodResolver(adminEmailSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   });
 
-  const onSubmit = async (data: AdminLoginFormData) => {
+  const onUsernameSubmit = async (data: AdminUsernameFormData) => {
+    const emailOrUsername = data.username.toLowerCase().trim();
+    await handleLogin(emailOrUsername, data.password);
+  };
+
+  const onEmailSubmit = async (data: AdminEmailFormData) => {
     const emailOrUsername = data.email.toLowerCase().trim();
     
-    // If it contains @, validate as email
-    if (emailOrUsername.includes('@') && !validateEmail(emailOrUsername)) {
+    if (!validateEmail(emailOrUsername)) {
       toast({
         variant: "destructive",
         title: "Ongeldig admin e-mailadres",
@@ -69,6 +89,11 @@ export default function AdminLogin() {
       });
       return;
     }
+    
+    await handleLogin(emailOrUsername, data.password);
+  };
+
+  const handleLogin = async (emailOrUsername: string, password: string) => {
     
     // Check rate limit
     if (rateLimitInfo?.locked) {
@@ -87,7 +112,7 @@ export default function AdminLogin() {
     
     try {
       // First, try basic authentication
-      const loginSuccess = await login(emailOrUsername, data.password);
+      const loginSuccess = await login(emailOrUsername, password);
       
       if (loginSuccess) {
         // Check if user has 2FA enabled
@@ -95,7 +120,7 @@ export default function AdminLogin() {
         
         if (twoFAStatus?.is_enabled) {
           // Store pending login data and show 2FA modal
-          setPendingLogin({ email: emailOrUsername, password: data.password });
+          setPendingLogin({ email: emailOrUsername, password });
           setShow2FAModal(true);
           setIsLoading(false);
           return;
@@ -224,72 +249,156 @@ export default function AdminLogin() {
               </Alert>
             )}
             
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Admin Gebruikersnaam/E-mail</FormLabel>
-                       <FormControl>
-                          <Input
-                            type="text"
-                            placeholder="admin gebruikersnaam of admin@wietforumbelgie.com"
-                            {...field}
-                            className="border-primary/20 focus:border-primary"
-                          />
-                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            <Tabs value={loginMethod} onValueChange={(value) => setLoginMethod(value as 'username' | 'email')} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="username" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Gebruikersnaam
+                </TabsTrigger>
+                <TabsTrigger value="email" className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  E-mailadres
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="username" className="mt-4">
+                <Form {...usernameForm}>
+                  <form onSubmit={usernameForm.handleSubmit(onUsernameSubmit)} className="space-y-4">
+                    <FormField
+                      control={usernameForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Admin Gebruikersnaam</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="text"
+                              placeholder="admin gebruikersnaam"
+                              {...field}
+                              className="border-primary/20 focus:border-primary"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Admin Wachtwoord</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? 'text' : 'password'}
-                            placeholder="••••••••"
-                            {...field}
-                            className="border-primary/20 focus:border-primary"
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowPassword(!showPassword)}
-                          >
-                            {showPassword ? (
-                              <EyeOff className="h-4 w-4" />
-                            ) : (
-                              <Eye className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    <FormField
+                      control={usernameForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Admin Wachtwoord</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                type={showPassword ? 'text' : 'password'}
+                                placeholder="••••••••"
+                                {...field}
+                                className="border-primary/20 focus:border-primary"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                onClick={() => setShowPassword(!showPassword)}
+                              >
+                                {showPassword ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <Button 
-                  type="submit" 
-                  className="w-full bg-primary hover:bg-primary/90" 
-                  disabled={isLoading || rateLimitInfo?.locked}
-                >
-                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  <Shield className="mr-2 h-4 w-4" />
-                  {isLoading ? 'Admin toegang controleren...' : 'Admin Toegang'}
-                </Button>
-              </form>
-            </Form>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-primary hover:bg-primary/90" 
+                      disabled={isLoading || rateLimitInfo?.locked}
+                    >
+                      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      <Shield className="mr-2 h-4 w-4" />
+                      {isLoading ? 'Admin toegang controleren...' : 'Admin Toegang'}
+                    </Button>
+                  </form>
+                </Form>
+              </TabsContent>
+
+              <TabsContent value="email" className="mt-4">
+                <Form {...emailForm}>
+                  <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-4">
+                    <FormField
+                      control={emailForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Admin E-mailadres</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              placeholder="admin@wietforumbelgie.com"
+                              {...field}
+                              className="border-primary/20 focus:border-primary"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={emailForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Admin Wachtwoord</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                type={showPassword ? 'text' : 'password'}
+                                placeholder="••••••••"
+                                {...field}
+                                className="border-primary/20 focus:border-primary"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                onClick={() => setShowPassword(!showPassword)}
+                              >
+                                {showPassword ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-primary hover:bg-primary/90" 
+                      disabled={isLoading || rateLimitInfo?.locked}
+                    >
+                      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      <Shield className="mr-2 h-4 w-4" />
+                      {isLoading ? 'Admin toegang controleren...' : 'Admin Toegang'}
+                    </Button>
+                  </form>
+                </Form>
+              </TabsContent>
+            </Tabs>
 
             <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">Geen admin account? </span>
