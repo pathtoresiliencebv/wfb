@@ -217,20 +217,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
             .maybeSingle();
           
           if (profile) {
-            // Get email from auth.users - note this won't work with current RLS
-            // Fallback to known test patterns
+            // Use the correct email mappings for known test accounts
+            console.log(`Found profile for username: ${email}, user_id: ${profile.user_id}`);
+            
             const usernameToEmail: Record<string, string> = {
-              'admin': 'admin@test.com',
+              'admin': 'jason__m@outlook.com',
               'leverancier': 'leverancier@test.com', 
               'testuser': 'testuser@test.com'
             };
-            email = usernameToEmail[email];
             
-            if (!email) {
+            const mappedEmail = usernameToEmail[email];
+            if (mappedEmail) {
+              email = mappedEmail;
+              console.log(`Found email for username: ${email}`);
+            } else {
               throw new Error(`Geen email gevonden voor gebruikersnaam: ${email}`);
             }
-            
-            console.log(`Found email for username: ${email}`);
           } else {
             console.log(`No profile found for username: ${email}`);
             throw new Error(`Gebruikersnaam '${email}' niet gevonden in database`);
