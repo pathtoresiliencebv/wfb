@@ -329,12 +329,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = React.useCallback(async () => {
     try {
+      // Clear all local storage data to prevent auto-login
+      localStorage.clear();
+      sessionStorage.clear();
+      
       await supabase.auth.signOut();
       setUser(null);
       toast({
         title: 'Uitgelogd',
         description: 'Je bent succesvol uitgelogd.',
       });
+      
+      // Force redirect to login page
+      window.location.href = '/login';
     } catch (error) {
       console.error('Logout error:', error);
       toast({
