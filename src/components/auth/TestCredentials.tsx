@@ -17,7 +17,7 @@ interface TestAccount {
 
 export const TestCredentials: React.FC = () => {
   const [testAccounts, setTestAccounts] = useState<TestAccount[]>([
-    { username: 'admin', password: 'admin123', role: 'Admin', email: 'jason__m@outlook.com', exists: false, hasProfile: false },
+    { username: 'admin', password: 'admin123', role: 'Admin', email: 'info@wietforumbelgie.com', exists: false, hasProfile: false },
     { username: 'leverancier', password: '12345678', role: 'Leverancier', email: 'leverancier@wietforumbelgie.com', exists: false, hasProfile: false, hasSupplierProfile: false },
     { username: 'testuser', password: 'testuser123', role: 'Gebruiker', email: 'testuser@wietforumbelgie.com', exists: false, hasProfile: false }
   ]);
