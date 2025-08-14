@@ -479,7 +479,7 @@ export function LandingPage() {
         <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
           {features.map((feature, index) => (
             <Card key={index} className="group border-0 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden bg-gradient-to-br from-background to-muted/30">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
               <CardHeader className="relative pb-4">
                 <div className={`inline-flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 ${feature.color}`}>
                   <feature.icon className="h-8 w-8" />
@@ -521,7 +521,7 @@ export function LandingPage() {
           <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
             {communityBenefits.map((benefit, index) => (
               <Card key={index} className="group border-0 shadow-xl hover:shadow-2xl transition-all duration-300 bg-background/80 backdrop-blur overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 <CardContent className="relative p-8 text-center">
                   <div className="mb-6">
                     <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-primary-foreground shadow-lg group-hover:scale-110 transition-transform duration-300">
