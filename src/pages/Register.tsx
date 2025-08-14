@@ -61,7 +61,8 @@ export default function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
-  const { register: registerUser, isLoading } = useAuth();
+  const { register: registerUser, isLoading: authLoading } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const form = useForm<RegisterFormData>({
@@ -124,6 +125,7 @@ export default function Register() {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const success = await registerUser({
         username: data.username,
@@ -173,6 +175,8 @@ export default function Register() {
         description: errorMessage,
         variant: 'destructive',
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -209,7 +213,7 @@ export default function Register() {
                               field.onChange(e);
                               checkUsernameAvailability(e.target.value);
                             }}
-                            disabled={isLoading}
+                            disabled={isSubmitting}
                           />
                           {isCheckingUsername && (
                             <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -251,7 +255,7 @@ export default function Register() {
                           type="email"
                           placeholder="je@email.com"
                           {...field}
-                          disabled={isLoading}
+                          disabled={isSubmitting}
                         />
                       </FormControl>
                       <FormMessage />
@@ -274,7 +278,7 @@ export default function Register() {
                                 "w-full pl-3 text-left font-normal",
                                 !field.value && "text-muted-foreground"
                               )}
-                              disabled={isLoading}
+                              disabled={isSubmitting}
                               aria-label="Selecteer geboortedatum"
                             >
                               {field.value ? (
@@ -324,7 +328,7 @@ export default function Register() {
                             type={showPassword ? 'text' : 'password'}
                             placeholder="••••••••"
                             {...field}
-                            disabled={isLoading}
+                            disabled={isSubmitting}
                           />
                           <Button
                             type="button"
@@ -381,7 +385,7 @@ export default function Register() {
                             type={showConfirmPassword ? 'text' : 'password'}
                             placeholder="••••••••"
                             {...field}
-                            disabled={isLoading}
+                            disabled={isSubmitting}
                           />
                           <Button
                             type="button"
@@ -458,10 +462,10 @@ export default function Register() {
                 <Button 
                   type="submit" 
                   className="w-full" 
-                  disabled={isLoading || usernameAvailable === false}
+                  disabled={isSubmitting || usernameAvailable === false}
                 >
-                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {isLoading ? 'Account aanmaken...' : 'Account aanmaken'}
+                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isSubmitting ? 'Account aanmaken...' : 'Account aanmaken'}
                 </Button>
               </form>
             </Form>

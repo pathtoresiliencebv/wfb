@@ -113,11 +113,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   React.useEffect(() => {
     let isMounted = true;
+    console.log('🔄 [AuthContext] Setting up auth listener...');
 
-    // Safety: force-stop loading after 10s in case of network issues
+    // Safety: force-stop loading after 5s in case of network issues
     const safetyTimer = window.setTimeout(() => {
+      console.log('⏰ [AuthContext] Safety timer triggered - stopping loading');
       if (isMounted) setIsLoading(false);
-    }, 10000);
+    }, 5000);
 
     // Set up auth state listener FIRST (sync only)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {

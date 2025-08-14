@@ -18,10 +18,15 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
   const [timedOut, setTimedOut] = React.useState(false);
+  
   React.useEffect(() => {
-    const t = setTimeout(() => setTimedOut(true), 10000);
+    console.log('🛡️ [ProtectedRoute] isLoading:', isLoading, 'isAuthenticated:', isAuthenticated, 'requireAuth:', requireAuth);
+    const t = setTimeout(() => {
+      console.log('⏰ [ProtectedRoute] Timeout triggered');
+      setTimedOut(true);
+    }, 3000); // Reduced from 10s to 3s
     return () => clearTimeout(t);
-  }, []);
+  }, [isLoading, isAuthenticated, requireAuth]);
 
   if (isLoading && !timedOut) {
     return (
