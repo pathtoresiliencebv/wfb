@@ -124,14 +124,14 @@ export const TestCredentials: React.FC = () => {
             <div>
               <p className="text-xs font-medium text-muted-foreground">{account.role}</p>
               <div className="flex items-center gap-1">
-                <code className="text-xs bg-background px-1 py-0.5 rounded">{account.username}</code>
+                <code className="text-xs bg-background px-1 py-0.5 rounded">{account.email}</code>
                 <Button
                   variant="ghost"
                   size="sm"
                   className="h-4 w-4 p-0"
-                  onClick={() => copyToClipboard(account.username, `${index}-username`)}
+                  onClick={() => copyToClipboard(account.email, `${index}-email`)}
                 >
-                  {copiedField === `${index}-username` ? (
+                  {copiedField === `${index}-email` ? (
                     <Check className="h-3 w-3 text-green-500" />
                   ) : (
                     <Copy className="h-3 w-3" />

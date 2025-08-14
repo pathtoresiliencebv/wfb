@@ -21,22 +21,15 @@ import { TwoFactorModal } from '@/components/auth/TwoFactorModal';
 import { TestCredentials } from '@/components/auth/TestCredentials';
 import { use2FA } from '@/hooks/use2FA';
 
-const usernameLoginSchema = z.object({
-  username: z.string().min(1, 'Voer je gebruikersnaam in'),
-  password: z.string().min(6, 'Wachtwoord moet minimaal 6 karakters bevatten'),
-});
-
-const emailLoginSchema = z.object({
+const loginSchema = z.object({
   email: z.string().email('Voer een geldig e-mailadres in'),
   password: z.string().min(6, 'Wachtwoord moet minimaal 6 karakters bevatten'),
 });
 
-type UsernameLoginFormData = z.infer<typeof usernameLoginSchema>;
-type EmailLoginFormData = z.infer<typeof emailLoginSchema>;
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
-  const [loginMethod, setLoginMethod] = useState<'username' | 'email'>('username');
   const [show2FAModal, setShow2FAModal] = useState(false);
   const [pendingLogin, setPendingLogin] = useState<{email: string, password: string} | null>(null);
   const { login, isLoading: authLoading } = useAuth();
@@ -64,31 +57,18 @@ export default function Login() {
   
   const from = location.state?.from?.pathname || '/';
 
-  const usernameForm = useForm<UsernameLoginFormData>({
-    resolver: zodResolver(usernameLoginSchema),
-    defaultValues: {
-      username: '',
-      password: '',
-    },
-  });
-
-  const emailForm = useForm<EmailLoginFormData>({
-    resolver: zodResolver(emailLoginSchema),
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   });
 
-  const onUsernameSubmit = async (data: UsernameLoginFormData) => {
-    const emailOrUsername = data.username.toLowerCase().trim();
-    await handleLogin(emailOrUsername, data.password);
-  };
-
-  const onEmailSubmit = async (data: EmailLoginFormData) => {
-    const emailOrUsername = data.email.toLowerCase().trim();
+  const onSubmit = async (data: LoginFormData) => {
+    const email = data.email.toLowerCase().trim();
     
-    if (!validateEmail(emailOrUsername)) {
+    if (!validateEmail(email)) {
       toast({
         variant: "destructive",
         title: "Ongeldig e-mailadres",
@@ -97,10 +77,10 @@ export default function Login() {
       return;
     }
     
-    await handleLogin(emailOrUsername, data.password);
+    await handleLogin(email, data.password);
   };
 
-  const handleLogin = async (emailOrUsername: string, password: string) => {
+  const handleLogin = async (email: string, password: string) => {
     
     // Check rate limit
     if (rateLimitInfo?.locked) {
@@ -119,7 +99,7 @@ export default function Login() {
     
     try {
       // First, try basic authentication
-      const loginSuccess = await login(emailOrUsername, password);
+      const loginSuccess = await login(email, password);
       
       if (loginSuccess) {
         // Check if user has 2FA enabled
@@ -127,16 +107,16 @@ export default function Login() {
         
         if (twoFAStatus?.is_enabled) {
           // Store pending login data and show 2FA modal
-          setPendingLogin({ email: emailOrUsername, password });
+          setPendingLogin({ email, password });
           setShow2FAModal(true);
           setIsLoading(false);
           return;
         }
         
         // No 2FA required, complete login
-        await recordSuccessfulLogin(emailOrUsername);
+        await recordSuccessfulLogin(email);
         setRateLimitInfo(null);
-        logSecurityEvent('login_success', { email: emailOrUsername });
+        logSecurityEvent('login_success', { email });
         
         toast({
           title: "Welkom terug!",
@@ -147,11 +127,11 @@ export default function Login() {
       }
     } catch (error) {
       // Record failed attempt and check rate limit
-      const rateLimitResult = await recordFailedAttempt(emailOrUsername);
+      const rateLimitResult = await recordFailedAttempt(email);
       setRateLimitInfo(rateLimitResult);
       
       // Log failed login attempt
-      logSecurityEvent('login_failed', { email: emailOrUsername, error: error instanceof Error ? error.message : 'Unknown error' });
+      logSecurityEvent('login_failed', { email, error: error instanceof Error ? error.message : 'Unknown error' });
       
       if (rateLimitResult?.locked) {
         toast({
@@ -251,142 +231,65 @@ export default function Login() {
               </Alert>
             )}
             
-            <Tabs value={loginMethod} onValueChange={(value) => setLoginMethod(value as 'username' | 'email')} className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="username" className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Gebruikersnaam
-                </TabsTrigger>
-                <TabsTrigger value="email" className="flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  E-mailadres
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="username" className="mt-4">
-                <Form {...usernameForm}>
-                  <form onSubmit={usernameForm.handleSubmit(onUsernameSubmit)} className="space-y-4">
-                    <FormField
-                      control={usernameForm.control}
-                      name="username"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Gebruikersnaam</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="text"
-                              placeholder="gebruikersnaam"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>E-mailadres</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="je@email.com"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                    <FormField
-                      control={usernameForm.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Wachtwoord</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                type={showPassword ? 'text' : 'password'}
-                                placeholder="••••••••"
-                                {...field}
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                onClick={() => setShowPassword(!showPassword)}
-                              >
-                                {showPassword ? (
-                                  <EyeOff className="h-4 w-4" />
-                                ) : (
-                                  <Eye className="h-4 w-4" />
-                                )}
-                              </Button>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Wachtwoord</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="••••••••"
+                            {...field}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                    <Button type="submit" className="w-full" disabled={isLoading || rateLimitInfo?.locked}>
-                      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      {isLoading ? 'Inloggen...' : 'Inloggen'}
-                    </Button>
-                  </form>
-                </Form>
-              </TabsContent>
-
-              <TabsContent value="email" className="mt-4">
-                <Form {...emailForm}>
-                  <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-4">
-                    <FormField
-                      control={emailForm.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>E-mailadres</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="email"
-                              placeholder="je@email.com"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={emailForm.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Wachtwoord</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                type={showPassword ? 'text' : 'password'}
-                                placeholder="••••••••"
-                                {...field}
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                                onClick={() => setShowPassword(!showPassword)}
-                              >
-                                {showPassword ? (
-                                  <EyeOff className="h-4 w-4" />
-                                ) : (
-                                  <Eye className="h-4 w-4" />
-                                )}
-                              </Button>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <Button type="submit" className="w-full" disabled={isLoading || rateLimitInfo?.locked}>
-                      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      {isLoading ? 'Inloggen...' : 'Inloggen'}
-                    </Button>
-                  </form>
-                </Form>
-              </TabsContent>
-            </Tabs>
+                <Button type="submit" className="w-full" disabled={isLoading || rateLimitInfo?.locked}>
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isLoading ? 'Inloggen...' : 'Inloggen'}
+                </Button>
+              </form>
+            </Form>
 
             <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">Nog geen account? </span>

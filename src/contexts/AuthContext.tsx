@@ -196,52 +196,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
   }, [fetchUserProfile]);
 
-  const login = React.useCallback(async (emailOrUsername: string, password: string): Promise<boolean> => {
+  const login = React.useCallback(async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     
     try {
-      let email = emailOrUsername.toLowerCase().trim();
+      email = email.toLowerCase().trim();
       let loginSuccess = false;
       let userData = null;
-      
-      // If it doesn't contain @, it's a username - lookup email from database
-      if (!email.includes('@')) {
-        try {
-          console.log(`Looking up email for username: ${email}`);
-          
-          // First try to find user by username in profiles table
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('user_id')
-            .eq('username', email)
-            .maybeSingle();
-          
-          if (profile) {
-            // Use the correct email mappings for known test accounts
-            console.log(`Found profile for username: ${email}, user_id: ${profile.user_id}`);
-            
-            const usernameToEmail: Record<string, string> = {
-              'admin': 'jason__m@outlook.com',
-              'leverancier': 'leverancier@wietforumbelgie.com', 
-              'testuser': 'testuser@wietforumbelgie.com'
-            };
-            
-            const mappedEmail = usernameToEmail[email];
-            if (mappedEmail) {
-              email = mappedEmail;
-              console.log(`Found email for username: ${email}`);
-            } else {
-              throw new Error(`Geen email gevonden voor gebruikersnaam: ${email}`);
-            }
-          } else {
-            console.log(`No profile found for username: ${email}`);
-            throw new Error(`Gebruikersnaam '${email}' niet gevonden in database`);
-          }
-        } catch (e) {
-          console.error('Username lookup error:', e);
-          throw new Error(e instanceof Error ? e.message : 'Gebruikersnaam niet gevonden');
-        }
-      }
       
       // Now try login with the email
       console.log(`Attempting login with email: ${email}`);
