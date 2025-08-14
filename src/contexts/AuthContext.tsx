@@ -39,6 +39,9 @@ interface RegisterData {
   email: string;
   password: string;
   birthDate: string;
+  accountType?: 'user' | 'supplier';
+  businessName?: string;
+  description?: string;
 }
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
@@ -115,11 +118,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     let isMounted = true;
     console.log('🔄 [AuthContext] Setting up auth listener...');
 
-    // Safety: force-stop loading after 5s in case of network issues
+    // Clear any existing sessions on app start to prevent auto-login
+    localStorage.removeItem('supabase.auth.token');
+    sessionStorage.clear();
+
+    // Safety: force-stop loading after 3s in case of network issues
     const safetyTimer = window.setTimeout(() => {
       console.log('⏰ [AuthContext] Safety timer triggered - stopping loading');
       if (isMounted) setIsLoading(false);
-    }, 5000);
+    }, 3000);
 
     // Set up auth state listener FIRST (sync only)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -230,6 +237,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
             title: 'Welkom terug!',
             description: `Hallo ${userProfile.username}, je bent succesvol ingelogd.`,
           });
+          
+          // Role-based redirect
+          setTimeout(() => {
+            if (userProfile.role === 'supplier') {
+              window.location.href = '/leverancier/dashboard';
+            } else {
+              window.location.href = '/';
+            }
+          }, 1000);
         }
         setIsLoading(false);
         return true;
@@ -282,6 +298,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
           data: {
             username: userData.username,
             display_name: userData.username,
+            role: userData.accountType || 'user',
+            business_name: userData.businessName,
+            description: userData.description,
           }
         }
       });
@@ -335,15 +354,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
       localStorage.clear();
       sessionStorage.clear();
       
-      await supabase.auth.signOut();
+      // Clear specific Supabase auth tokens
+      localStorage.removeItem('supabase.auth.token');
+      localStorage.removeItem('supabase.auth.refreshToken');
+      
+      await supabase.auth.signOut({ scope: 'global' });
       setUser(null);
+      setEmailVerified(false);
+      
       toast({
         title: 'Uitgelogd',
         description: 'Je bent succesvol uitgelogd.',
       });
       
-      // Force redirect to login page
-      window.location.href = '/login';
+      // Force page refresh and redirect to home
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 500);
     } catch (error) {
       console.error('Logout error:', error);
       toast({
