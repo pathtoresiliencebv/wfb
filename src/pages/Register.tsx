@@ -462,10 +462,9 @@ export default function Register() {
                 <Button 
                   type="submit" 
                   className="w-full" 
-                  disabled={isSubmitting || usernameAvailable === false}
+                  disabled={usernameAvailable === false}
                 >
-                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {isSubmitting ? 'Account aanmaken...' : 'Account aanmaken'}
+                  Account aanmaken
                 </Button>
               </form>
             </Form>

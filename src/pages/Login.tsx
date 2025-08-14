@@ -278,7 +278,7 @@ export default function Login() {
                   )}
                 />
 
-                <Button type="submit" className="w-full" disabled={isLoading || rateLimitLoading || rateLimitInfo?.locked}>
+                <Button type="submit" className="w-full" disabled={isLoading || rateLimitInfo?.locked}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {isLoading ? 'Inloggen...' : 'Inloggen'}
                 </Button>
