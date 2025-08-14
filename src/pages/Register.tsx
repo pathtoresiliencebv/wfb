@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Eye, EyeOff, Loader2, CheckCircle, CalendarIcon, XCircle, User, Store } from 'lucide-react';
+import { Eye, EyeOff, Loader2, CheckCircle, CalendarIcon, XCircle, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
@@ -12,8 +12,6 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
@@ -49,22 +47,11 @@ const registerSchema = z.object({
     }
     return age >= 18;
   }, 'Je moet minimaal 18 jaar oud zijn en mag geen toekomstige datum kiezen'),
-  accountType: z.enum(['user', 'supplier'], { required_error: 'Selecteer een account type' }),
-  businessName: z.string().optional(),
-  description: z.string().optional(),
   termsAccepted: z.boolean().refine(val => val === true, 'Je moet akkoord gaan met de gebruiksvoorwaarden'),
   ageConfirmed: z.boolean().refine(val => val === true, 'Je moet bevestigen dat je 18+ bent'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Wachtwoorden komen niet overeen',
   path: ['confirmPassword'],
-}).refine((data) => {
-  if (data.accountType === 'supplier' && (!data.businessName || data.businessName.trim().length < 2)) {
-    return false;
-  }
-  return true;
-}, {
-  message: 'Bedrijfsnaam is verplicht voor leveranciers (minimaal 2 karakters)',
-  path: ['businessName'],
 });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
@@ -86,9 +73,6 @@ export default function Register() {
       password: '',
       confirmPassword: '',
       birthDate: undefined,
-      accountType: 'user' as 'user' | 'supplier',
-      businessName: '',
-      description: '',
       termsAccepted: false,
       ageConfirmed: false,
     },
@@ -148,9 +132,6 @@ export default function Register() {
         email: data.email,
         password: data.password,
         birthDate: data.birthDate.toISOString().split('T')[0],
-        accountType: data.accountType,
-        businessName: data.businessName,
-        description: data.description,
       });
       
       if (success) {
@@ -333,103 +314,9 @@ export default function Register() {
                        <FormMessage />
                      </FormItem>
                    )}
-                 />
+                  />
 
                  <FormField
-                   control={form.control}
-                   name="accountType"
-                   render={({ field }) => (
-                     <FormItem className="space-y-3">
-                       <FormLabel>Account Type</FormLabel>
-                       <FormControl>
-                         <RadioGroup
-                           onValueChange={field.onChange}
-                           defaultValue={field.value}
-                           className="flex flex-col space-y-2"
-                         >
-                           <div className="flex items-center space-x-2 p-3 border rounded-lg">
-                             <RadioGroupItem value="user" id="user" />
-                             <div className="flex items-center space-x-2">
-                               <User className="h-4 w-4" />
-                               <div>
-                                 <label htmlFor="user" className="text-sm font-medium cursor-pointer">
-                                   Gewone Gebruiker
-                                 </label>
-                                 <p className="text-xs text-muted-foreground">
-                                   Voor deelname aan forum discussies
-                                 </p>
-                               </div>
-                             </div>
-                           </div>
-                           <div className="flex items-center space-x-2 p-3 border rounded-lg">
-                             <RadioGroupItem value="supplier" id="supplier" />
-                             <div className="flex items-center space-x-2">
-                               <Store className="h-4 w-4" />
-                               <div>
-                                 <label htmlFor="supplier" className="text-sm font-medium cursor-pointer">
-                                   Leverancier
-                                 </label>
-                                 <p className="text-xs text-muted-foreground">
-                                   Voor cannabis gerelateerde bedrijven
-                                 </p>
-                               </div>
-                             </div>
-                           </div>
-                         </RadioGroup>
-                       </FormControl>
-                       <FormMessage />
-                     </FormItem>
-                   )}
-                 />
-
-                 {form.watch('accountType') === 'supplier' && (
-                   <>
-                     <FormField
-                       control={form.control}
-                       name="businessName"
-                       render={({ field }) => (
-                         <FormItem>
-                           <FormLabel>Bedrijfsnaam *</FormLabel>
-                           <FormControl>
-                             <Input
-                               placeholder="Jouw bedrijfsnaam"
-                               {...field}
-                               disabled={isSubmitting}
-                             />
-                           </FormControl>
-                           <FormDescription>
-                             De naam van je cannabis gerelateerde bedrijf
-                           </FormDescription>
-                           <FormMessage />
-                         </FormItem>
-                       )}
-                     />
-
-                     <FormField
-                       control={form.control}
-                       name="description"
-                       render={({ field }) => (
-                         <FormItem>
-                           <FormLabel>Beschrijving (optioneel)</FormLabel>
-                           <FormControl>
-                             <Textarea
-                               placeholder="Beschrijf kort wat je bedrijf doet..."
-                               {...field}
-                               disabled={isSubmitting}
-                               rows={3}
-                             />
-                           </FormControl>
-                           <FormDescription>
-                             Korte beschrijving van je bedrijf en diensten
-                           </FormDescription>
-                           <FormMessage />
-                         </FormItem>
-                       )}
-                     />
-                   </>
-                 )}
-
-                <FormField
                   control={form.control}
                   name="password"
                   render={({ field }) => (

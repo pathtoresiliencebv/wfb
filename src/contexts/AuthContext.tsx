@@ -39,9 +39,6 @@ interface RegisterData {
   email: string;
   password: string;
   birthDate: string;
-  accountType?: 'user' | 'supplier';
-  businessName?: string;
-  description?: string;
 }
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
@@ -298,9 +295,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           data: {
             username: userData.username,
             display_name: userData.username,
-            role: userData.accountType || 'user',
-            business_name: userData.businessName,
-            description: userData.description,
+            role: 'user',
           }
         }
       });
