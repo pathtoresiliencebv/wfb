@@ -13,7 +13,12 @@ import {
   Heart,
   Sprout,
   AlertTriangle,
+  TrendingUp,
+  Star,
+  Package,
 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import wietforumLogoLight from '/lovable-uploads/04bda679-2d76-42bd-8c56-a25799f8e22b.png';
 import wietforumLogoDark from '/lovable-uploads/8265793e-e1eb-42e7-a6cc-c3bb3d5303aa.png';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -39,13 +44,18 @@ const mainNavItems = [
   { title: 'Leaderboard', url: '/leaderboard', icon: Trophy },
 ];
 
-const forumCategories = [
-  { title: 'Wetgeving & Nieuws', url: '/forums/wetgeving', icon: Scale },
-  { title: 'Medicinaal Gebruik', url: '/forums/medicinaal', icon: Heart },
-  { title: 'Teelt & Horticultuur', url: '/forums/teelt', icon: Sprout },
-  { title: 'Harm Reduction', url: '/forums/harm-reduction', icon: AlertTriangle },
-  { title: 'Community', url: '/forums/community', icon: Users },
-];
+// Icon mapping for database strings to Lucide icons
+const iconMap = {
+  'trending-up': TrendingUp,
+  'star': Star,
+  'message-square': MessageSquare,
+  'users': Users,
+  'scale': Scale,
+  'heart': Heart,
+  'package': Package,
+  'sprout': Sprout,
+  'alert-triangle': AlertTriangle,
+} as const;
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -54,6 +64,21 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const isMobile = useIsMobile();
   const collapsed = state === "collapsed";
+  
+  // Fetch categories from database
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
+    queryKey: ['sidebar-categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
+      
+      if (error) throw error;
+      return data || [];
+    },
+  });
   
   // Show mini icons on mobile for specific routes (e.g., user and supplier profiles)
   const allowMiniOnMobile = currentPath.startsWith('/user') || currentPath.startsWith('/leverancier');
@@ -117,16 +142,30 @@ export function AppSidebar() {
           <SidebarGroupLabel>Forum Categorieën</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {forumCategories.map((category) => (
-                <SidebarMenuItem key={category.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={category.url} className={getNavClass(category.url)}>
-                      <category.icon className="h-4 w-4 shrink-0" />
-                      {!collapsed && <span className="truncate">{category.title}</span>}
-                    </NavLink>
+              {categoriesLoading ? (
+                <SidebarMenuItem>
+                  <SidebarMenuButton disabled>
+                    <div className="h-4 w-4 bg-muted rounded animate-pulse" />
+                    {!collapsed && <span className="text-muted-foreground">Laden...</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              ))}
+              ) : (
+                categories.map((category: any) => {
+                  const categoryUrl = `/forums/${category.slug}`;
+                  const IconComponent = iconMap[category.icon as keyof typeof iconMap] || MessageSquare;
+                  
+                  return (
+                    <SidebarMenuItem key={category.id}>
+                      <SidebarMenuButton asChild>
+                        <NavLink to={categoryUrl} className={getNavClass(categoryUrl)}>
+                          <IconComponent className="h-4 w-4 shrink-0" />
+                          {!collapsed && <span className="truncate">{category.name}</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
