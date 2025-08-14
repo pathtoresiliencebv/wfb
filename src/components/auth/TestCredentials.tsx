@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,44 +9,73 @@ interface TestAccount {
   username: string;
   password: string;
   role: string;
-  email?: string;
+  email: string;
   exists: boolean;
+  hasProfile: boolean;
+  hasSupplierProfile?: boolean;
 }
 
 export const TestCredentials: React.FC = () => {
   const [testAccounts, setTestAccounts] = useState<TestAccount[]>([
-    { username: 'admin', password: 'admin123', role: 'Admin', email: 'jason__m@outlook.com', exists: false },
-    { username: 'leverancier', password: '12345678', role: 'Leverancier', email: 'leverancier@test.com', exists: false },
-    { username: 'testuser', password: 'testuser123', role: 'Gebruiker', email: 'testuser@test.com', exists: false }
+    { username: 'admin', password: 'admin123', role: 'Admin', email: 'admin@test.com', exists: false, hasProfile: false },
+    { username: 'leverancier', password: '12345678', role: 'Leverancier', email: 'leverancier@test.com', exists: false, hasProfile: false, hasSupplierProfile: false },
+    { username: 'testuser', password: 'testuser123', role: 'Gebruiker', email: 'testuser@test.com', exists: false, hasProfile: false }
   ]);
   
   const [copiedField, setCopiedField] = useState<string | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
 
-  // Check which accounts exist
-  useEffect(() => {
-    const checkAccounts = async () => {
+  // Check which accounts exist in database
+  const checkAccounts = async () => {
+    setIsChecking(true);
+    
+    try {
       const updatedAccounts = await Promise.all(
         testAccounts.map(async (account) => {
           try {
-            const { data, error } = await supabase
+            // Check if profile exists
+            const { data: profile } = await supabase
               .from('profiles')
-              .select('username, role')
+              .select('username, role, user_id')
               .eq('username', account.username)
               .maybeSingle();
             
+            let hasSupplierProfile = false;
+            if (profile && account.username === 'leverancier') {
+              const { data: supplierProfile } = await supabase
+                .from('supplier_profiles')
+                .select('id')
+                .eq('user_id', profile.user_id)
+                .maybeSingle();
+              hasSupplierProfile = !!supplierProfile;
+            }
+            
             return {
               ...account,
-              exists: !error && !!data
+              exists: !!profile,
+              hasProfile: !!profile,
+              hasSupplierProfile: account.username === 'leverancier' ? hasSupplierProfile : undefined
             };
           } catch (e) {
-            return { ...account, exists: false };
+            console.error(`Error checking account ${account.username}:`, e);
+            return { ...account, exists: false, hasProfile: false };
           }
         })
       );
       setTestAccounts(updatedAccounts);
-    };
+    } catch (error) {
+      console.error('Error checking accounts:', error);
+      toast({
+        variant: "destructive",
+        title: "Fout",
+        description: "Kon account status niet controleren.",
+      });
+    } finally {
+      setIsChecking(false);
+    }
+  };
 
+  useEffect(() => {
     checkAccounts();
   }, []);
 
@@ -60,70 +89,16 @@ export const TestCredentials: React.FC = () => {
     }
   };
 
-  const createMissingAccounts = async () => {
-    setIsCreating(true);
-    
-    try {
-      for (const account of testAccounts) {
-        if (!account.exists) {
-          try {
-            const email = account.email || `${account.username}@test.com`;
-
-            console.log(`Creating account for ${account.username}...`);
-            
-            const { data, error } = await supabase.auth.signUp({
-              email: email,
-              password: account.password,
-              options: {
-                emailRedirectTo: `${window.location.origin}/`,
-                data: {
-                  username: account.username,
-                  display_name: account.username === 'admin' 
-                    ? 'WietForum Admin' 
-                    : account.username === 'leverancier'
-                    ? 'Test Leverancier'
-                    : 'Test Gebruiker',
-                  role: account.username === 'admin' 
-                    ? 'admin' 
-                    : account.username === 'leverancier'
-                    ? 'supplier'
-                    : 'user',
-                }
-              }
-            });
-
-            if (error && !error.message.includes('already registered')) {
-              console.error(`Error creating ${account.username}:`, error);
-              continue;
-            }
-
-            console.log(`✅ Account created/verified for ${account.username}`);
-          } catch (e) {
-            console.error(`Failed to create ${account.username}:`, e);
-          }
-        }
-      }
-
-      toast({
-        title: "Accounts bijgewerkt",
-        description: "Test accounts zijn aangemaakt of geverifieerd.",
-      });
-
-      // Recheck accounts
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-
-    } catch (error) {
-      console.error('Error creating accounts:', error);
-      toast({
-        variant: "destructive",
-        title: "Fout",
-        description: "Er is een fout opgetreden bij het aanmaken van accounts.",
-      });
-    } finally {
-      setIsCreating(false);
+  const getAccountStatus = (account: TestAccount) => {
+    if (!account.exists || !account.hasProfile) {
+      return { text: '✗ Ontbreekt', color: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' };
     }
+    
+    if (account.username === 'leverancier' && !account.hasSupplierProfile) {
+      return { text: '⚠ Incompleet', color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300' };
+    }
+    
+    return { text: '✓ Bestaat', color: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' };
   };
 
   return (
@@ -134,11 +109,12 @@ export const TestCredentials: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={createMissingAccounts}
-            disabled={isCreating}
+            onClick={checkAccounts}
+            disabled={isChecking}
             className="ml-2"
           >
-            {isCreating ? 'Bezig...' : 'Accounts Aanmaken'}
+            <RefreshCw className={`h-3 w-3 mr-1 ${isChecking ? 'animate-spin' : ''}`} />
+            {isChecking ? 'Controleren...' : 'Vernieuwen'}
           </Button>
         </CardTitle>
       </CardHeader>
@@ -184,16 +160,30 @@ export const TestCredentials: React.FC = () => {
             </div>
 
             <div className="text-right">
-              <span className={`text-xs px-2 py-0.5 rounded-full ${
-                account.exists 
-                  ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' 
-                  : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-              }`}>
-                {account.exists ? '✓ Bestaat' : '✗ Ontbreekt'}
-              </span>
+              {(() => {
+                const status = getAccountStatus(account);
+                return (
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${status.color}`}>
+                    {status.text}
+                  </span>
+                );
+              })()}
             </div>
           </div>
         ))}
+        
+        {testAccounts.some(account => !account.exists) && (
+          <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-md border border-yellow-200 dark:border-yellow-800">
+            <p className="text-xs text-yellow-800 dark:text-yellow-200 font-medium mb-2">
+              Ontbrekende accounts aanmaken:
+            </p>
+            <p className="text-xs text-yellow-700 dark:text-yellow-300">
+              Voor ontbrekende accounts: ga naar <strong>/register</strong> en registreer handmatig met de bovenstaande gegevens.
+              <br />
+              Gebruik het juiste e-mailadres en wachtwoord uit de tabel.
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

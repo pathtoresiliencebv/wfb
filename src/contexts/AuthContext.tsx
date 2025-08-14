@@ -207,29 +207,66 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // If it doesn't contain @, it's a username - lookup email from database
       if (!email.includes('@')) {
         try {
-           // Fallback to known test patterns for username lookup
-           const usernameToEmail: Record<string, string> = {
-             'admin': 'jason__m@outlook.com',
-             'leverancier': 'leverancier@test.com', 
-             'testuser': 'testuser@test.com'
-           };
-           email = usernameToEmail[email] || `${email}@test.com`;
+          console.log(`Looking up email for username: ${email}`);
+          
+          // First try to find user by username in profiles table
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('user_id')
+            .eq('username', email)
+            .maybeSingle();
+          
+          if (profile) {
+            // Get email from auth.users - note this won't work with current RLS
+            // Fallback to known test patterns
+            const usernameToEmail: Record<string, string> = {
+              'admin': 'admin@test.com',
+              'leverancier': 'leverancier@test.com', 
+              'testuser': 'testuser@test.com'
+            };
+            email = usernameToEmail[email];
+            
+            if (!email) {
+              throw new Error(`Geen email gevonden voor gebruikersnaam: ${email}`);
+            }
+            
+            console.log(`Found email for username: ${email}`);
+          } else {
+            console.log(`No profile found for username: ${email}`);
+            throw new Error(`Gebruikersnaam '${email}' niet gevonden in database`);
+          }
         } catch (e) {
-          throw new Error('Gebruikersnaam niet gevonden');
+          console.error('Username lookup error:', e);
+          throw new Error(e instanceof Error ? e.message : 'Gebruikersnaam niet gevonden');
         }
       }
       
       // Now try login with the email
+      console.log(`Attempting login with email: ${email}`);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email,
         password,
       });
 
       if (!error && data.user) {
+        console.log('Login successful:', data.user.email);
         userData = data;
         loginSuccess = true;
       } else {
-        throw new Error(error?.message || 'Inloggen mislukt');
+        console.error('Login failed:', error);
+        
+        // Provide more specific error messages
+        let errorMessage = 'Inloggen mislukt';
+        if (error?.message?.includes('Invalid login credentials')) {
+          errorMessage = 'Ongeldig e-mailadres/gebruikersnaam of wachtwoord';
+        } else if (error?.message?.includes('Email not confirmed')) {
+          errorMessage = 'E-mailadres is nog niet bevestigd';
+        } else if (error?.message) {
+          errorMessage = error.message;
+        }
+        
+        throw new Error(errorMessage);
       }
 
       if (!loginSuccess || !userData) {
