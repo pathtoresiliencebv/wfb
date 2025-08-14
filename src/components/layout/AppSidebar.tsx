@@ -180,28 +180,20 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Supplier Navigation - Only show for suppliers */}
-        {user?.role === 'supplier' && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Leverancier</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <NavLink to="/leverancier/dashboard" className={getNavClass('/leverancier/dashboard')}>
-                      <Package className="h-4 w-4 shrink-0" />
-                      {!collapsed && <span>Dashboard</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {/* Settings */}
+        {/* Settings and Supplier Navigation */}
         <div className="mt-auto pt-4">
           <SidebarMenu>
+            {/* Supplier Navigation - Only show for suppliers */}
+            {user?.role === 'supplier' && (
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink to="/leverancier/dashboard" className={getNavClass('/leverancier/dashboard')}>
+                    <Package className="h-4 w-4 shrink-0" />
+                    {!collapsed && <span>Leverancier</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
                 <NavLink to="/settings" className={getNavClass('/settings')}>
