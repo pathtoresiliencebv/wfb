@@ -782,48 +782,104 @@ export type Database = {
           },
         ]
       }
+      supplier_categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          sort_order: number | null
+          supplier_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          sort_order?: number | null
+          supplier_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          sort_order?: number | null
+          supplier_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_categories_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplier_menu_items: {
         Row: {
           category: string | null
+          category_id: string | null
           created_at: string
           description: string | null
           id: string
+          image_url: string | null
+          in_stock: boolean | null
           is_available: boolean
           name: string
           position: number
           price: number
+          pricing_tiers: Json | null
           supplier_id: string
           tags: string[] | null
           unit: string | null
           updated_at: string
+          weight_options: string[] | null
         }
         Insert: {
           category?: string | null
+          category_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          image_url?: string | null
+          in_stock?: boolean | null
           is_available?: boolean
           name: string
           position?: number
           price?: number
+          pricing_tiers?: Json | null
           supplier_id: string
           tags?: string[] | null
           unit?: string | null
           updated_at?: string
+          weight_options?: string[] | null
         }
         Update: {
           category?: string | null
+          category_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          image_url?: string | null
+          in_stock?: boolean | null
           is_available?: boolean
           name?: string
           position?: number
           price?: number
+          pricing_tiers?: Json | null
           supplier_id?: string
           tags?: string[] | null
           unit?: string | null
           updated_at?: string
+          weight_options?: string[] | null
         }
         Relationships: [
           {
@@ -833,47 +889,78 @@ export type Database = {
             referencedRelation: "supplier_profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "supplier_menu_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_categories"
+            referencedColumns: ["id"]
+          },
         ]
       }
       supplier_profiles: {
         Row: {
+          banner_image: string | null
           business_name: string
           contact_info: Json | null
           created_at: string
+          delivery_areas: string[] | null
+          delivery_fee: number | null
           description: string | null
           features: string[] | null
           id: string
           is_active: boolean | null
+          logo_image: string | null
+          minimum_order: number | null
+          opening_hours: Json | null
           ranking: number | null
           stats: Json | null
+          theme_color: string | null
           updated_at: string
           user_id: string
+          why_choose_us: string[] | null
         }
         Insert: {
+          banner_image?: string | null
           business_name: string
           contact_info?: Json | null
           created_at?: string
+          delivery_areas?: string[] | null
+          delivery_fee?: number | null
           description?: string | null
           features?: string[] | null
           id?: string
           is_active?: boolean | null
+          logo_image?: string | null
+          minimum_order?: number | null
+          opening_hours?: Json | null
           ranking?: number | null
           stats?: Json | null
+          theme_color?: string | null
           updated_at?: string
           user_id: string
+          why_choose_us?: string[] | null
         }
         Update: {
+          banner_image?: string | null
           business_name?: string
           contact_info?: Json | null
           created_at?: string
+          delivery_areas?: string[] | null
+          delivery_fee?: number | null
           description?: string | null
           features?: string[] | null
           id?: string
           is_active?: boolean | null
+          logo_image?: string | null
+          minimum_order?: number | null
+          opening_hours?: Json | null
           ranking?: number | null
           stats?: Json | null
+          theme_color?: string | null
           updated_at?: string
           user_id?: string
+          why_choose_us?: string[] | null
         }
         Relationships: [
           {

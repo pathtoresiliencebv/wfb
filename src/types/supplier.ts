@@ -3,6 +3,7 @@ export interface SupplierStats {
   rating?: number;
   delivery_time?: string;
   success_rate?: number;
+  strains?: number;
 }
 
 export interface SupplierContact {
@@ -24,6 +25,12 @@ export interface SupplierMenuItem {
   position: number;
   created_at: string;
   updated_at: string;
+  // New fields
+  pricing_tiers?: any;
+  weight_options?: string[];
+  in_stock?: boolean;
+  image_url?: string;
+  category_id?: string;
 }
 
 export interface SupplierProfile {
@@ -38,6 +45,15 @@ export interface SupplierProfile {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  // New fields
+  banner_image?: string;
+  logo_image?: string;
+  theme_color?: string;
+  delivery_areas?: string[];
+  opening_hours?: any;
+  minimum_order?: number;
+  delivery_fee?: number;
+  why_choose_us?: string[];
   profiles: {
     username: string;
     display_name?: string;
