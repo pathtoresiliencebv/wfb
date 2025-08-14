@@ -43,6 +43,7 @@ import Settings from "./pages/Settings";
 import Gamification from "./pages/Gamification";
 import { SupplierProfile as SupplierProfilePage } from "./pages/SupplierProfile";
 import SupplierDashboard from "./pages/SupplierDashboard";
+import AdminLogin from "./pages/AdminLogin";
 
 // Create QueryClient instance outside of component to prevent recreation
 const queryClient = new QueryClient({
@@ -89,6 +90,16 @@ function AppRoutes() {
                   element={
                     <ProtectedRoute requireAuth={false}>
                       <PasswordReset />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* Admin login route */}
+                <Route 
+                  path="/admin/login" 
+                  element={
+                    <ProtectedRoute requireAuth={false}>
+                      <AdminLogin />
                     </ProtectedRoute>
                   } 
                 />
