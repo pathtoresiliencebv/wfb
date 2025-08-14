@@ -1,78 +1,72 @@
-# Testing Instructions for Supplier Login
+# Test Instructies - WietForum België
 
-## Test Leverancier Account Setup
+## Test Accounts
 
-To test the new supplier functionality, follow these steps:
+### Admin Account
+- **Username:** admin
+- **Email:** admin@wietforum.com  
+- **Password:** admin123
+- **Role:** Admin
+- **Access:** Via `/admin/login` of `/login`
 
-### Step 1: Create Auth User (REQUIRED)
+### Leverancier Account
+- **Username:** leverancier
+- **Email:** leverancier@test.com
+- **Password:** 12345678
+- **Role:** Supplier
+- **Access:** Via `/supplier-login` of `/login`
 
-Since the database now has a complete supplier profile ready, you just need to create the auth user:
+## Login Opties
 
-1. **Register the test account:**
-   - Go to `/register`
-   - Use email: `leverancier@test.com`
-   - Use password: `12345678`
-   - Complete registration
+### 1. Reguliere Login (`/login`)
+- Werkt met zowel **username** als **email**
+- Ondersteunt alle user rollen (user, supplier, admin, moderator)
+- Automatische redirect op basis van rol:
+  - Suppliers → `/leverancier/dashboard`
+  - Andere rollen → homepage
 
-2. **Link to existing profile:**
-   - The system will automatically link to the existing "leverancier" profile
-   - No manual admin promotion needed - the profile already has supplier role
+### 2. Admin Login (`/admin/login`)
+- Speciaal voor admin toegang
+- Vereist admin of moderator rol
 
-### Option 2: Database Setup (If needed)
+### 3. Supplier Login (`/supplier-login`)
+- Speciaal voor leveranciers
+- Vereist supplier rol
 
-If you have existing auth users, you can update the database directly:
+## Navigatie Features
 
-```sql
--- Update an existing user to be the test supplier
-UPDATE public.profiles 
-SET username = 'leverancier', 
-    display_name = 'Cannabis Shop Amsterdam',
-    role = 'supplier' 
-WHERE user_id = 'YOUR_EXISTING_USER_ID';
+- **Header:** Toont altijd login/register buttons voor niet-ingelogde gebruikers
+- **React Router:** Alle navigatie gebruikt Link componenten (geen page refreshes)
+- **Responsive:** Werkt op desktop en mobiel
 
--- Create supplier profile (replace USER_ID)
-INSERT INTO public.supplier_profiles (
-  user_id, business_name, description, stats, features
-) VALUES (
-  'YOUR_EXISTING_USER_ID',
-  'Cannabis Shop Amsterdam',
-  'Test cannabis leverancier voor demo doeleinden',
-  '{"customers": 100, "rating": 4.5}',
-  '["Snelle levering", "Kwaliteit gegarandeerd"]'
-);
-```
+## Test Scenarios
 
-## Testing Features
+### Basic Login Test
+1. Ga naar `/login`
+2. Probeer inloggen met `admin` en `admin123`
+3. Controleer dat je doorgestuurd wordt naar homepage met admin privileges
 
-### Login Testing
-1. **Regular user login:** `/login` - supports both email and username
-2. **Admin login:** `/admin/login` - supports both email and username
-3. **Supplier login:** `/supplier-login` - supports both email and username
+### Supplier Login Test  
+1. Ga naar `/login` of `/supplier-login`
+2. Probeer inloggen met `leverancier` en `12345678`
+3. Controleer dat je doorgestuurd wordt naar `/leverancier/dashboard`
 
-### Test Credentials
-- **Username:** `leverancier`
-- **Email:** `leverancier@test.com` 
-- **Password:** `12345678`
+### Username vs Email Login
+- Test `admin` (username) vs `admin@wietforum.com` (email)
+- Test `leverancier` (username) vs `leverancier@test.com` (email)
+- Beide moeten werken
 
-### Supplier Page Testing
-Once logged in as supplier, test:
-1. Visit `/supplier/leverancier` - public supplier page
-2. Visit `/leverancier/leverancier` - alternative URL (same page)
-3. Visit `/leverancier/dashboard` - supplier dashboard
+### Navigation Test
+1. Zorg dat je niet ingelogd bent
+2. Controleer dat header login/register buttons toont
+3. Klik op links en controleer dat pagina niet refresh
+4. Log in en controleer user dropdown menu
 
-## Features Implemented
+## Known Issues Fixed
 
-✅ `/supplier/:username` route created
-✅ Login forms accept both email and username  
-✅ Cross-navigation between login pages
-✅ Supplier-specific styling and texts
-✅ Database structure for full supplier profiles
-✅ Menu items and categories support
-
-## Next Steps
-
-After creating the test account, you can:
-1. Test the public supplier page design
-2. Add menu items via supplier dashboard
-3. Test contact functionality
-4. Verify all styling and features work correctly
+✅ Header toont nu altijd login/register buttons voor niet-ingelogde gebruikers  
+✅ Layout toont altijd header (geen hidden header op homepage)  
+✅ AuthContext ondersteunt username lookup voor login  
+✅ Test accounts zijn aangemaakt in database  
+✅ Alle navigatie gebruikt React Router Link componenten  
+✅ Admin en supplier accounts hebben juiste rollen

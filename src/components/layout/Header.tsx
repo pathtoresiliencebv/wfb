@@ -109,8 +109,8 @@ export function Header() {
           {/* Notifications */}
           {user && <NotificationDropdown />}
 
-          {/* User Menu */}
-          {user && (
+          {/* User Menu or Login/Register */}
+          {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
@@ -151,6 +151,15 @@ export function Header() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/login">Inloggen</Link>
+              </Button>
+              <Button variant="default" size="sm" asChild>
+                <Link to="/register">Registreren</Link>
+              </Button>
+            </div>
           )}
         </div>
       </div>

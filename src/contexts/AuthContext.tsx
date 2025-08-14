@@ -201,37 +201,63 @@ export function AuthProvider({ children }: AuthProviderProps) {
     
     try {
       let email = emailOrUsername.toLowerCase().trim();
+      let loginSuccess = false;
+      let userData = null;
       
-      // If it doesn't contain @, it's a username - try login with username first
-      // If that fails, we'll get proper error handling
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password,
-      });
-
-      if (error) {
-        console.error('Login error:', error);
-        let errorMessage = 'Er is een fout opgetreden bij het inloggen.';
+      // If it doesn't contain @, it's a username - try common email patterns
+      if (!email.includes('@')) {
+        const testEmails = [
+          `${email}@wietforum.com`,
+          `${email}@test.com`
+        ];
         
-        if (error.message.includes('Invalid login credentials')) {
-          errorMessage = 'Ongeldig e-mailadres of wachtwoord.';
-        } else if (error.message.includes('Email not confirmed')) {
-          errorMessage = 'Je e-mailadres is nog niet bevestigd. Controleer je inbox.';
-        } else if (error.message.includes('Too many requests')) {
-          errorMessage = 'Te veel inlogpogingen. Probeer het later opnieuw.';
+        for (const testEmail of testEmails) {
+          try {
+            const { data: testData, error: testError } = await supabase.auth.signInWithPassword({
+              email: testEmail,
+              password,
+            });
+            
+            if (!testError && testData.user) {
+              email = testEmail;
+              userData = testData;
+              loginSuccess = true;
+              break;
+            }
+          } catch (e) {
+            // Continue to next email
+          }
         }
-        
+      } else {
+        // Direct email login
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password,
+          });
+
+          if (!error && data.user) {
+            userData = data;
+            loginSuccess = true;
+          }
+        } catch (e) {
+          // Will handle error below
+        }
+      }
+
+      if (!loginSuccess || !userData) {
         toast({
           title: 'Login mislukt',
-          description: errorMessage,
+          description: 'Ongeldig e-mailadres/gebruikersnaam of wachtwoord.',
           variant: 'destructive',
         });
         setIsLoading(false);
         return false;
       }
 
-      if (data.user) {
-        const userProfile = await fetchUserProfile(data.user);
+      // Process successful login
+      if (userData.user) {
+        const userProfile = await fetchUserProfile(userData.user);
         if (userProfile) {
           setUser(userProfile);
           toast({

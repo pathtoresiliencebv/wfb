@@ -17,7 +17,7 @@ export function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const { user } = useAuth();
   const isHome = location.pathname === '/';
-  const showAppHeader = !(isHome && !user);
+  const showAppHeader = true; // Always show header for login/register buttons
   const showSidebar = !(isHome && !user);
   const mainInnerClass = showSidebar ? `container mx-auto ${isMobile ? 'p-4' : 'p-6'}` : 'p-0';
 
