@@ -156,7 +156,7 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
     }
   });
 
-  const weightOptions = ['1g', '2.5g', '5g', '10g', '25g', '50g', '100g'];
+  const weightOptions = ['10g', '25g', '50g', '100g', '200g'];
 
   const handlePriceChange = (weight: string, price: string) => {
     const numPrice = parseFloat(price) || 0;
