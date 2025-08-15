@@ -106,14 +106,17 @@ export const SupplierMenu: React.FC<SupplierMenuProps> = ({ supplierId }) => {
               </div>
             )}
             
-            {/* Category Pricing Display */}
+            {/* Category Pricing Display - SAME AS INDIVIDUAL PRODUCTS */}
             {category.category_pricing && Object.keys(category.category_pricing).length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {Object.entries(category.category_pricing).map(([weight, price]) => (
-                  <Badge key={weight} variant="default" className="text-xs">
-                    {weight}: €{Number(price).toFixed(2)}
-                  </Badge>
-                ))}
+              <div className="space-y-1 mt-2">
+                <div className="text-sm font-medium text-muted-foreground">Prijzen:</div>
+                <div className="flex flex-wrap gap-1">
+                  {Object.entries(category.category_pricing).map(([weight, price]) => (
+                    <Badge key={weight} variant="outline" className="text-xs">
+                      {weight}gr: €{Number(price).toFixed(2)}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             )}
           </div>
