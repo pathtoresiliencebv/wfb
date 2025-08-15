@@ -29,7 +29,9 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
   const { retry } = useRetry();
   const [categoryName, setCategoryName] = useState('');
   const [localNames, setLocalNames] = useState<Record<string, string>>({});
-  const [updateTimeouts, setUpdateTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
+  const [localPrices, setLocalPrices] = useState<Record<string, Record<string, string>>>({});
+  const [nameTimeouts, setNameTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
+  const [priceTimeouts, setPriceTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
 
   // Fetch menu items
   const { data: menuItems = [], isLoading } = useQuery({
@@ -103,14 +105,22 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
     }
   });
 
-  // Initialize local names when menu items are loaded
+  // Initialize local state when menu items are loaded
   useEffect(() => {
     if (menuItems.length > 0) {
       const initialNames: Record<string, string> = {};
+      const initialPrices: Record<string, Record<string, string>> = {};
+      
       menuItems.forEach(item => {
         initialNames[item.id] = item.name;
+        initialPrices[item.id] = {};
+        WEIGHT_OPTIONS.forEach(weight => {
+          initialPrices[item.id][weight] = String(item.pricing_tiers?.[weight] || '');
+        });
       });
+      
       setLocalNames(initialNames);
+      setLocalPrices(initialPrices);
     }
   }, [menuItems]);
 
@@ -120,8 +130,8 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
     setLocalNames(prev => ({ ...prev, [id]: name }));
     
     // Clear existing timeout
-    if (updateTimeouts[id]) {
-      clearTimeout(updateTimeouts[id]);
+    if (nameTimeouts[id]) {
+      clearTimeout(nameTimeouts[id]);
     }
     
     // Set new timeout for database update
@@ -130,26 +140,51 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
         .catch(error => handleError(error));
       
       // Remove timeout from state
-      setUpdateTimeouts(prev => {
+      setNameTimeouts(prev => {
         const newTimeouts = { ...prev };
         delete newTimeouts[id];
         return newTimeouts;
       });
-    }, 500);
+    }, 800); // Increased delay for better stability
     
-    setUpdateTimeouts(prev => ({ ...prev, [id]: timeoutId }));
-  }, [updateProductMutation, updateTimeouts, retry, handleError]);
+    setNameTimeouts(prev => ({ ...prev, [id]: timeoutId }));
+  }, [updateProductMutation, nameTimeouts, retry, handleError]);
 
+  // Debounced price update
   const handlePriceChange = useCallback((id: string, weight: string, price: string) => {
-    const item = menuItems.find(m => m.id === id);
-    if (!item) return;
-
-    const numPrice = parseFloat(price) || 0;
-    const newPricingTiers = { ...item.pricing_tiers, [weight]: numPrice };
+    // Update local state immediately for responsive UI
+    setLocalPrices(prev => ({
+      ...prev,
+      [id]: { ...prev[id], [weight]: price }
+    }));
     
-    retry(() => updateProductMutation.mutateAsync({ id, field: 'pricing_tiers', value: newPricingTiers }))
-      .catch(error => handleError(error));
-  }, [menuItems, updateProductMutation, retry, handleError]);
+    // Clear existing timeout for this specific field
+    const timeoutKey = `${id}-${weight}`;
+    if (priceTimeouts[timeoutKey]) {
+      clearTimeout(priceTimeouts[timeoutKey]);
+    }
+    
+    // Set new timeout for database update
+    const timeoutId = setTimeout(() => {
+      const item = menuItems.find(m => m.id === id);
+      if (!item) return;
+
+      const numPrice = parseFloat(price) || 0;
+      const newPricingTiers = { ...item.pricing_tiers, [weight]: numPrice };
+      
+      retry(() => updateProductMutation.mutateAsync({ id, field: 'pricing_tiers', value: newPricingTiers }))
+        .catch(error => handleError(error));
+      
+      // Remove timeout from state
+      setPriceTimeouts(prev => {
+        const newTimeouts = { ...prev };
+        delete newTimeouts[timeoutKey];
+        return newTimeouts;
+      });
+    }, 600); // Shorter delay for prices
+    
+    setPriceTimeouts(prev => ({ ...prev, [timeoutKey]: timeoutId }));
+  }, [menuItems, updateProductMutation, priceTimeouts, retry, handleError]);
 
   // Fill down functionality
   const handleFillDown = useCallback((fromIndex: number, weight: string) => {
@@ -161,7 +196,15 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
     // Get all items from this index down
     const itemsToUpdate = menuItems.slice(fromIndex + 1);
     
-    // Update all items below with the same price
+    // Update local state immediately
+    const newLocalPrices = { ...localPrices };
+    itemsToUpdate.forEach(item => {
+      if (!newLocalPrices[item.id]) newLocalPrices[item.id] = {};
+      newLocalPrices[item.id][weight] = String(sourcePrice);
+    });
+    setLocalPrices(newLocalPrices);
+    
+    // Update database
     itemsToUpdate.forEach(item => {
       const newPricingTiers = { ...item.pricing_tiers, [weight]: sourcePrice };
       retry(() => updateProductMutation.mutateAsync({ 
@@ -175,14 +218,15 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
       title: "Waardes doorgetrokken",
       description: `${itemsToUpdate.length} producten bijgewerkt voor ${weight}gr.`
     });
-  }, [menuItems, updateProductMutation, retry, handleError, toast]);
+  }, [menuItems, localPrices, updateProductMutation, retry, handleError, toast]);
 
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
-      Object.values(updateTimeouts).forEach(timeout => clearTimeout(timeout));
+      Object.values(nameTimeouts).forEach(timeout => clearTimeout(timeout));
+      Object.values(priceTimeouts).forEach(timeout => clearTimeout(timeout));
     };
-  }, [updateTimeouts]);
+  }, [nameTimeouts, priceTimeouts]);
 
   if (isLoading) {
     return <div className="p-6 text-center">Laden...</div>;
@@ -227,7 +271,7 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
 
         {/* Product Rows */}
         <div className="space-y-2">
-          {menuItems.map((item) => (
+          {menuItems.map((item, index) => (
             <div key={item.id} className="grid grid-cols-8 gap-2 p-2 border rounded-lg items-center">
               <div className="col-span-2 flex items-center gap-2">
                 <Input
@@ -246,21 +290,21 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
                 </Button>
               </div>
               
-              {WEIGHT_OPTIONS.map((weight, weightIndex) => (
+              {WEIGHT_OPTIONS.map((weight) => (
                 <div key={weight} className="relative">
                   <div className="flex items-center gap-1">
                     <Input
                       type="number"
                       placeholder="0"
-                      value={item.pricing_tiers?.[weight] || ''}
+                      value={localPrices[item.id]?.[weight] || ''}
                       onChange={(e) => handlePriceChange(item.id, weight, e.target.value)}
                       className="h-8 text-center"
                     />
-                    {menuItems.findIndex(mi => mi.id === item.id) < menuItems.length - 1 && (
+                    {index < menuItems.length - 1 && (
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleFillDown(menuItems.findIndex(mi => mi.id === item.id), weight)}
+                        onClick={() => handleFillDown(index, weight)}
                         className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
                         title="Waarde doortrekken naar rijen eronder"
                       >
