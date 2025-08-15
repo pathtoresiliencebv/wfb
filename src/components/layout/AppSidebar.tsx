@@ -195,8 +195,8 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             )}
-            {/* Supplier Navigation - Only show for suppliers */}
-            {user?.role === 'supplier' && (
+            {/* Supplier Navigation - Show for suppliers OR admins */}
+            {(user?.role === 'supplier' || user?.role === 'admin') && (
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <NavLink to="/leverancier/dashboard" className={getNavClass('/leverancier/dashboard')}>
