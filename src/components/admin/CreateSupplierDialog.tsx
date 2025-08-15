@@ -42,24 +42,22 @@ export function CreateSupplierDialog({ open, onOpenChange }: CreateSupplierDialo
       if (authError) throw authError;
       if (!authData.user) throw new Error('Failed to create user');
 
-      // The profile will be created automatically by the trigger
-      // Wait a moment and then create supplier profile
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // The profile and supplier_profile will be created automatically by the trigger
+      // Wait a moment for the trigger to complete, then optionally update business name and description
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      const { error: supplierError } = await supabase
-        .from('supplier_profiles')
-        .insert({
-          user_id: authData.user.id,
-          business_name: businessName,
-          description: description || null,
-          contact_info: {},
-          stats: {},
-          features: [],
-          ranking: 0,
-          is_active: true
-        });
+      // Only update the supplier profile if we have a custom business name or description
+      if (businessName !== username || description) {
+        const { error: updateError } = await supabase
+          .from('supplier_profiles')
+          .update({
+            business_name: businessName,
+            description: description || null
+          })
+          .eq('user_id', authData.user.id);
 
-      if (supplierError) throw supplierError;
+        if (updateError) throw updateError;
+      }
 
       return authData.user;
     },
