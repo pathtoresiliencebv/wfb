@@ -16,6 +16,7 @@ import {
   TrendingUp,
   Star,
   Package,
+  Shield,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -180,9 +181,20 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Settings and Supplier Navigation */}
+        {/* Settings and Admin/Supplier Navigation */}
         <div className="mt-auto pt-4">
           <SidebarMenu>
+            {/* Admin Panel - Only show for admins and moderators */}
+            {(user?.role === 'admin' || user?.role === 'moderator') && (
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink to="/admin" className={getNavClass('/admin')}>
+                    <Shield className="h-4 w-4 shrink-0" />
+                    {!collapsed && <span>Admin Panel</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
             {/* Supplier Navigation - Only show for suppliers */}
             {user?.role === 'supplier' && (
               <SidebarMenuItem>
