@@ -113,6 +113,17 @@ export default function SupplierPublic() {
 
           <Separator />
 
+          {/* Menu Section */}
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <Package className="h-6 w-6 text-green-600" />
+              <h2 className="text-2xl font-bold">{supplier.business_name} Menukaart</h2>
+            </div>
+            <SupplierMenu supplierId={supplier.id} />
+          </div>
+
+          <Separator />
+
           {/* USP Section */}
           <SupplierUSPSection 
             supplierName={supplier.business_name} 
@@ -131,20 +142,15 @@ export default function SupplierPublic() {
 
           <Separator />
 
-          {/* Menu Section */}
-          <div>
-            <div className="flex items-center gap-3 mb-6">
-              <Package className="h-6 w-6 text-green-600" />
-              <h2 className="text-2xl font-bold">Onze Menukaart</h2>
-            </div>
-            <SupplierMenu supplierId={supplier.id} />
-          </div>
-
           {/* Contact Section */}
           <SupplierContactSection 
             supplierName={supplier.business_name}
             description={supplier.contact_description}
-            contactInfo={supplier.contact_info}
+            contactInfo={{
+              wire: supplier.contact_info?.wire,
+              telegram: supplier.contact_info?.telegram,
+              email: supplier.contact_info?.email
+            }}
           />
         </div>
       </div>
