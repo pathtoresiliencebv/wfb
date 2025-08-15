@@ -171,13 +171,20 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
                       </Button>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-sm">
-                    {Object.entries(priceList.pricing_data).map(([key, value]) => (
-                      <div key={key} className="flex justify-between">
-                        <span>{key}{priceList.unit_label || 'gr'}:</span>
-                        <span>€{value}</span>
-                      </div>
-                    ))}
+                  
+                  {/* Pricing Items Display - Same as MenuPreview */}
+                  <div className="space-y-1">
+                    <div className="text-sm font-medium text-muted-foreground">Prijzen:</div>
+                    <div className="space-y-1">
+                      {Object.entries(priceList.pricing_data).map(([weight, price]) => (
+                        <div key={weight} className="flex justify-between items-center py-1">
+                          <span className="text-sm">{weight}gr</span>
+                          <Badge variant="outline" className="text-xs">
+                            €{Number(price).toFixed(2)}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               ))}
