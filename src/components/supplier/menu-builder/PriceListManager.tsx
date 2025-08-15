@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, ArrowDown } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -151,6 +151,32 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
       .catch(error => handleError(error));
   }, [menuItems, updateProductMutation, retry, handleError]);
 
+  // Fill down functionality
+  const handleFillDown = useCallback((fromIndex: number, weight: string) => {
+    const sourceItem = menuItems[fromIndex];
+    if (!sourceItem) return;
+
+    const sourcePrice = sourceItem.pricing_tiers?.[weight] || 0;
+    
+    // Get all items from this index down
+    const itemsToUpdate = menuItems.slice(fromIndex + 1);
+    
+    // Update all items below with the same price
+    itemsToUpdate.forEach(item => {
+      const newPricingTiers = { ...item.pricing_tiers, [weight]: sourcePrice };
+      retry(() => updateProductMutation.mutateAsync({ 
+        id: item.id, 
+        field: 'pricing_tiers', 
+        value: newPricingTiers 
+      })).catch(error => handleError(error));
+    });
+
+    toast({
+      title: "Waardes doorgetrokken",
+      description: `${itemsToUpdate.length} producten bijgewerkt voor ${weight}gr.`
+    });
+  }, [menuItems, updateProductMutation, retry, handleError, toast]);
+
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
@@ -220,15 +246,28 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
                 </Button>
               </div>
               
-              {WEIGHT_OPTIONS.map((weight) => (
-                <div key={weight}>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    value={item.pricing_tiers?.[weight] || ''}
-                    onChange={(e) => handlePriceChange(item.id, weight, e.target.value)}
-                    className="h-8 text-center"
-                  />
+              {WEIGHT_OPTIONS.map((weight, weightIndex) => (
+                <div key={weight} className="relative">
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      value={item.pricing_tiers?.[weight] || ''}
+                      onChange={(e) => handlePriceChange(item.id, weight, e.target.value)}
+                      className="h-8 text-center"
+                    />
+                    {menuItems.findIndex(mi => mi.id === item.id) < menuItems.length - 1 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleFillDown(menuItems.findIndex(mi => mi.id === item.id), weight)}
+                        className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+                        title="Waarde doortrekken naar rijen eronder"
+                      >
+                        <ArrowDown className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
