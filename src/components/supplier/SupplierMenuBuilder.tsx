@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { Plus, Trash2, Package, Euro, Settings, Target } from 'lucide-react';
+import { Plus, Trash2, Package, Euro, ChevronDown, ChevronUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SupplierMenuItem, SupplierCategory } from '@/types/supplier';
 
@@ -18,7 +18,13 @@ interface SupplierMenuBuilderProps {
 }
 
 export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ supplierId }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  // Category creation workflow state
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [categoryProducts, setCategoryProducts] = useState<string[]>(['']);
+  const [categoryName, setCategoryName] = useState('');
+  const [categoryPricing, setCategoryPricing] = useState<Record<string, number>>({});
+  
+  // Individual item state
   const [newItemData, setNewItemData] = useState({
     name: '',
     description: '',
@@ -28,17 +34,7 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
     in_stock: true,
     use_category_pricing: false,
   });
-  
-  const [newCategoryData, setNewCategoryData] = useState({
-    name: '',
-    description: '',
-    category_pricing: {} as Record<string, number>,
-    product_count: 0,
-    description_lines: [] as string[],
-  });
-  
-  const [editingCategoryPricing, setEditingCategoryPricing] = useState<string | null>(null);
-  const [editPricing, setEditPricing] = useState<Record<string, number>>({});
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -56,14 +52,6 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
     }
   });
 
-  // Initialize edit pricing when editing category changes
-  React.useEffect(() => {
-    if (editingCategoryPricing) {
-      const category = categories.find(c => c.id === editingCategoryPricing);
-      setEditPricing(category?.category_pricing || {});
-    }
-  }, [editingCategoryPricing, categories]);
-
   // Fetch menu items
   const { data: menuItems = [] } = useQuery<SupplierMenuItem[]>({
     queryKey: ['supplier-menu-items', supplierId],
@@ -78,49 +66,65 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
     }
   });
 
-  // Create category mutation
-  const createCategoryMutation = useMutation({
-    mutationFn: async (category: typeof newCategoryData) => {
-      const { data, error } = await supabase
+  const weightOptions = ['25gr', '50gr', '100gr', '200gr', '500gr'];
+
+  // Create category with multiple products
+  const createCategoryWithProductsMutation = useMutation({
+    mutationFn: async () => {
+      // First create the category
+      const { data: categoryData, error: categoryError } = await supabase
         .from('supplier_categories')
         .insert({
           supplier_id: supplierId,
-          name: category.name,
-          description: category.description,
-          category_pricing: category.category_pricing,
-          product_count: category.product_count,
-          description_lines: category.description_lines,
+          name: categoryName,
+          category_pricing: categoryPricing,
+          product_count: categoryProducts.filter(p => p.trim()).length,
           sort_order: categories.length
         })
         .select()
         .single();
-      if (error) throw error;
-      return data;
+      
+      if (categoryError) throw categoryError;
+
+      // Then create all products in that category
+      const productsToCreate = categoryProducts
+        .filter(product => product.trim())
+        .map((product, index) => ({
+          supplier_id: supplierId,
+          name: product.trim(),
+          category_id: categoryData.id,
+          use_category_pricing: true,
+          pricing_tiers: {},
+          is_available: true,
+          in_stock: true,
+          position: menuItems.length + index
+        }));
+
+      if (productsToCreate.length > 0) {
+        const { error: productsError } = await supabase
+          .from('supplier_menu_items')
+          .insert(productsToCreate);
+        
+        if (productsError) throw productsError;
+      }
+
+      return categoryData;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['supplier-categories'] });
-      setNewCategoryData({ name: '', description: '', category_pricing: {}, product_count: 0, description_lines: [] });
-      toast({ title: 'Categorie toegevoegd!' });
+      queryClient.invalidateQueries({ queryKey: ['supplier-menu-items'] });
+      
+      // Reset form
+      setIsAddingCategory(false);
+      setCategoryName('');
+      setCategoryProducts(['']);
+      setCategoryPricing({});
+      
+      toast({ title: 'Categorie en producten toegevoegd!' });
     }
   });
 
-  // Update category pricing mutation
-  const updateCategoryPricingMutation = useMutation({
-    mutationFn: async ({ categoryId, pricing }: { categoryId: string; pricing: Record<string, number> }) => {
-      const { error } = await supabase
-        .from('supplier_categories')
-        .update({ category_pricing: pricing })
-        .eq('id', categoryId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['supplier-categories'] });
-      setEditingCategoryPricing(null);
-      toast({ title: 'Categorie prijzen bijgewerkt!' });
-    }
-  });
-
-  // Create menu item mutation
+  // Create individual item mutation
   const createItemMutation = useMutation({
     mutationFn: async (item: typeof newItemData) => {
       const { data, error } = await supabase
@@ -171,29 +175,39 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
     }
   });
 
-  const weightOptions = ['10gr', '25gr', '50gr', '100gr', '200gr', '500gr'];
+  const addProductName = () => {
+    setCategoryProducts(prev => [...prev, '']);
+  };
 
-  const handlePriceChange = (weight: string, price: string, isCategory = false) => {
+  const removeProductName = (index: number) => {
+    setCategoryProducts(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const updateProductName = (index: number, value: string) => {
+    setCategoryProducts(prev => {
+      const newProducts = [...prev];
+      newProducts[index] = value;
+      return newProducts;
+    });
+  };
+
+  const handlePriceChange = (weight: string, price: string) => {
     const numPrice = parseFloat(price) || 0;
-    if (isCategory) {
-      setNewCategoryData(prev => ({
-        ...prev,
-        category_pricing: { ...prev.category_pricing, [weight]: numPrice }
-      }));
-    } else {
-      setNewItemData(prev => ({
-        ...prev,
-        pricing_tiers: { ...prev.pricing_tiers, [weight]: numPrice }
-      }));
-    }
+    setCategoryPricing(prev => ({ ...prev, [weight]: numPrice }));
+  };
+
+  const handleIndividualPriceChange = (weight: string, price: string) => {
+    const numPrice = parseFloat(price) || 0;
+    setNewItemData(prev => ({
+      ...prev,
+      pricing_tiers: { ...prev.pricing_tiers, [weight]: numPrice }
+    }));
   };
 
   const selectedCategoryData = categories.find(cat => cat.id === newItemData.category_id);
   const showCategoryPricingOption = selectedCategoryData && selectedCategoryData.category_pricing && Object.keys(selectedCategoryData.category_pricing).length > 0;
 
-  const filteredItems = selectedCategory 
-    ? menuItems.filter(item => item.category_id === selectedCategory)
-    : menuItems;
+  const canCreateCategory = categoryName.trim() && categoryProducts.some(p => p.trim()) && Object.keys(categoryPricing).length > 0;
 
   return (
     <Card>
@@ -204,210 +218,133 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Category Management */}
+        
+        {/* Main Action: Add Category with Same Unit Prices */}
         <div>
-          <h3 className="font-semibold mb-3">Categorieën Beheren</h3>
-          <div className="flex flex-wrap gap-2 mb-4">
-            <Button
-              variant={selectedCategory === '' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setSelectedCategory('')}
-            >
-              Alle Items
-            </Button>
-            {categories.map(category => (
-              <div key={category.id} className="flex items-center gap-1">
-                <Button
-                  variant={selectedCategory === category.id ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSelectedCategory(category.id)}
-                >
-                  {category.name}
-                  {category.category_pricing && Object.keys(category.category_pricing).length > 0 && (
-                    <Target className="h-3 w-3 ml-1" />
-                  )}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setEditingCategoryPricing(category.id)}
-                >
-                  <Settings className="h-3 w-3" />
-                </Button>
-              </div>
-            ))}
-          </div>
-
-          {/* Add New Category */}
-          <div className="space-y-3 p-4 border rounded-lg">
-            <h4 className="font-medium">Nieuwe Categorie</h4>
-            <div className="grid gap-3">
-              <Input
-                placeholder="Categorie naam (bijv. Haze, Kush)"
-                value={newCategoryData.name}
-                onChange={(e) => setNewCategoryData(prev => ({ ...prev, name: e.target.value }))}
-              />
-              <Textarea
-                placeholder="Beschrijving (optioneel)"
-                value={newCategoryData.description}
-                onChange={(e) => setNewCategoryData(prev => ({ ...prev, description: e.target.value }))}
-                rows={2}
-              />
-              
-              {/* Product Count Input */}
-              <div>
-                <Label htmlFor="product-count">Aantal producten in deze collectie</Label>
-                <Input
-                  id="product-count"
-                  type="number"
-                  min="0"
-                  placeholder="bijv. 6"
-                  value={newCategoryData.product_count}
-                  onChange={(e) => setNewCategoryData(prev => ({ ...prev, product_count: parseInt(e.target.value) || 0 }))}
-                />
-              </div>
-
-              {/* Description Lines */}
-              <div>
-                <Label className="text-sm font-medium">Beschrijvingsregels</Label>
-                <p className="text-xs text-muted-foreground mb-2">
-                  Voeg meerdere regels toe om jouw categorie te beschrijven
-                </p>
-                <div className="space-y-2">
-                  {newCategoryData.description_lines.map((line, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <Input
-                        placeholder={`Beschrijvingsregel ${index + 1}`}
-                        value={line}
-                        onChange={(e) => {
-                          const newLines = [...newCategoryData.description_lines];
-                          newLines[index] = e.target.value;
-                          setNewCategoryData(prev => ({ ...prev, description_lines: newLines }));
-                        }}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          const newLines = newCategoryData.description_lines.filter((_, i) => i !== index);
-                          setNewCategoryData(prev => ({ ...prev, description_lines: newLines }));
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setNewCategoryData(prev => ({ 
-                        ...prev, 
-                        description_lines: [...prev.description_lines, ''] 
-                      }));
-                    }}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Beschrijvingsregel toevoegen
-                  </Button>
-                </div>
-              </div>
-              
-              {/* Category Pricing */}
-              <div>
-                <Label className="text-sm font-medium">Standaard Prijzen voor deze Categorie (optioneel)</Label>
-                <p className="text-xs text-muted-foreground mb-2">
-                  Stel eenmalig prijzen in die alle producten in deze categorie gebruiken
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {weightOptions.map(weight => (
-                    <div key={weight}>
-                      <Label htmlFor={`cat-price-${weight}`} className="text-xs text-muted-foreground">
-                        {weight}
-                      </Label>
-                      <div className="relative">
-                        <Euro className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-                        <Input
-                          id={`cat-price-${weight}`}
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          className="pl-7 text-sm"
-                          placeholder="0.00"
-                          value={newCategoryData.category_pricing[weight] || ''}
-                          onChange={(e) => handlePriceChange(weight, e.target.value, true)}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <Button 
-                onClick={() => createCategoryMutation.mutate(newCategoryData)}
-                disabled={!newCategoryData.name.trim()}
-              >
+          <Button
+            onClick={() => setIsAddingCategory(!isAddingCategory)}
+            variant={isAddingCategory ? "secondary" : "default"}
+            className="w-full"
+          >
+            {isAddingCategory ? (
+              <>
+                <ChevronUp className="h-4 w-4 mr-2" />
+                Inklappen
+              </>
+            ) : (
+              <>
                 <Plus className="h-4 w-4 mr-2" />
-                Categorie Toevoegen
-              </Button>
-            </div>
-          </div>
-        </div>
+                Categorie met zelfde eenheidsprijzen toevoegen
+              </>
+            )}
+          </Button>
 
-        {/* Category Pricing Editor Modal */}
-        {editingCategoryPricing && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <Card className="w-full max-w-lg">
-              <CardHeader>
-                <CardTitle>Categorie Prijzen Bewerken</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-3">
-                  {weightOptions.map(weight => (
-                    <div key={weight}>
-                      <Label className="text-xs text-muted-foreground">{weight}</Label>
-                      <div className="relative">
-                        <Euro className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          className="pl-7 text-sm"
-                          value={editPricing[weight] || ''}
-                          onChange={(e) => setEditPricing(prev => ({ 
-                            ...prev, 
-                            [weight]: parseFloat(e.target.value) || 0 
-                          }))}
-                        />
-                      </div>
+          {isAddingCategory && (
+            <div className="mt-4 space-y-6 p-4 border rounded-lg bg-muted/20">
+              {/* Step 1: Category Name and Products */}
+              <div>
+                <h4 className="font-medium mb-3">Stap 1: Categorie en Producten</h4>
+                
+                <div className="space-y-3">
+                  <div>
+                    <Label htmlFor="category-name">Categorienaam</Label>
+                    <Input
+                      id="category-name"
+                      value={categoryName}
+                      onChange={(e) => setCategoryName(e.target.value)}
+                      placeholder="bijv. Haze, Kush, Indica"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-sm font-medium">Productnamen</Label>
+                    <div className="space-y-2 mt-2">
+                      {categoryProducts.map((product, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <Input
+                            value={product}
+                            onChange={(e) => updateProductName(index, e.target.value)}
+                            placeholder={`Product naam ${index + 1}`}
+                          />
+                          {index > 0 && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => removeProductName(index)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {index === categoryProducts.length - 1 && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={addProductName}
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={() => updateCategoryPricingMutation.mutate({
-                      categoryId: editingCategoryPricing,
-                      pricing: editPricing
-                    })}
+              </div>
+
+              {/* Step 2: Unit Prices */}
+              {categoryName.trim() && categoryProducts.some(p => p.trim()) && (
+                <div>
+                  <h4 className="font-medium mb-3">Stap 2: Eenheidsprijzen (gelden voor alle producten)</h4>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    {weightOptions.map(weight => (
+                      <div key={weight}>
+                        <Label htmlFor={`price-${weight}`} className="text-sm font-medium">
+                          {weight}
+                        </Label>
+                        <div className="relative">
+                          <Euro className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                          <Input
+                            id={`price-${weight}`}
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            className="pl-7"
+                            placeholder="0.00"
+                            value={categoryPricing[weight] || ''}
+                            onChange={(e) => handlePriceChange(weight, e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Save */}
+              {canCreateCategory && (
+                <div>
+                  <h4 className="font-medium mb-3">Stap 3: Opslaan</h4>
+                  <Button
+                    onClick={() => createCategoryWithProductsMutation.mutate()}
+                    disabled={createCategoryWithProductsMutation.isPending}
+                    className="w-full"
                   >
-                    Opslaan
-                  </Button>
-                  <Button variant="outline" onClick={() => setEditingCategoryPricing(null)}>
-                    Annuleren
+                    Categorie en {categoryProducts.filter(p => p.trim()).length} producten toevoegen
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+              )}
+            </div>
+          )}
+        </div>
 
         <Separator />
 
-        {/* Add New Item */}
+        {/* Individual Product */}
         <div>
-          <h3 className="font-semibold mb-3">Nieuw Product Toevoegen</h3>
+          <h3 className="font-semibold mb-3">Nieuw individueel product toevoegen</h3>
           <div className="grid gap-4">
             <div className="grid md:grid-cols-2 gap-4">
               <div>
@@ -420,7 +357,7 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
                 />
               </div>
               <div>
-                <Label htmlFor="item-category">Categorie</Label>
+                <Label htmlFor="item-category">Categorie (optioneel)</Label>
                 <select
                   id="item-category"
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -428,14 +365,13 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
                   onChange={(e) => setNewItemData(prev => ({ 
                     ...prev, 
                     category_id: e.target.value,
-                    use_category_pricing: false // Reset when category changes
+                    use_category_pricing: false
                   }))}
                 >
                   <option value="">Geen categorie</option>
                   {categories.map(category => (
                     <option key={category.id} value={category.id}>
                       {category.name}
-                      {category.category_pricing && Object.keys(category.category_pricing).length > 0 && ' 🎯'}
                     </option>
                   ))}
                 </select>
@@ -474,7 +410,7 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
             )}
 
             <div>
-              <Label htmlFor="item-description">Beschrijving</Label>
+              <Label htmlFor="item-description">Beschrijving (optioneel)</Label>
               <Textarea
                 id="item-description"
                 value={newItemData.description}
@@ -484,27 +420,27 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
               />
             </div>
 
-            {/* Individual Pricing (only show if not using category pricing) */}
+            {/* Individual Pricing */}
             {!newItemData.use_category_pricing && (
               <div>
                 <Label>Prijzen per gewicht</Label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-2">
                   {weightOptions.map(weight => (
                     <div key={weight}>
-                      <Label htmlFor={`price-${weight}`} className="text-xs text-muted-foreground">
+                      <Label htmlFor={`item-price-${weight}`} className="text-sm font-medium">
                         {weight}
                       </Label>
                       <div className="relative">
                         <Euro className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
                         <Input
-                          id={`price-${weight}`}
+                          id={`item-price-${weight}`}
                           type="number"
                           step="0.01"
                           min="0"
-                          className="pl-7 text-sm"
+                          className="pl-7"
                           placeholder="0.00"
                           value={newItemData.pricing_tiers[weight] || ''}
-                          onChange={(e) => handlePriceChange(weight, e.target.value)}
+                          onChange={(e) => handleIndividualPriceChange(weight, e.target.value)}
                         />
                       </div>
                     </div>
@@ -537,21 +473,21 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
               disabled={!newItemData.name.trim() || (!newItemData.use_category_pricing && Object.keys(newItemData.pricing_tiers).length === 0)}
             >
               <Plus className="h-4 w-4 mr-2" />
-              Product Toevoegen
+              Individueel product toevoegen
             </Button>
           </div>
         </div>
 
         <Separator />
 
-        {/* Menu Items List */}
+        {/* Current Menu Items */}
         <div>
-          <h3 className="font-semibold mb-3">Huidige Menu Items</h3>
-          {filteredItems.length === 0 ? (
+          <h3 className="font-semibold mb-3">Huidige menu items</h3>
+          {menuItems.length === 0 ? (
             <p className="text-muted-foreground text-sm">Nog geen items toegevoegd.</p>
           ) : (
             <div className="grid gap-3">
-              {filteredItems.map(item => {
+              {menuItems.map(item => {
                 const category = categories.find(c => c.id === item.category_id);
                 const effectivePricing = item.use_category_pricing && category?.category_pricing 
                   ? category.category_pricing 
@@ -562,6 +498,11 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="font-medium">{item.name}</h4>
+                        {category && (
+                          <Badge variant="outline" className="text-xs">
+                            {category.name}
+                          </Badge>
+                        )}
                         {item.use_category_pricing && <Badge variant="secondary" className="text-xs">Categorie prijzen</Badge>}
                         {!item.is_available && <Badge variant="secondary">Niet beschikbaar</Badge>}
                         {!item.in_stock && <Badge variant="destructive">Uitverkocht</Badge>}
