@@ -19,21 +19,55 @@ export function useOnlineStatus() {
   const queryClient = useQueryClient();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
-  // Get online users - temporarily disabled due to migration
+  // Get online users
   const { data: onlineUsers = [], isLoading } = useQuery({
     queryKey: ['online-users'],
     queryFn: async () => {
-      // Return mock data for now until migration is complete
-      return [] as OnlineUser[];
+      const { data, error } = await supabase
+        .from('user_online_status')
+        .select(`
+          user_id,
+          last_seen,
+          is_online
+        `)
+        .eq('is_online', true)
+        .gte('last_seen', new Date(Date.now() - 30 * 60 * 1000).toISOString()) // Last 30 minutes
+        .order('last_seen', { ascending: false });
+
+      if (error) throw error;
+      
+      // Fetch profiles separately for online users
+      if (!data || data.length === 0) return [];
+      
+      const userIds = data.map(u => u.user_id);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, username, display_name, avatar_url')
+        .in('user_id', userIds);
+      
+      // Combine online status with profile data
+      return data.map(onlineUser => ({
+        ...onlineUser,
+        profiles: profiles?.find(p => p.user_id === onlineUser.user_id) || null
+      })) as OnlineUser[];
     },
     refetchInterval: 30000, // Refetch every 30 seconds
   });
 
-  // Update user online status - temporarily disabled
+  // Update user online status
   const updateStatusMutation = useMutation({
     mutationFn: async (online: boolean) => {
-      // Temporarily disabled until migration is complete
-      return;
+      if (!user?.id) return;
+
+      const { error } = await supabase
+        .from('user_online_status')
+        .upsert({
+          user_id: user.id,
+          is_online: online,
+          last_seen: new Date().toISOString(),
+        });
+
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['online-users'] });

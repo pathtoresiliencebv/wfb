@@ -17,75 +17,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { FeedLoadingSkeleton } from '@/components/loading/OptimizedLoadingStates';
 import { useQuery } from '@tanstack/react-query';
 
-// Mock data
-const mockPosts = [
-  {
-    id: '1',
-    title: 'Nieuwe wetgeving rond CBD in België',
-    content: 'Er zijn belangrijke updates over de CBD wetgeving die iedereen moet weten...',
-    author: {
-      username: 'WetgevingExpert',
-      avatar: null,
-      isVerified: true,
-    },
-    category: 'Wetgeving & Nieuws',
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    votes: 23,
-    replyCount: 8,
-    isSticky: true,
-  },
-  {
-    id: '2',
-    title: 'CBD olie dosering voor beginners',
-    content: 'Voor mensen die net beginnen met CBD olie, hier zijn wat tips...',
-    author: {
-      username: 'MediUser123',
-      avatar: null,
-      isVerified: false,
-    },
-    category: 'Medicinaal Gebruik',
-    createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
-    votes: 15,
-    replyCount: 12,
-    isSticky: false,
-  },
-  {
-    id: '3',
-    title: 'Indoor setup voor beginners',
-    content: 'Wat heb je allemaal nodig voor een succesvolle indoor grow?',
-    author: {
-      username: 'GreenThumb',
-      avatar: null,
-      isVerified: false,
-    },
-    category: 'Teelt & Horticultuur',
-    createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
-    votes: 31,
-    replyCount: 24,
-    isSticky: false,
-  },
-];
-
-const stats = [
-  {
-    title: 'Actieve Topics',
-    value: '1,234',
-    description: 'Deze week',
-    icon: MessageSquare,
-  },
-  {
-    title: 'Online Leden',
-    value: '89',
-    description: 'Nu online',
-    icon: Users,
-  },
-  {
-    title: 'Trending',
-    value: '#CBD',
-    description: 'Populairste tag',
-    icon: TrendingUp,
-  },
-];
+// Empty state message component
+const EmptyState = ({ title, description }: { title: string; description: string }) => (
+  <Card className="p-8 text-center">
+    <div className="space-y-2">
+      <h3 className="font-semibold text-muted-foreground">{title}</h3>
+      <p className="text-sm text-muted-foreground">{description}</p>
+    </div>
+  </Card>
+);
 
 export function FeedPage() {
   const { user } = useAuth();
@@ -229,9 +169,16 @@ export function FeedPage() {
         </div>
         
         <div className="space-y-3">
-          {recentTopics.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
+          {recentTopics.length > 0 ? (
+            recentTopics.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))
+          ) : (
+            <EmptyState
+              title="Geen recente topics"
+              description="Er zijn nog geen topics aangemaakt. Wees de eerste om een topic te starten!"
+            />
+          )}
         </div>
       </div>
     </div>
