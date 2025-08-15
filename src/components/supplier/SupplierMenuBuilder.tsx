@@ -25,6 +25,7 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
   const [categoryPricing, setCategoryPricing] = useState<Record<string, number>>({});
   
   // Individual item state
+  const [isAddingIndividualItem, setIsAddingIndividualItem] = useState(false);
   const [newItemData, setNewItemData] = useState({
     name: '',
     description: '',
@@ -344,138 +345,159 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
 
         {/* Individual Product */}
         <div>
-          <h3 className="font-semibold mb-3">Nieuw individueel product toevoegen</h3>
-          <div className="grid gap-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="item-name">Productnaam</Label>
-                <Input
-                  id="item-name"
-                  value={newItemData.name}
-                  onChange={(e) => setNewItemData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Bijv. OG Kush, Purple Haze"
-                />
-              </div>
-              <div>
-                <Label htmlFor="item-category">Categorie (optioneel)</Label>
-                <select
-                  id="item-category"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  value={newItemData.category_id}
-                  onChange={(e) => setNewItemData(prev => ({ 
-                    ...prev, 
-                    category_id: e.target.value,
-                    use_category_pricing: false
-                  }))}
-                >
-                  <option value="">Geen categorie</option>
-                  {categories.map(category => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+          <Button
+            onClick={() => setIsAddingIndividualItem(!isAddingIndividualItem)}
+            variant={isAddingIndividualItem ? "secondary" : "outline"}
+            className="w-full"
+          >
+            {isAddingIndividualItem ? (
+              <>
+                <ChevronUp className="h-4 w-4 mr-2" />
+                Inklappen
+              </>
+            ) : (
+              <>
+                <Plus className="h-4 w-4 mr-2" />
+                Nieuw individueel product toevoegen
+              </>
+            )}
+          </Button>
 
-            {/* Category pricing toggle */}
-            {showCategoryPricingOption && (
-              <div className="p-3 bg-muted/30 rounded-lg">
-                <div className="flex items-center justify-between">
+          {isAddingIndividualItem && (
+            <div className="mt-4 space-y-4 p-4 border rounded-lg bg-muted/20">
+              <div className="grid gap-4">
+                <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-sm font-medium">Gebruik categorie prijzen</Label>
-                    <p className="text-xs text-muted-foreground">
-                      Gebruik de standaard prijzen van "{selectedCategoryData.name}"
-                    </p>
+                    <Label htmlFor="item-name">Productnaam</Label>
+                    <Input
+                      id="item-name"
+                      value={newItemData.name}
+                      onChange={(e) => setNewItemData(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="Bijv. OG Kush, Purple Haze"
+                    />
                   </div>
-                  <Switch
-                    checked={newItemData.use_category_pricing}
-                    onCheckedChange={(checked) => setNewItemData(prev => ({ 
-                      ...prev, 
-                      use_category_pricing: checked,
-                      pricing_tiers: checked ? {} : prev.pricing_tiers
-                    }))}
-                  />
+                  <div>
+                    <Label htmlFor="item-category">Categorie (optioneel)</Label>
+                    <select
+                      id="item-category"
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      value={newItemData.category_id}
+                      onChange={(e) => setNewItemData(prev => ({ 
+                        ...prev, 
+                        category_id: e.target.value,
+                        use_category_pricing: false
+                      }))}
+                    >
+                      <option value="">Geen categorie</option>
+                      {categories.map(category => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-                {newItemData.use_category_pricing && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {Object.entries(selectedCategoryData.category_pricing || {}).map(([weight, price]) => (
-                      <Badge key={weight} variant="secondary" className="text-xs">
-                        {weight}: €{Number(price).toFixed(2)}
-                      </Badge>
-                    ))}
+
+                {/* Category pricing toggle */}
+                {showCategoryPricingOption && (
+                  <div className="p-3 bg-muted/30 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label className="text-sm font-medium">Gebruik categorie prijzen</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Gebruik de standaard prijzen van "{selectedCategoryData.name}"
+                        </p>
+                      </div>
+                      <Switch
+                        checked={newItemData.use_category_pricing}
+                        onCheckedChange={(checked) => setNewItemData(prev => ({ 
+                          ...prev, 
+                          use_category_pricing: checked,
+                          pricing_tiers: checked ? {} : prev.pricing_tiers
+                        }))}
+                      />
+                    </div>
+                    {newItemData.use_category_pricing && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {Object.entries(selectedCategoryData.category_pricing || {}).map(([weight, price]) => (
+                          <Badge key={weight} variant="secondary" className="text-xs">
+                            {weight}: €{Number(price).toFixed(2)}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
-              </div>
-            )}
 
-            <div>
-              <Label htmlFor="item-description">Beschrijving (optioneel)</Label>
-              <Textarea
-                id="item-description"
-                value={newItemData.description}
-                onChange={(e) => setNewItemData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Beschrijf het product..."
-                rows={2}
-              />
-            </div>
-
-            {/* Individual Pricing */}
-            {!newItemData.use_category_pricing && (
-              <div>
-                <Label>Prijzen per gewicht</Label>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-2">
-                  {weightOptions.map(weight => (
-                    <div key={weight}>
-                      <Label htmlFor={`item-price-${weight}`} className="text-sm font-medium">
-                        {weight}
-                      </Label>
-                      <div className="relative">
-                        <Euro className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-                        <Input
-                          id={`item-price-${weight}`}
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          className="pl-7"
-                          placeholder="0.00"
-                          value={newItemData.pricing_tiers[weight] || ''}
-                          onChange={(e) => handleIndividualPriceChange(weight, e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                <div>
+                  <Label htmlFor="item-description">Beschrijving (optioneel)</Label>
+                  <Textarea
+                    id="item-description"
+                    value={newItemData.description}
+                    onChange={(e) => setNewItemData(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Beschrijf het product..."
+                    rows={2}
+                  />
                 </div>
-              </div>
-            )}
 
-            <div className="flex items-center gap-4">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="available"
-                  checked={newItemData.is_available}
-                  onCheckedChange={(checked) => setNewItemData(prev => ({ ...prev, is_available: checked }))}
-                />
-                <Label htmlFor="available">Beschikbaar</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="in-stock"
-                  checked={newItemData.in_stock}
-                  onCheckedChange={(checked) => setNewItemData(prev => ({ ...prev, in_stock: checked }))}
-                />
-                <Label htmlFor="in-stock">Op voorraad</Label>
+                {/* Individual Pricing */}
+                {!newItemData.use_category_pricing && (
+                  <div>
+                    <Label>Prijzen per gewicht</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-2">
+                      {weightOptions.map(weight => (
+                        <div key={weight}>
+                          <Label htmlFor={`item-price-${weight}`} className="text-sm font-medium">
+                            {weight}
+                          </Label>
+                          <div className="relative">
+                            <Euro className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                            <Input
+                              id={`item-price-${weight}`}
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              className="pl-7"
+                              placeholder="0.00"
+                              value={newItemData.pricing_tiers[weight] || ''}
+                              onChange={(e) => handleIndividualPriceChange(weight, e.target.value)}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="available"
+                      checked={newItemData.is_available}
+                      onCheckedChange={(checked) => setNewItemData(prev => ({ ...prev, is_available: checked }))}
+                    />
+                    <Label htmlFor="available">Beschikbaar</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="in-stock"
+                      checked={newItemData.in_stock}
+                      onCheckedChange={(checked) => setNewItemData(prev => ({ ...prev, in_stock: checked }))}
+                    />
+                    <Label htmlFor="in-stock">Op voorraad</Label>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => createItemMutation.mutate(newItemData)}
+                  disabled={!newItemData.name.trim() || createItemMutation.isPending}
+                  className="w-full"
+                >
+                  Product toevoegen
+                </Button>
               </div>
             </div>
-
-            <Button 
-              onClick={() => createItemMutation.mutate(newItemData)}
-              disabled={!newItemData.name.trim() || (!newItemData.use_category_pricing && Object.keys(newItemData.pricing_tiers).length === 0)}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Individueel product toevoegen
-            </Button>
-          </div>
+          )}
         </div>
 
         <Separator />
