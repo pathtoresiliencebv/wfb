@@ -170,14 +170,18 @@ export function MenuPreview({ supplierId }: MenuPreviewProps) {
                 {menuSettings?.menu_title || 'Menu Titel'}
               </h1>
               <div className="flex items-center justify-center gap-4 text-sm text-green-600 dark:text-green-300">
-                {menuSettings?.contact_info?.wire && (
-                  <span>Wire: {menuSettings.contact_info.wire}</span>
-                )}
-                {menuSettings?.contact_info?.telegram && (
-                  <span>Telegram: {menuSettings.contact_info.telegram}</span>
-                )}
-                {menuSettings?.contact_info?.email && (
-                  <span>Email: {menuSettings.contact_info.email}</span>
+                {menuSettings?.contact_info && typeof menuSettings.contact_info === 'object' && menuSettings.contact_info !== null && (
+                  <>
+                    {(menuSettings.contact_info as any)?.wire && (
+                      <span>Wire: {(menuSettings.contact_info as any).wire}</span>
+                    )}
+                    {(menuSettings.contact_info as any)?.telegram && (
+                      <span>Telegram: {(menuSettings.contact_info as any).telegram}</span>
+                    )}
+                    {(menuSettings.contact_info as any)?.email && (
+                      <span>Email: {(menuSettings.contact_info as any).email}</span>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -227,7 +231,7 @@ export function MenuPreview({ supplierId }: MenuPreviewProps) {
                             .map(([weight, price]) => (
                             <div key={weight} className="flex justify-between">
                               <span>{weight}{category.unitLabel}</span>
-                              <span className="font-medium">€{price}</span>
+                              <span className="font-medium">€{String(price)}</span>
                             </div>
                           ))}
                         </div>

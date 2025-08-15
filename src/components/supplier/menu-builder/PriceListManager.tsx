@@ -66,7 +66,7 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
         name: '',
         price_type: 'weight',
         unit_label: 'gram',
-        pricing_data: { '25': 0, '50': 0, '100': 0, '200': 0, '500': 0 }
+        pricing_data: {}
       });
       toast({
         title: "Prijslijst aangemaakt",
@@ -217,15 +217,17 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
                 <Label htmlFor="price_type">Prijstype</Label>
                 <Select
                   value={newPriceList.price_type}
-                  onValueChange={(value: 'weight' | 'unit') => 
+                  onValueChange={(value: 'weight' | 'unit') => {
+                    const newPricingData = value === 'weight' 
+                      ? { '25': 0, '50': 0, '100': 0, '200': 0, '500': 0 }
+                      : { '1': 0, '2': 0, '3': 0, '5': 0, '10': 0 };
+                    
                     setNewPriceList(prev => ({ 
                       ...prev, 
                       price_type: value,
-                      pricing_data: value === 'weight' 
-                        ? { '25': 0, '50': 0, '100': 0, '200': 0, '500': 0 }
-                        : { '1': 0, '2': 0, '3': 0, '5': 0, '10': 0 }
-                    }))
-                  }
+                      pricing_data: newPricingData
+                    }));
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue />
