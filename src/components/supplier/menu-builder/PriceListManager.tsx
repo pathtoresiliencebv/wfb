@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,8 @@ import { Plus, Trash2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useRetry } from '@/hooks/useRetry';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
 interface PriceListManagerProps {
   supplierId: string;
@@ -23,7 +25,11 @@ const WEIGHT_OPTIONS = ['10', '25', '50', '100', '200', '500'];
 export function PriceListManager({ supplierId }: PriceListManagerProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { handleError } = useErrorHandler();
+  const { retry } = useRetry();
   const [categoryName, setCategoryName] = useState('');
+  const [localNames, setLocalNames] = useState<Record<string, string>>({});
+  const [updateTimeouts, setUpdateTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
 
   // Fetch menu items
   const { data: menuItems = [], isLoading } = useQuery({
@@ -72,6 +78,9 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['supplier-menu-items'] });
+    },
+    onError: (error) => {
+      handleError(error, { fallbackMessage: 'Fout bij bijwerken van product' });
     }
   });
 
@@ -94,18 +103,60 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
     }
   });
 
-  const handleNameChange = (id: string, name: string) => {
-    updateProductMutation.mutate({ id, field: 'name', value: name });
-  };
+  // Initialize local names when menu items are loaded
+  useEffect(() => {
+    if (menuItems.length > 0) {
+      const initialNames: Record<string, string> = {};
+      menuItems.forEach(item => {
+        initialNames[item.id] = item.name;
+      });
+      setLocalNames(initialNames);
+    }
+  }, [menuItems]);
 
-  const handlePriceChange = (id: string, weight: string, price: string) => {
+  // Debounced name update
+  const handleNameChange = useCallback((id: string, name: string) => {
+    // Update local state immediately for responsive UI
+    setLocalNames(prev => ({ ...prev, [id]: name }));
+    
+    // Clear existing timeout
+    if (updateTimeouts[id]) {
+      clearTimeout(updateTimeouts[id]);
+    }
+    
+    // Set new timeout for database update
+    const timeoutId = setTimeout(() => {
+      retry(() => updateProductMutation.mutateAsync({ id, field: 'name', value: name }))
+        .catch(error => handleError(error));
+      
+      // Remove timeout from state
+      setUpdateTimeouts(prev => {
+        const newTimeouts = { ...prev };
+        delete newTimeouts[id];
+        return newTimeouts;
+      });
+    }, 500);
+    
+    setUpdateTimeouts(prev => ({ ...prev, [id]: timeoutId }));
+  }, [updateProductMutation, updateTimeouts, retry, handleError]);
+
+  const handlePriceChange = useCallback((id: string, weight: string, price: string) => {
     const item = menuItems.find(m => m.id === id);
     if (!item) return;
 
     const numPrice = parseFloat(price) || 0;
     const newPricingTiers = { ...item.pricing_tiers, [weight]: numPrice };
-    updateProductMutation.mutate({ id, field: 'pricing_tiers', value: newPricingTiers });
-  };
+    
+    retry(() => updateProductMutation.mutateAsync({ id, field: 'pricing_tiers', value: newPricingTiers }))
+      .catch(error => handleError(error));
+  }, [menuItems, updateProductMutation, retry, handleError]);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(updateTimeouts).forEach(timeout => clearTimeout(timeout));
+    };
+  }, [updateTimeouts]);
 
   if (isLoading) {
     return <div className="p-6 text-center">Laden...</div>;
@@ -154,9 +205,10 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
             <div key={item.id} className="grid grid-cols-8 gap-2 p-2 border rounded-lg items-center">
               <div className="col-span-2 flex items-center gap-2">
                 <Input
-                  value={item.name}
+                  value={localNames[item.id] || item.name}
                   onChange={(e) => handleNameChange(item.id, e.target.value)}
                   className="h-8"
+                  placeholder="Product naam"
                 />
                 <Button
                   variant="ghost"
