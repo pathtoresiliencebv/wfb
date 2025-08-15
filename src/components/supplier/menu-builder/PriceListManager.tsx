@@ -1,309 +1,194 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Euro, Trash2, Edit, Save, X } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { SupplierPriceList } from '@/types/menuBuilder';
 
 interface PriceListManagerProps {
   supplierId: string;
 }
 
+interface MenuItem {
+  id: string;
+  name: string;
+  pricing_tiers: Record<string, number>;
+  category?: string;
+}
+
+const WEIGHT_OPTIONS = ['10', '25', '50', '100', '200', '500'];
+
 export function PriceListManager({ supplierId }: PriceListManagerProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [isCreating, setIsCreating] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [categoryName, setCategoryName] = useState('');
 
-  // Fetch price lists
-  const { data: priceLists = [], isLoading } = useQuery({
-    queryKey: ['supplier-price-lists', supplierId],
+  // Fetch menu items
+  const { data: menuItems = [], isLoading } = useQuery({
+    queryKey: ['supplier-menu-items', supplierId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('supplier_price_lists')
+        .from('supplier_menu_items')
         .select('*')
         .eq('supplier_id', supplierId)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+        .order('position', { ascending: true });
       
       if (error) throw error;
-      return data as SupplierPriceList[];
+      return data as MenuItem[];
     }
   });
 
-  const [newPriceList, setNewPriceList] = useState({
-    name: '',
-    price_type: 'weight' as 'weight' | 'unit',
-    unit_label: 'gram',
-    pricing_data: {} as Record<string, number>
-  });
-
-  // Create price list mutation
-  const createPriceListMutation = useMutation({
-    mutationFn: async (data: typeof newPriceList) => {
+  // Add new product mutation
+  const addProductMutation = useMutation({
+    mutationFn: async () => {
       const { error } = await supabase
-        .from('supplier_price_lists')
+        .from('supplier_menu_items')
         .insert({
           supplier_id: supplierId,
-          name: data.name,
-          price_type: data.price_type,
-          unit_label: data.unit_label,
-          pricing_data: data.pricing_data
+          name: 'Nieuw Product',
+          category: categoryName || null,
+          pricing_tiers: { '10': 0, '25': 0, '50': 0, '100': 0, '200': 0, '500': 0 },
+          position: menuItems.length
         });
       
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['supplier-price-lists'] });
-      setIsCreating(false);
-      setNewPriceList({
-        name: '',
-        price_type: 'weight',
-        unit_label: 'gram',
-        pricing_data: {}
-      });
-      toast({
-        title: "Prijslijst aangemaakt",
-        description: "Je nieuwe prijslijst is succesvol aangemaakt."
-      });
+      queryClient.invalidateQueries({ queryKey: ['supplier-menu-items'] });
     }
   });
 
-  // Delete price list mutation
-  const deletePriceListMutation = useMutation({
-    mutationFn: async (priceListId: string) => {
+  // Update product mutation
+  const updateProductMutation = useMutation({
+    mutationFn: async ({ id, field, value }: { id: string; field: string; value: any }) => {
       const { error } = await supabase
-        .from('supplier_price_lists')
-        .update({ is_active: false })
-        .eq('id', priceListId);
+        .from('supplier_menu_items')
+        .update({ [field]: value })
+        .eq('id', id);
       
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['supplier-price-lists'] });
+      queryClient.invalidateQueries({ queryKey: ['supplier-menu-items'] });
+    }
+  });
+
+  // Delete product mutation
+  const deleteProductMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('supplier_menu_items')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['supplier-menu-items'] });
       toast({
-        title: "Prijslijst verwijderd",
-        description: "De prijslijst is succesvol verwijderd."
+        title: "Product verwijderd",
+        description: "Het product is succesvol verwijderd."
       });
     }
   });
 
-  const handleCreatePriceList = () => {
-    if (!newPriceList.name.trim()) {
-      toast({
-        title: "Naam vereist",
-        description: "Voer een naam in voor je prijslijst.",
-        variant: "destructive"
-      });
-      return;
-    }
-    createPriceListMutation.mutate(newPriceList);
+  const handleNameChange = (id: string, name: string) => {
+    updateProductMutation.mutate({ id, field: 'name', value: name });
   };
 
-  const handlePricingDataChange = (key: string, value: string) => {
-    const numValue = parseFloat(value) || 0;
-    setNewPriceList(prev => ({
-      ...prev,
-      pricing_data: { ...prev.pricing_data, [key]: numValue }
-    }));
-  };
+  const handlePriceChange = (id: string, weight: string, price: string) => {
+    const item = menuItems.find(m => m.id === id);
+    if (!item) return;
 
-  const weightOptions = ['10', '25', '50', '100', '200', '500'];
-  const unitOptions = ['1', '2', '3', '5', '10'];
+    const numPrice = parseFloat(price) || 0;
+    const newPricingTiers = { ...item.pricing_tiers, [weight]: numPrice };
+    updateProductMutation.mutate({ id, field: 'pricing_tiers', value: newPricingTiers });
+  };
 
   if (isLoading) {
     return <div className="p-6 text-center">Laden...</div>;
   }
 
   return (
-    <div className="space-y-6">
-      {/* Existing Price Lists */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Herbruikbare Prijslijsten</CardTitle>
-              <CardDescription>
-                Maak prijslijsten aan die je kunt hergebruiken voor meerdere categorieën
-              </CardDescription>
-            </div>
-            <Button 
-              onClick={() => setIsCreating(true)}
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Nieuwe Prijslijst
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {priceLists.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              Nog geen prijslijsten aangemaakt. Maak je eerste prijslijst aan om te beginnen.
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {priceLists.map((priceList) => (
-                <div key={priceList.id} className="p-4 border rounded-lg">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-medium">{priceList.name}</h3>
-                      <Badge variant="outline">
-                        {priceList.price_type === 'weight' ? 'Op gewicht' : 'Per eenheid'}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => deletePriceListMutation.mutate(priceList.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  {/* Pricing Items Display - Same as MenuPreview */}
-                  <div className="space-y-1">
-                    <div className="text-sm font-medium text-muted-foreground">Prijzen:</div>
-                    <div className="space-y-1">
-                      {Object.entries(priceList.pricing_data).map(([weight, price]) => (
-                        <div key={weight} className="flex justify-between items-center py-1">
-                          <span className="text-sm">{weight}gr</span>
-                          <Badge variant="outline" className="text-xs">
-                            €{Number(price).toFixed(2)}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle>Prijslijst</CardTitle>
+          <Button 
+            onClick={() => addProductMutation.mutate()}
+            className="flex items-center gap-2"
+            size="sm"
+          >
+            <Plus className="h-4 w-4" />
+            Product toevoegen
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Category Name (Optional) */}
+        <div>
+          <Input
+            placeholder="Categorie naam (optioneel)"
+            value={categoryName}
+            onChange={(e) => setCategoryName(e.target.value)}
+            className="max-w-md"
+          />
+        </div>
+
+        {/* Header Row */}
+        <div className="grid grid-cols-8 gap-2 p-2 bg-muted rounded-lg text-sm font-medium">
+          <div className="col-span-2">Product Naam</div>
+          <div className="text-center">10gr</div>
+          <div className="text-center">25gr</div>
+          <div className="text-center">50gr</div>
+          <div className="text-center">100gr</div>
+          <div className="text-center">200gr</div>
+          <div className="text-center">500gr</div>
+        </div>
+
+        {/* Product Rows */}
+        <div className="space-y-2">
+          {menuItems.map((item) => (
+            <div key={item.id} className="grid grid-cols-8 gap-2 p-2 border rounded-lg items-center">
+              <div className="col-span-2 flex items-center gap-2">
+                <Input
+                  value={item.name}
+                  onChange={(e) => handleNameChange(item.id, e.target.value)}
+                  className="h-8"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteProductMutation.mutate(item.id)}
+                  className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+              
+              {WEIGHT_OPTIONS.map((weight) => (
+                <div key={weight}>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={item.pricing_tiers?.[weight] || ''}
+                    onChange={(e) => handlePriceChange(item.id, weight, e.target.value)}
+                    className="h-8 text-center"
+                  />
                 </div>
               ))}
             </div>
-          )}
-        </CardContent>
-      </Card>
+          ))}
+        </div>
 
-      {/* Create New Price List */}
-      {isCreating && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Nieuwe Prijslijst Aanmaken</CardTitle>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setIsCreating(false)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Name and Type */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="price_list_name">Naam Prijslijst</Label>
-                <Input
-                  id="price_list_name"
-                  placeholder="Bijv. Standaard Wiet Prijzen"
-                  value={newPriceList.name}
-                  onChange={(e) => setNewPriceList(prev => ({ ...prev, name: e.target.value }))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="price_type">Prijstype</Label>
-                <Select
-                  value={newPriceList.price_type}
-                  onValueChange={(value: 'weight' | 'unit') => {
-                    const newPricingData = value === 'weight' 
-                      ? { '25': 0, '50': 0, '100': 0, '200': 0, '500': 0 }
-                      : { '1': 0, '2': 0, '3': 0, '5': 0, '10': 0 };
-                    
-                    setNewPriceList(prev => ({ 
-                      ...prev, 
-                      price_type: value,
-                      pricing_data: newPricingData
-                    }));
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="weight">Op gewicht</SelectItem>
-                    <SelectItem value="unit">Per eenheid</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Unit Label for Unit Pricing */}
-            {newPriceList.price_type === 'unit' && (
-              <div className="space-y-2">
-                <Label htmlFor="unit_label">Eenheid Label</Label>
-                <Input
-                  id="unit_label"
-                  placeholder="Bijv. stuks, cartridges, bollen"
-                  value={newPriceList.unit_label}
-                  onChange={(e) => setNewPriceList(prev => ({ ...prev, unit_label: e.target.value }))}
-                />
-              </div>
-            )}
-
-            {/* Pricing Grid */}
-            <div className="space-y-2">
-              <Label>Prijzen</Label>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                {(newPriceList.price_type === 'weight' ? weightOptions : unitOptions).map((option) => (
-                  <div key={option} className="space-y-1">
-                    <Label className="text-sm">
-                      {option}{newPriceList.price_type === 'weight' ? 'gr' : ` ${newPriceList.unit_label}`}
-                    </Label>
-                    <div className="relative">
-                      <Euro className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        type="number"
-                        placeholder="0"
-                        className="pl-10"
-                        value={newPriceList.pricing_data[option] || ''}
-                        onChange={(e) => handlePricingDataChange(option, e.target.value)}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-2 pt-4">
-              <Button 
-                onClick={handleCreatePriceList}
-                disabled={createPriceListMutation.isPending}
-                className="flex items-center gap-2"
-              >
-                <Save className="h-4 w-4" />
-                {createPriceListMutation.isPending ? 'Opslaan...' : 'Prijslijst Aanmaken'}
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => setIsCreating(false)}
-              >
-                Annuleren
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+        {menuItems.length === 0 && (
+          <div className="text-center py-8 text-muted-foreground">
+            Nog geen producten toegevoegd. Klik op "Product toevoegen" om te beginnen.
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
