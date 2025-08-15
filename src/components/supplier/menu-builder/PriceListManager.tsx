@@ -20,7 +20,7 @@ interface MenuItem {
   category?: string;
 }
 
-const WEIGHT_OPTIONS = ['10', '25', '50', '100', '200', '500'];
+const WEIGHT_OPTIONS = ['25', '50', '100', '200', '500'];
 
 export function PriceListManager({ supplierId }: PriceListManagerProps) {
   const { toast } = useToast();
@@ -29,8 +29,10 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
   const { retry } = useRetry();
   const [categoryName, setCategoryName] = useState('');
   const [localNames, setLocalNames] = useState<Record<string, string>>({});
+  const [localCategories, setLocalCategories] = useState<Record<string, string>>({});
   const [localPrices, setLocalPrices] = useState<Record<string, Record<string, string>>>({});
   const [nameTimeouts, setNameTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
+  const [categoryTimeouts, setCategoryTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
   const [priceTimeouts, setPriceTimeouts] = useState<Record<string, NodeJS.Timeout>>({});
 
   // Fetch menu items
@@ -57,7 +59,7 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
           supplier_id: supplierId,
           name: 'Nieuw Product',
           category: categoryName || null,
-          pricing_tiers: { '10': 0, '25': 0, '50': 0, '100': 0, '200': 0, '500': 0 },
+          pricing_tiers: { '25': 0, '50': 0, '100': 0, '200': 0, '500': 0 },
           position: menuItems.length
         });
       
@@ -109,10 +111,12 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
   useEffect(() => {
     if (menuItems.length > 0) {
       const initialNames: Record<string, string> = {};
+      const initialCategories: Record<string, string> = {};
       const initialPrices: Record<string, Record<string, string>> = {};
       
       menuItems.forEach(item => {
         initialNames[item.id] = item.name;
+        initialCategories[item.id] = item.category || '';
         initialPrices[item.id] = {};
         WEIGHT_OPTIONS.forEach(weight => {
           initialPrices[item.id][weight] = String(item.pricing_tiers?.[weight] || '');
@@ -120,6 +124,7 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
       });
       
       setLocalNames(initialNames);
+      setLocalCategories(initialCategories);
       setLocalPrices(initialPrices);
     }
   }, [menuItems]);
@@ -149,6 +154,32 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
     
     setNameTimeouts(prev => ({ ...prev, [id]: timeoutId }));
   }, [updateProductMutation, nameTimeouts, retry, handleError]);
+
+  // Debounced category update
+  const handleCategoryChange = useCallback((id: string, category: string) => {
+    // Update local state immediately for responsive UI
+    setLocalCategories(prev => ({ ...prev, [id]: category }));
+    
+    // Clear existing timeout
+    if (categoryTimeouts[id]) {
+      clearTimeout(categoryTimeouts[id]);
+    }
+    
+    // Set new timeout for database update
+    const timeoutId = setTimeout(() => {
+      retry(() => updateProductMutation.mutateAsync({ id, field: 'category', value: category || null }))
+        .catch(error => handleError(error));
+      
+      // Remove timeout from state
+      setCategoryTimeouts(prev => {
+        const newTimeouts = { ...prev };
+        delete newTimeouts[id];
+        return newTimeouts;
+      });
+    }, 800);
+    
+    setCategoryTimeouts(prev => ({ ...prev, [id]: timeoutId }));
+  }, [updateProductMutation, categoryTimeouts, retry, handleError]);
 
   // Debounced price update
   const handlePriceChange = useCallback((id: string, weight: string, price: string) => {
@@ -224,9 +255,10 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
   useEffect(() => {
     return () => {
       Object.values(nameTimeouts).forEach(timeout => clearTimeout(timeout));
+      Object.values(categoryTimeouts).forEach(timeout => clearTimeout(timeout));
       Object.values(priceTimeouts).forEach(timeout => clearTimeout(timeout));
     };
-  }, [nameTimeouts, priceTimeouts]);
+  }, [nameTimeouts, categoryTimeouts, priceTimeouts]);
 
   if (isLoading) {
     return <div className="p-6 text-center">Laden...</div>;
@@ -260,34 +292,35 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
 
         {/* Header Row */}
         <div className="grid grid-cols-8 gap-2 p-2 bg-muted rounded-lg text-sm font-medium">
-          <div className="col-span-2">Product Naam</div>
-          <div className="text-center">10gr</div>
+          <div>Product Naam</div>
+          <div>Categorie</div>
           <div className="text-center">25gr</div>
           <div className="text-center">50gr</div>
           <div className="text-center">100gr</div>
           <div className="text-center">200gr</div>
           <div className="text-center">500gr</div>
+          <div></div>
         </div>
 
         {/* Product Rows */}
         <div className="space-y-2">
           {menuItems.map((item, index) => (
             <div key={item.id} className="grid grid-cols-8 gap-2 p-2 border rounded-lg items-center">
-              <div className="col-span-2 flex items-center gap-2">
+              <div>
                 <Input
                   value={localNames[item.id] || item.name}
                   onChange={(e) => handleNameChange(item.id, e.target.value)}
                   className="h-8"
                   placeholder="Product naam"
                 />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => deleteProductMutation.mutate(item.id)}
-                  className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
+              </div>
+              <div>
+                <Input
+                  value={localCategories[item.id] || ''}
+                  onChange={(e) => handleCategoryChange(item.id, e.target.value)}
+                  className="h-8"
+                  placeholder="Categorie"
+                />
               </div>
               
               {WEIGHT_OPTIONS.map((weight) => (
@@ -314,6 +347,16 @@ export function PriceListManager({ supplierId }: PriceListManagerProps) {
                   </div>
                 </div>
               ))}
+              <div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteProductMutation.mutate(item.id)}
+                  className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
             </div>
           ))}
         </div>
