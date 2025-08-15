@@ -25,7 +25,7 @@ export const SupplierMenu: React.FC<SupplierMenuProps> = ({ supplierId }) => {
     enabled: !!supplierId,
   });
 
-  const { data: categories } = useQuery<SupplierCategory[]>({
+  const { data: categories = [] } = useQuery<SupplierCategory[]>({
     queryKey: ['public-supplier-categories', supplierId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -35,7 +35,7 @@ export const SupplierMenu: React.FC<SupplierMenuProps> = ({ supplierId }) => {
         .eq('is_active', true)
         .order('sort_order');
       if (error) throw error;
-      return data || [];
+      return (data || []) as SupplierCategory[];
     },
     enabled: !!supplierId,
   });
@@ -48,7 +48,7 @@ export const SupplierMenu: React.FC<SupplierMenuProps> = ({ supplierId }) => {
 
   // Group items by category
   const itemsWithCategoryPricing = items.map(item => {
-    const category = categories?.find(c => c.id === item.category_id);
+    const category = categories.find(c => c.id === item.category_id);
     const effectivePricing = item.use_category_pricing && category?.category_pricing 
       ? category.category_pricing 
       : item.pricing_tiers;
@@ -60,7 +60,7 @@ export const SupplierMenu: React.FC<SupplierMenuProps> = ({ supplierId }) => {
     };
   });
 
-  const categorizedItems = categories?.reduce((acc, category) => {
+  const categorizedItems = categories.reduce((acc, category) => {
     const categoryItems = itemsWithCategoryPricing.filter(item => 
       item.category_id === category.id && item.use_category_pricing
     );
@@ -71,7 +71,7 @@ export const SupplierMenu: React.FC<SupplierMenuProps> = ({ supplierId }) => {
       };
     }
     return acc;
-  }, {} as Record<string, { category: SupplierCategory; items: typeof itemsWithCategoryPricing }>) || {};
+  }, {} as Record<string, { category: SupplierCategory; items: typeof itemsWithCategoryPricing }>);
 
   const individualItems = itemsWithCategoryPricing.filter(item => !item.use_category_pricing);
 
@@ -82,9 +82,28 @@ export const SupplierMenu: React.FC<SupplierMenuProps> = ({ supplierId }) => {
         <div key={category.id} className="space-y-3">
           {/* Category Header */}
           <div className="border-b pb-3">
-            <h3 className="text-lg font-semibold">{category.name}</h3>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-lg font-semibold">{category.name}</h3>
+              {category.product_count && category.product_count > 0 && (
+                <Badge variant="secondary" className="text-xs">
+                  {category.product_count} soorten
+                </Badge>
+              )}
+            </div>
             {category.description && (
               <p className="text-sm text-muted-foreground mt-1">{category.description}</p>
+            )}
+            
+            {/* Description Lines */}
+            {category.description_lines && Array.isArray(category.description_lines) && category.description_lines.length > 0 && (
+              <div className="mt-2">
+                {category.description_lines.map((line, index) => (
+                  <div key={index} className="text-sm text-muted-foreground flex items-center gap-1">
+                    <span className="w-1 h-1 bg-muted-foreground rounded-full flex-shrink-0"></span>
+                    {line}
+                  </div>
+                ))}
+              </div>
             )}
             
             {/* Category Pricing Display */}

@@ -787,9 +787,11 @@ export type Database = {
           category_pricing: Json | null
           created_at: string | null
           description: string | null
+          description_lines: Json | null
           id: string
           is_active: boolean | null
           name: string
+          product_count: number | null
           sort_order: number | null
           supplier_id: string
           updated_at: string | null
@@ -798,9 +800,11 @@ export type Database = {
           category_pricing?: Json | null
           created_at?: string | null
           description?: string | null
+          description_lines?: Json | null
           id?: string
           is_active?: boolean | null
           name: string
+          product_count?: number | null
           sort_order?: number | null
           supplier_id: string
           updated_at?: string | null
@@ -809,9 +813,11 @@ export type Database = {
           category_pricing?: Json | null
           created_at?: string | null
           description?: string | null
+          description_lines?: Json | null
           id?: string
           is_active?: boolean | null
           name?: string
+          product_count?: number | null
           sort_order?: number | null
           supplier_id?: string
           updated_at?: string | null

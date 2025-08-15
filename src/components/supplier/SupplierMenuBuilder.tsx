@@ -33,6 +33,8 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
     name: '',
     description: '',
     category_pricing: {} as Record<string, number>,
+    product_count: 0,
+    description_lines: [] as string[],
   });
   
   const [editingCategoryPricing, setEditingCategoryPricing] = useState<string | null>(null);
@@ -86,6 +88,8 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
           name: category.name,
           description: category.description,
           category_pricing: category.category_pricing,
+          product_count: category.product_count,
+          description_lines: category.description_lines,
           sort_order: categories.length
         })
         .select()
@@ -95,7 +99,7 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['supplier-categories'] });
-      setNewCategoryData({ name: '', description: '', category_pricing: {} });
+      setNewCategoryData({ name: '', description: '', category_pricing: {}, product_count: 0, description_lines: [] });
       toast({ title: 'Categorie toegevoegd!' });
     }
   });
@@ -167,7 +171,7 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
     }
   });
 
-  const weightOptions = ['10g', '25g', '50g', '100g', '200g'];
+  const weightOptions = ['10gr', '25gr', '50gr', '100gr', '200gr', '500gr'];
 
   const handlePriceChange = (weight: string, price: string, isCategory = false) => {
     const numPrice = parseFloat(price) || 0;
@@ -249,6 +253,67 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
                 onChange={(e) => setNewCategoryData(prev => ({ ...prev, description: e.target.value }))}
                 rows={2}
               />
+              
+              {/* Product Count Input */}
+              <div>
+                <Label htmlFor="product-count">Aantal producten in deze collectie</Label>
+                <Input
+                  id="product-count"
+                  type="number"
+                  min="0"
+                  placeholder="bijv. 6"
+                  value={newCategoryData.product_count}
+                  onChange={(e) => setNewCategoryData(prev => ({ ...prev, product_count: parseInt(e.target.value) || 0 }))}
+                />
+              </div>
+
+              {/* Description Lines */}
+              <div>
+                <Label className="text-sm font-medium">Beschrijvingsregels</Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Voeg meerdere regels toe om jouw categorie te beschrijven
+                </p>
+                <div className="space-y-2">
+                  {newCategoryData.description_lines.map((line, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Input
+                        placeholder={`Beschrijvingsregel ${index + 1}`}
+                        value={line}
+                        onChange={(e) => {
+                          const newLines = [...newCategoryData.description_lines];
+                          newLines[index] = e.target.value;
+                          setNewCategoryData(prev => ({ ...prev, description_lines: newLines }));
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const newLines = newCategoryData.description_lines.filter((_, i) => i !== index);
+                          setNewCategoryData(prev => ({ ...prev, description_lines: newLines }));
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setNewCategoryData(prev => ({ 
+                        ...prev, 
+                        description_lines: [...prev.description_lines, ''] 
+                      }));
+                    }}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Beschrijvingsregel toevoegen
+                  </Button>
+                </div>
+              </div>
               
               {/* Category Pricing */}
               <div>

@@ -44,6 +44,8 @@ export interface SupplierCategory {
   created_at: string;
   updated_at: string;
   category_pricing?: Record<string, number> | any;
+  product_count?: number;
+  description_lines?: string[];
 }
 
 export interface SupplierProfile {
