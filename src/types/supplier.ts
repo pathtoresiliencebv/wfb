@@ -54,6 +54,11 @@ export interface SupplierProfile {
   minimum_order?: number;
   delivery_fee?: number;
   why_choose_us?: string[];
+  // USP and process fields
+  why_choose_us_descriptions?: Record<string, string> | any;
+  ordering_process_descriptions?: Record<string, string> | any;
+  contact_description?: string;
+  product_name?: string;
   profiles: {
     username: string;
     display_name?: string;

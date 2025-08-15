@@ -56,6 +56,10 @@ export const SupplierDashboard: React.FC = () => {
     delivery_time: '',
     success_rate: '',
     features: [] as string[],
+    why_choose_us_descriptions: {} as Record<string, string>,
+    ordering_process_descriptions: {} as Record<string, string>,
+    contact_description: '',
+    product_name: '',
   });
 
   React.useEffect(() => {
@@ -74,6 +78,10 @@ export const SupplierDashboard: React.FC = () => {
         delivery_time: stats?.delivery_time || '',
         success_rate: stats?.success_rate?.toString() || '',
         features: supplierProfile.features || [],
+        why_choose_us_descriptions: (supplierProfile.why_choose_us_descriptions as Record<string, string>) || {},
+        ordering_process_descriptions: (supplierProfile.ordering_process_descriptions as Record<string, string>) || {},
+        contact_description: supplierProfile.contact_description || '',
+        product_name: supplierProfile.product_name || '',
       });
     }
   }, [supplierProfile]);
@@ -95,6 +103,10 @@ export const SupplierDashboard: React.FC = () => {
           success_rate: data.success_rate ? parseInt(data.success_rate) : null,
         },
         features: data.features,
+        why_choose_us_descriptions: data.why_choose_us_descriptions,
+        ordering_process_descriptions: data.ordering_process_descriptions,
+        contact_description: data.contact_description,
+        product_name: data.product_name,
       };
 
       if (supplierProfile) {
@@ -395,6 +407,95 @@ export const SupplierDashboard: React.FC = () => {
                     </Button>
                   </div>
                 )}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* USP Descriptions */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Waarom Bestellen Bij Ons - Omschrijvingen</h3>
+              <div className="space-y-4">
+                {['experience', 'delivery', 'appointments', 'quality', 'service', 'reliability'].map((uspKey) => (
+                  <div key={uspKey} className="space-y-2">
+                    <Label className="text-sm font-medium capitalize">{uspKey.replace('_', ' ')}</Label>
+                    <Textarea
+                      value={formData.why_choose_us_descriptions?.[uspKey] || ''}
+                      onChange={(e) => setFormData(prev => ({ 
+                        ...prev, 
+                        why_choose_us_descriptions: {
+                          ...prev.why_choose_us_descriptions,
+                          [uspKey]: e.target.value
+                        }
+                      }))}
+                      disabled={!isEditing}
+                      placeholder={`Omschrijving voor ${uspKey.replace('_', ' ')}...`}
+                      rows={2}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Product Name */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Product Naam</h3>
+              <div className="space-y-2">
+                <Label htmlFor="product_name">Naam voor je producten (bijv. "cannabis", "wiet", "producten")</Label>
+                <Input
+                  id="product_name"
+                  value={formData.product_name || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, product_name: e.target.value }))}
+                  disabled={!isEditing}
+                  placeholder="producten"
+                />
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Ordering Process Descriptions */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Bestelproces - Omschrijvingen</h3>
+              <div className="space-y-4">
+                {['contact', 'menu', 'order', 'address', 'delivery', 'complete'].map((stepKey) => (
+                  <div key={stepKey} className="space-y-2">
+                    <Label className="text-sm font-medium capitalize">{stepKey.replace('_', ' ')}</Label>
+                    <Textarea
+                      value={formData.ordering_process_descriptions?.[stepKey] || ''}
+                      onChange={(e) => setFormData(prev => ({ 
+                        ...prev, 
+                        ordering_process_descriptions: {
+                          ...prev.ordering_process_descriptions,
+                          [stepKey]: e.target.value
+                        }
+                      }))}
+                      disabled={!isEditing}
+                      placeholder={`Omschrijving voor ${stepKey.replace('_', ' ')} stap...`}
+                      rows={2}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Contact Description */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Contact Sectie Omschrijving</h3>
+              <div className="space-y-2">
+                <Label htmlFor="contact_description">Omschrijving voor de contact sectie</Label>
+                <Textarea
+                  id="contact_description"
+                  value={formData.contact_description || ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, contact_description: e.target.value }))}
+                  disabled={!isEditing}
+                  placeholder="Heb je vragen of wil je een bestelling plaatsen? Neem dan contact met ons op..."
+                  rows={3}
+                />
               </div>
             </div>
 

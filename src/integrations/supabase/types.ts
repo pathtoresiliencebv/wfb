@@ -902,6 +902,7 @@ export type Database = {
         Row: {
           banner_image: string | null
           business_name: string
+          contact_description: string | null
           contact_info: Json | null
           created_at: string
           delivery_areas: string[] | null
@@ -913,16 +914,20 @@ export type Database = {
           logo_image: string | null
           minimum_order: number | null
           opening_hours: Json | null
+          ordering_process_descriptions: Json | null
+          product_name: string | null
           ranking: number | null
           stats: Json | null
           theme_color: string | null
           updated_at: string
           user_id: string
           why_choose_us: string[] | null
+          why_choose_us_descriptions: Json | null
         }
         Insert: {
           banner_image?: string | null
           business_name: string
+          contact_description?: string | null
           contact_info?: Json | null
           created_at?: string
           delivery_areas?: string[] | null
@@ -934,16 +939,20 @@ export type Database = {
           logo_image?: string | null
           minimum_order?: number | null
           opening_hours?: Json | null
+          ordering_process_descriptions?: Json | null
+          product_name?: string | null
           ranking?: number | null
           stats?: Json | null
           theme_color?: string | null
           updated_at?: string
           user_id: string
           why_choose_us?: string[] | null
+          why_choose_us_descriptions?: Json | null
         }
         Update: {
           banner_image?: string | null
           business_name?: string
+          contact_description?: string | null
           contact_info?: Json | null
           created_at?: string
           delivery_areas?: string[] | null
@@ -955,12 +964,15 @@ export type Database = {
           logo_image?: string | null
           minimum_order?: number | null
           opening_hours?: Json | null
+          ordering_process_descriptions?: Json | null
+          product_name?: string | null
           ranking?: number | null
           stats?: Json | null
           theme_color?: string | null
           updated_at?: string
           user_id?: string
           why_choose_us?: string[] | null
+          why_choose_us_descriptions?: Json | null
         }
         Relationships: [
           {

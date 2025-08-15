@@ -11,6 +11,9 @@ import { SupplierHeader } from '@/components/supplier/SupplierHeader';
 import { SupplierStats } from '@/components/supplier/SupplierStats';
 import { SupplierFeatures } from '@/components/supplier/SupplierFeatures';
 import { SupplierMenu } from '@/components/supplier/SupplierMenu';
+import { SupplierUSPSection } from '@/components/supplier/SupplierUSPSection';
+import { SupplierOrderingProcess } from '@/components/supplier/SupplierOrderingProcess';
+import { SupplierContactSection } from '@/components/supplier/SupplierContactSection';
 import { Loader2, MessageCircle, Send, Star, MapPin, Clock, Package } from 'lucide-react';
 import { SupplierProfile } from '@/types/supplier';
 
@@ -110,6 +113,24 @@ export default function SupplierPublic() {
 
           <Separator />
 
+          {/* USP Section */}
+          <SupplierUSPSection 
+            supplierName={supplier.business_name} 
+            descriptions={(supplier.why_choose_us_descriptions as Record<string, string>) || {}}
+            stats={supplier.stats}
+          />
+
+          <Separator />
+
+          {/* Ordering Process */}
+          <SupplierOrderingProcess 
+            supplierName={supplier.business_name}
+            productName={supplier.product_name || 'producten'}
+            descriptions={(supplier.ordering_process_descriptions as Record<string, string>) || {}}
+          />
+
+          <Separator />
+
           {/* Menu Section */}
           <div>
             <div className="flex items-center gap-3 mb-6">
@@ -120,44 +141,11 @@ export default function SupplierPublic() {
           </div>
 
           {/* Contact Section */}
-          <Card className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-700">
-            <CardContent className="p-8 text-center">
-              <h3 className="text-2xl font-bold mb-4">Klaar om te bestellen?</h3>
-              <p className="text-muted-foreground mb-6">
-                Neem contact met ons op via een van onderstaande kanalen voor bestellingen en vragen.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                {supplier.contact_info?.telegram && (
-                  <Button 
-                    size="lg"
-                    className="bg-blue-500 hover:bg-blue-600 text-white"
-                    onClick={() => window.open(`https://t.me/${supplier.contact_info.telegram.replace('@', '')}`)}
-                  >
-                    <Send className="h-5 w-5 mr-2" />
-                    Contact via Telegram
-                  </Button>
-                )}
-                {supplier.contact_info?.wire && (
-                  <Button 
-                    size="lg"
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                    onClick={() => window.open(`https://wire.com/${supplier.contact_info.wire.replace('@', '')}`)}
-                  >
-                    <MessageCircle className="h-5 w-5 mr-2" />
-                    Contact via Wire
-                  </Button>
-                )}
-              </div>
-
-              {supplier.minimum_order && (
-                <p className="text-sm text-muted-foreground mt-4">
-                  Minimum bestelling: €{supplier.minimum_order}
-                  {supplier.delivery_fee === 0 && ' • Gratis bezorging'}
-                </p>
-              )}
-            </CardContent>
-          </Card>
+          <SupplierContactSection 
+            supplierName={supplier.business_name}
+            description={supplier.contact_description}
+            contactInfo={supplier.contact_info}
+          />
         </div>
       </div>
     </Layout>
