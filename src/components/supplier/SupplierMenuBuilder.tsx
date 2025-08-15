@@ -36,6 +36,7 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
   });
   
   const [editingCategoryPricing, setEditingCategoryPricing] = useState<string | null>(null);
+  const [editPricing, setEditPricing] = useState<Record<string, number>>({});
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -52,6 +53,14 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
       return data as SupplierCategory[];
     }
   });
+
+  // Initialize edit pricing when editing category changes
+  React.useEffect(() => {
+    if (editingCategoryPricing) {
+      const category = categories.find(c => c.id === editingCategoryPricing);
+      setEditPricing(category?.category_pricing || {});
+    }
+  }, [editingCategoryPricing, categories]);
 
   // Fetch menu items
   const { data: menuItems = [] } = useQuery<SupplierMenuItem[]>({
@@ -290,49 +299,40 @@ export const SupplierMenuBuilder: React.FC<SupplierMenuBuilderProps> = ({ suppli
                 <CardTitle>Categorie Prijzen Bewerken</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {(() => {
-                  const category = categories.find(c => c.id === editingCategoryPricing);
-                  const [editPricing, setEditPricing] = useState(category?.category_pricing || {});
-                  
-                  return (
-                    <>
-                      <div className="grid grid-cols-2 gap-3">
-                        {weightOptions.map(weight => (
-                          <div key={weight}>
-                            <Label className="text-xs text-muted-foreground">{weight}</Label>
-                            <div className="relative">
-                              <Euro className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-                              <Input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                className="pl-7 text-sm"
-                                value={editPricing[weight] || ''}
-                                onChange={(e) => setEditPricing(prev => ({ 
-                                  ...prev, 
-                                  [weight]: parseFloat(e.target.value) || 0 
-                                }))}
-                              />
-                            </div>
-                          </div>
-                        ))}
+                <div className="grid grid-cols-2 gap-3">
+                  {weightOptions.map(weight => (
+                    <div key={weight}>
+                      <Label className="text-xs text-muted-foreground">{weight}</Label>
+                      <div className="relative">
+                        <Euro className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          className="pl-7 text-sm"
+                          value={editPricing[weight] || ''}
+                          onChange={(e) => setEditPricing(prev => ({ 
+                            ...prev, 
+                            [weight]: parseFloat(e.target.value) || 0 
+                          }))}
+                        />
                       </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          onClick={() => updateCategoryPricingMutation.mutate({
-                            categoryId: editingCategoryPricing,
-                            pricing: editPricing
-                          })}
-                        >
-                          Opslaan
-                        </Button>
-                        <Button variant="outline" onClick={() => setEditingCategoryPricing(null)}>
-                          Annuleren
-                        </Button>
-                      </div>
-                    </>
-                  );
-                })()}
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => updateCategoryPricingMutation.mutate({
+                      categoryId: editingCategoryPricing,
+                      pricing: editPricing
+                    })}
+                  >
+                    Opslaan
+                  </Button>
+                  <Button variant="outline" onClick={() => setEditingCategoryPricing(null)}>
+                    Annuleren
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
