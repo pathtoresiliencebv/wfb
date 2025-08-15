@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Settings, List, Package, Eye } from 'lucide-react';
+import { Settings, List, Package } from 'lucide-react';
 import { MenuSettingsManager } from './MenuSettingsManager';
 import { PriceListManager } from './PriceListManager';
-import { AdvancedCategoryBuilder } from './AdvancedCategoryBuilder';
-import { MenuPreview } from './MenuPreview';
+import { AutoCategoryManager } from './AutoCategoryManager';
 import type { MenuBuilderStep } from '@/types/menuBuilder';
 
 interface InteractiveMenuBuilderProps {
@@ -26,19 +25,13 @@ export function InteractiveMenuBuilder({ supplierId }: InteractiveMenuBuilderPro
     {
       id: 'pricelists',
       title: 'Prijslijsten',
-      description: 'Herbruikbare prijslijsten aanmaken',
+      description: 'Producten en prijzen beheren',
       completed: false
     },
     {
       id: 'categories',
-      title: 'Categorieën & Producten',
-      description: 'Categorieën met verschillende prijsmodellen',
-      completed: false
-    },
-    {
-      id: 'preview',
-      title: 'Preview & Publiceren',
-      description: 'Bekijk en publiceer je menu',
+      title: 'Categorieën',
+      description: 'Automatisch gedetecteerde categorieën',
       completed: false
     }
   ];
@@ -56,7 +49,7 @@ export function InteractiveMenuBuilder({ supplierId }: InteractiveMenuBuilderPro
       {/* Progress Steps */}
       <Card>
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {steps.map((step, index) => (
               <div
                 key={step.id}
@@ -93,7 +86,7 @@ export function InteractiveMenuBuilder({ supplierId }: InteractiveMenuBuilderPro
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             Instellingen
@@ -106,10 +99,6 @@ export function InteractiveMenuBuilder({ supplierId }: InteractiveMenuBuilderPro
             <Package className="h-4 w-4" />
             Categorieën
           </TabsTrigger>
-          <TabsTrigger value="preview" className="flex items-center gap-2">
-            <Eye className="h-4 w-4" />
-            Preview
-          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="settings">
@@ -121,11 +110,7 @@ export function InteractiveMenuBuilder({ supplierId }: InteractiveMenuBuilderPro
         </TabsContent>
 
         <TabsContent value="categories">
-          <AdvancedCategoryBuilder supplierId={supplierId} />
-        </TabsContent>
-
-        <TabsContent value="preview">
-          <MenuPreview supplierId={supplierId} />
+          <AutoCategoryManager supplierId={supplierId} />
         </TabsContent>
       </Tabs>
 
