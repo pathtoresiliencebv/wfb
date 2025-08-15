@@ -31,6 +31,19 @@ export interface SupplierMenuItem {
   in_stock?: boolean;
   image_url?: string;
   category_id?: string;
+  use_category_pricing?: boolean;
+}
+
+export interface SupplierCategory {
+  id: string;
+  supplier_id: string;
+  name: string;
+  description?: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  category_pricing?: Record<string, number> | any;
 }
 
 export interface SupplierProfile {

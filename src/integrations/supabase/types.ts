@@ -784,6 +784,7 @@ export type Database = {
       }
       supplier_categories: {
         Row: {
+          category_pricing: Json | null
           created_at: string | null
           description: string | null
           id: string
@@ -794,6 +795,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          category_pricing?: Json | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -804,6 +806,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          category_pricing?: Json | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -841,6 +844,7 @@ export type Database = {
           tags: string[] | null
           unit: string | null
           updated_at: string
+          use_category_pricing: boolean | null
           weight_options: string[] | null
         }
         Insert: {
@@ -860,6 +864,7 @@ export type Database = {
           tags?: string[] | null
           unit?: string | null
           updated_at?: string
+          use_category_pricing?: boolean | null
           weight_options?: string[] | null
         }
         Update: {
@@ -879,6 +884,7 @@ export type Database = {
           tags?: string[] | null
           unit?: string | null
           updated_at?: string
+          use_category_pricing?: boolean | null
           weight_options?: string[] | null
         }
         Relationships: [
