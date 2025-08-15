@@ -49,7 +49,7 @@ export function Footer() {
                 displaySuppliers.map((supplier, index) => (
                   <Link
                     key={supplier.id}
-                    to={`/aanbod-${supplier.profiles.username}`}
+                    to={`/aanbod/${supplier.profiles.username}`}
                     className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {index + 1}. {supplier.business_name}

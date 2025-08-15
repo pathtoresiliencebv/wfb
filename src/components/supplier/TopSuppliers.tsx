@@ -128,7 +128,7 @@ export const TopSuppliers: React.FC = () => {
             <Button
               size="sm"
               variant="outline"
-              onClick={() => navigate(`/aanbod-${supplier.profiles.username}`)}
+              onClick={() => navigate(`/aanbod/${supplier.profiles.username}`)}
             >
               Bekijk
             </Button>

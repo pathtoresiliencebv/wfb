@@ -336,7 +336,7 @@ function AppRoutes() {
                 />
                 
                  <Route 
-                   path="/aanbod-:username" 
+                   path="/aanbod/:username" 
                    element={
                      <ProtectedRoute>
                        <SupplierProfilePage />
