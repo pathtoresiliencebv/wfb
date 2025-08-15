@@ -22,7 +22,12 @@ export function Footer() {
         .order('created_at', { ascending: false })
         .limit(3);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Footer supplier query error:', error);
+        throw error;
+      }
+      
+      console.log('Footer suppliers data:', data);
       return data || [];
     },
   });
