@@ -48,6 +48,18 @@ export interface SupplierCategory {
   description_lines?: string[];
 }
 
+export interface SupplierMenuSettings {
+  id: string;
+  supplier_id: string;
+  menu_title?: string;
+  contact_info: any;
+  footer_message?: string;
+  theme_settings: any;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface SupplierProfile {
   id: string;
   user_id: string;

@@ -791,6 +791,8 @@ export type Database = {
           id: string
           is_active: boolean | null
           name: string
+          price_list_id: string | null
+          pricing_model: string | null
           product_count: number | null
           sort_order: number | null
           supplier_id: string
@@ -804,6 +806,8 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name: string
+          price_list_id?: string | null
+          pricing_model?: string | null
           product_count?: number | null
           sort_order?: number | null
           supplier_id: string
@@ -817,6 +821,8 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           name?: string
+          price_list_id?: string | null
+          pricing_model?: string | null
           product_count?: number | null
           sort_order?: number | null
           supplier_id?: string
@@ -909,6 +915,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      supplier_menu_settings: {
+        Row: {
+          contact_info: Json | null
+          created_at: string
+          footer_message: string | null
+          id: string
+          is_published: boolean | null
+          menu_title: string | null
+          supplier_id: string
+          theme_settings: Json | null
+          updated_at: string
+        }
+        Insert: {
+          contact_info?: Json | null
+          created_at?: string
+          footer_message?: string | null
+          id?: string
+          is_published?: boolean | null
+          menu_title?: string | null
+          supplier_id: string
+          theme_settings?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          contact_info?: Json | null
+          created_at?: string
+          footer_message?: string | null
+          id?: string
+          is_published?: boolean | null
+          menu_title?: string | null
+          supplier_id?: string
+          theme_settings?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      supplier_price_lists: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          price_type: string
+          pricing_data: Json
+          supplier_id: string
+          unit_label: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          price_type?: string
+          pricing_data?: Json
+          supplier_id: string
+          unit_label?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          price_type?: string
+          pricing_data?: Json
+          supplier_id?: string
+          unit_label?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       supplier_profiles: {
         Row: {
