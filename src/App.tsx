@@ -336,13 +336,12 @@ function AppRoutes() {
                 />
                 
                  <Route 
-                   path="/leverancier/:username" 
-                   element={<SupplierProfilePage />} 
-                 />
-                 
-                 <Route 
-                   path="/supplier/:username" 
-                   element={<SupplierProfilePage />} 
+                   path="/aanbod-:username" 
+                   element={
+                     <ProtectedRoute>
+                       <SupplierProfilePage />
+                     </ProtectedRoute>
+                   } 
                  />
                 
                 <Route 
