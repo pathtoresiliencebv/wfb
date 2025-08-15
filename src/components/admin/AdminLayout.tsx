@@ -2,6 +2,7 @@ import React from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "./AdminSidebar";
 import { Button } from "@/components/ui/button";
+import { Footer } from "../layout/Footer";
 import { Home, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -49,6 +50,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           <main className="flex-1 p-6 overflow-auto">
             {children}
           </main>
+          
+          <Footer />
         </div>
       </div>
     </SidebarProvider>
