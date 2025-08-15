@@ -34,19 +34,36 @@ export const SupplierMenu: React.FC<SupplierMenuProps> = ({ supplierId }) => {
   return (
     <div className="space-y-3">
       {items.map((item) => (
-        <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-          <div>
+        <div key={item.id} className="p-3 rounded-lg bg-muted/30">
+          <div className="flex items-center justify-between mb-2">
             <div className="font-medium flex items-center gap-2">
               {item.name}
               {item.category && (
                 <Badge variant="secondary" className="text-xs">{item.category}</Badge>
               )}
             </div>
-            {item.description && (
-              <div className="text-sm text-muted-foreground">{item.description}</div>
+          </div>
+          {item.description && (
+            <div className="text-sm text-muted-foreground mb-2">{item.description}</div>
+          )}
+          <div className="space-y-1">
+            {/* Show pricing tiers if available */}
+            {item.pricing_tiers && typeof item.pricing_tiers === 'object' && Object.keys(item.pricing_tiers).length > 0 ? (
+              <div className="flex flex-wrap gap-1">
+                {Object.entries(item.pricing_tiers).map(([weight, price]) => (
+                  <Badge key={weight} variant="outline" className="text-xs">
+                    {weight}: €{Number(price).toFixed(2)}
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              /* Fallback to simple price display */
+              <div className="text-right font-semibold">
+                € {Number(item.price).toFixed(2)}
+                {item.unit && <span className="text-sm text-muted-foreground"> / {item.unit}</span>}
+              </div>
             )}
           </div>
-          <div className="text-right font-semibold">€ {Number(item.price).toFixed(2)}{item.unit ? <span className="text-sm text-muted-foreground"> / {item.unit}</span> : null}</div>
         </div>
       ))}
     </div>
