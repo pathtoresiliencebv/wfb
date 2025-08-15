@@ -2,6 +2,8 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, Send, Mail } from 'lucide-react';
+import telegramIcon from '@/assets/icons/telegram.webp';
+import wireIcon from '@/assets/icons/wire.webp';
 
 interface SupplierContactSectionProps {
   supplierName: string;
@@ -18,63 +20,94 @@ export const SupplierContactSection: React.FC<SupplierContactSectionProps> = ({
   description,
   contactInfo
 }) => {
-  const defaultDescription = `Heb je vragen of wil je een bestelling plaatsen bij ${supplierName}? Neem dan contact met ons op via een van de onderstaande kanalen. We helpen je graag verder!`;
-
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <MessageCircle className="h-5 w-5 text-primary" />
+        <CardTitle className="flex items-center gap-2 text-2xl">
+          <MessageCircle className="h-6 w-6 text-green-600" />
           Contact Opnemen
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground">
-          {description || defaultDescription}
+      <CardContent>
+        <p className="text-lg text-muted-foreground mb-6">
+          {description || `Neem direct contact op met ${supplierName} voor bestellingen, vragen of meer informatie.`}
         </p>
         
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {contactInfo?.wire && (
-            <div className="text-center p-4 border rounded-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 hover:shadow-md transition-all duration-200 cursor-pointer group"
-                 onClick={() => window.open(`https://wire.com/u/${contactInfo.wire.replace('@', '')}`, '_blank')}>
-              <div className="w-12 h-12 rounded-full bg-green-600 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-200">
-                <MessageCircle className="h-6 w-6 text-white" />
+        <div className="grid md:grid-cols-3 gap-4 mt-6">
+          {/* Wire Contact */}
+          <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer border-blue-200 hover:border-blue-400 hover:scale-105">
+            <CardContent className="p-6 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <img src={wireIcon} alt="Wire" className="w-8 h-8" />
               </div>
-              <h4 className="font-medium text-sm mb-1">Wire</h4>
-              <p className="text-xs text-muted-foreground">@{contactInfo.wire}</p>
-              <Button variant="outline" size="sm" className="mt-2 w-full">
+              <h3 className="font-semibold text-lg mb-2">Wire</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Veilig en versleuteld chatten
+              </p>
+              <div className="bg-blue-50 rounded-lg p-3 mb-4">
+                <p className="text-sm font-mono text-blue-700">
+                  {contactInfo?.wire || '@wire_username'}
+                </p>
+              </div>
+              <Button 
+                className="w-full bg-blue-600 hover:bg-blue-700"
+                onClick={() => window.open(`https://wire.com/${(contactInfo?.wire || 'wire_username').replace('@', '')}`)}
+              >
+                <MessageCircle className="h-4 w-4 mr-2" />
                 Contact via Wire
               </Button>
-            </div>
-          )}
-          
-          {contactInfo?.telegram && (
-            <div className="text-center p-4 border rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 hover:shadow-md transition-all duration-200 cursor-pointer group"
-                 onClick={() => window.open(`https://t.me/${contactInfo.telegram.replace('@', '')}`, '_blank')}>
-              <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-200">
-                <Send className="h-6 w-6 text-white" />
+            </CardContent>
+          </Card>
+
+          {/* Telegram Contact */}
+          <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer border-blue-200 hover:border-blue-400 hover:scale-105">
+            <CardContent className="p-6 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-400 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
+                <img src={telegramIcon} alt="Telegram" className="w-8 h-8" />
               </div>
-              <h4 className="font-medium text-sm mb-1">Telegram</h4>
-              <p className="text-xs text-muted-foreground">@{contactInfo.telegram}</p>
-              <Button variant="outline" size="sm" className="mt-2 w-full">
+              <h3 className="font-semibold text-lg mb-2">Telegram</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Direct en snel chatten
+              </p>
+              <div className="bg-blue-50 rounded-lg p-3 mb-4">
+                <p className="text-sm font-mono text-blue-700">
+                  {contactInfo?.telegram || '@telegram_username'}
+                </p>
+              </div>
+              <Button 
+                className="w-full bg-blue-500 hover:bg-blue-600"
+                onClick={() => window.open(`https://t.me/${(contactInfo?.telegram || 'telegram_username').replace('@', '')}`)}
+              >
+                <Send className="h-4 w-4 mr-2" />
                 Contact via Telegram
               </Button>
-            </div>
-          )}
-          
-          {contactInfo?.email && (
-            <div className="text-center p-4 border rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 hover:shadow-md transition-all duration-200 cursor-pointer group"
-                 onClick={() => window.open(`mailto:${contactInfo.email}`, '_blank')}>
-              <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-200">
-                <Mail className="h-6 w-6 text-white" />
+            </CardContent>
+          </Card>
+
+          {/* Email Contact */}
+          <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer border-green-200 hover:border-green-400 hover:scale-105">
+            <CardContent className="p-6 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Mail className="w-8 h-8 text-white" />
               </div>
-              <h4 className="font-medium text-sm mb-1">Email</h4>
-              <p className="text-xs text-muted-foreground">{contactInfo.email}</p>
-              <Button variant="outline" size="sm" className="mt-2 w-full">
+              <h3 className="font-semibold text-lg mb-2">Email</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Professioneel contact
+              </p>
+              <div className="bg-green-50 rounded-lg p-3 mb-4">
+                <p className="text-sm font-mono text-green-700">
+                  {contactInfo?.email || 'contact@email.com'}
+                </p>
+              </div>
+              <Button 
+                className="w-full bg-green-600 hover:bg-green-700"
+                onClick={() => window.open(`mailto:${contactInfo?.email || 'contact@email.com'}`)}
+              >
+                <Mail className="h-4 w-4 mr-2" />
                 Stuur Email
               </Button>
-            </div>
-          )}
+            </CardContent>
+          </Card>
         </div>
       </CardContent>
     </Card>

@@ -105,26 +105,35 @@ export default function SupplierPublic() {
         </div>
 
         <div className="container mx-auto p-6 space-y-8">
+          {/* Menu Section with Description */}
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <Package className="h-6 w-6 text-green-600" />
+              <h2 className="text-2xl font-bold">{supplier.business_name} Menukaart</h2>
+            </div>
+            {supplier.description && (
+              <p className="text-muted-foreground mb-6 text-lg">{supplier.description}</p>
+            )}
+          </div>
+
           {/* Stats */}
           <SupplierStats supplier={supplier} />
+
+          <Separator />
 
           {/* Features & Services */}
           <SupplierFeatures supplier={supplier} />
 
           <Separator />
 
-          {/* Menu Section */}
+          {/* Menu Card */}
           <div>
-            <div className="flex items-center gap-3 mb-6">
-              <Package className="h-6 w-6 text-green-600" />
-              <h2 className="text-2xl font-bold">{supplier.business_name} Menukaart</h2>
-            </div>
             <SupplierMenu supplierId={supplier.id} />
           </div>
 
           <Separator />
 
-          {/* USP Section */}
+          {/* USP Section - "Waarom bestellen bij {{supplier_name}}" */}
           <SupplierUSPSection 
             supplierName={supplier.business_name} 
             descriptions={(supplier.why_choose_us_descriptions as Record<string, string>) || {}}
