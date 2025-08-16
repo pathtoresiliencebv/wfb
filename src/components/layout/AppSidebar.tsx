@@ -114,9 +114,9 @@ export function AppSidebar() {
         <div className="mb-6 flex items-center justify-center">
           <div className="flex h-12 w-12 items-center justify-center">
             <img 
-              src="/favicon-logo.png" 
+              src="/lovable-uploads/9c1ecf21-29b6-472d-99d4-0fa9b793fc22.png" 
               alt="Wiet Forum België" 
-              className="h-16 w-auto object-contain"
+              className="h-48 w-auto object-contain"
             />
           </div>
         </div>
