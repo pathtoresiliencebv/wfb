@@ -450,7 +450,7 @@ export function TopicManagement() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => window.open(`/topic/${topic.id}`, '_blank')}>
+                        <DropdownMenuItem onClick={() => window.open(`https://wfb.pathtoresilience.dev/topic/${topic.id}`, '_blank', 'noopener,noreferrer')}>
                           <Eye className="h-4 w-4 mr-2" />
                           Bekijken
                         </DropdownMenuItem>

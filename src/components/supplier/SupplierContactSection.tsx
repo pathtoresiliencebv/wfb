@@ -51,7 +51,7 @@ export const SupplierContactSection: React.FC<SupplierContactSectionProps> = ({
               </div>
               <Button 
                 className="w-full bg-blue-600 hover:bg-blue-700"
-                onClick={() => window.open(`https://wire.com/${(contactInfo?.wire || 'wire_username').replace('@', '')}`)}
+                onClick={() => window.open(`https://wfb.pathtoresilience.dev/contact/wire/${(contactInfo?.wire || 'wire_username').replace('@', '')}`, '_blank', 'noopener,noreferrer')}
               >
                 <MessageCircle className="h-4 w-4 mr-2" />
                 Contact via Wire
@@ -76,7 +76,7 @@ export const SupplierContactSection: React.FC<SupplierContactSectionProps> = ({
               </div>
               <Button 
                 className="w-full bg-blue-500 hover:bg-blue-600"
-                onClick={() => window.open(`https://t.me/${(contactInfo?.telegram || 'telegram_username').replace('@', '')}`)}
+                onClick={() => window.open(`https://wfb.pathtoresilience.dev/contact/telegram/${(contactInfo?.telegram || 'telegram_username').replace('@', '')}`, '_blank', 'noopener,noreferrer')}
               >
                 <Send className="h-4 w-4 mr-2" />
                 Contact via Telegram
@@ -101,7 +101,7 @@ export const SupplierContactSection: React.FC<SupplierContactSectionProps> = ({
               </div>
               <Button 
                 className="w-full bg-green-600 hover:bg-green-700"
-                onClick={() => window.open(`mailto:${contactInfo?.email || 'contact@email.com'}`)}
+                onClick={() => window.open(`https://wfb.pathtoresilience.dev/contact/email/${contactInfo?.email || 'contact@email.com'}`, '_blank', 'noopener,noreferrer')}
               >
                 <Mail className="h-4 w-4 mr-2" />
                 Stuur Email

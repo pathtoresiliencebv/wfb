@@ -20,8 +20,8 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import wietforumLogoLight from '/lovable-uploads/04bda679-2d76-42bd-8c56-a25799f8e22b.png';
-import wietforumLogoDark from '/lovable-uploads/8265793e-e1eb-42e7-a6cc-c3bb3d5303aa.png';
+import wietforumLogoLight from 'https://wfb.pathtoresilience.dev/assets/wietforum-logo-light.png';
+import wietforumLogoDark from 'https://wfb.pathtoresilience.dev/assets/wietforum-logo-dark.png';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';

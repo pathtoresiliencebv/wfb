@@ -6,8 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Users, MessageSquare, Trophy, Shield, Heart, Scale, CheckCircle, Sparkles, Star, ArrowRight, Zap, Globe, Leaf, Brain, BookOpen, Clock, Award, UserCheck, TrendingUp, Play, ChevronDown, Lightbulb, Coffee, Clock3, Calendar, Camera, Video, Verified, Lock, AlertCircle, HelpCircle } from 'lucide-react';
-import wietforumLogoLight from '/lovable-uploads/04bda679-2d76-42bd-8c56-a25799f8e22b.png';
-import wietforumLogoDark from '/lovable-uploads/8265793e-e1eb-42e7-a6cc-c3bb3d5303aa.png';
+import wietforumLogoLight from 'https://wfb.pathtoresilience.dev/assets/wietforum-logo-light.png';
+import wietforumLogoDark from 'https://wfb.pathtoresilience.dev/assets/wietforum-logo-dark.png';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useRealTimeStats } from '@/hooks/useRealTimeStats';
 
