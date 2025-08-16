@@ -38,7 +38,6 @@ const adminItems = [
   { title: "Afbeeldingen", url: "/admin/images", icon: ImageIcon },
   { title: "Beveiliging", url: "/admin/security", icon: Shield },
   { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
-  { title: "Instellingen", url: "/admin/settings", icon: Settings },
 ];
 
 export function AdminSidebar() {

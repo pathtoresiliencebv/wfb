@@ -7,12 +7,13 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CrownBadge } from '@/components/ui/crown-badge';
 import { 
   Store, Search, Crown, Settings, MoreHorizontal, 
-  Star, Users, TrendingUp, Edit, Eye, ToggleLeft, ToggleRight, Plus, UserPlus
+  Star, Users, TrendingUp, Edit, Eye, ToggleLeft, ToggleRight, Plus, UserPlus, Trash2
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -112,6 +113,50 @@ export default function AdminSuppliers() {
         variant: 'destructive' 
       });
       console.error('Error updating status:', error);
+    }
+  });
+
+  // Delete supplier mutation
+  const deleteSupplierMutation = useMutation({
+    mutationFn: async (supplierId: string) => {
+      // Get supplier info first
+      const { data: supplier, error: getError } = await supabase
+        .from('supplier_profiles')
+        .select('user_id')
+        .eq('id', supplierId)
+        .single();
+        
+      if (getError) throw getError;
+      
+      // Delete supplier profile
+      const { error: deleteError } = await supabase
+        .from('supplier_profiles')
+        .delete()
+        .eq('id', supplierId);
+        
+      if (deleteError) throw deleteError;
+      
+      // Update user role back to 'user'
+      const { error: roleError } = await supabase
+        .from('profiles')
+        .update({ role: 'user' })
+        .eq('user_id', supplier.user_id);
+        
+      if (roleError) throw roleError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-suppliers'] });
+      queryClient.invalidateQueries({ queryKey: ['top-suppliers'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast({ title: 'Leverancier verwijderd', description: 'Leverancier is succesvol verwijderd en rol is teruggezet naar gebruiker.' });
+    },
+    onError: (error) => {
+      toast({ 
+        title: 'Fout bij verwijderen', 
+        description: 'Er is een fout opgetreden bij het verwijderen van de leverancier.',
+        variant: 'destructive' 
+      });
+      console.error('Error deleting supplier:', error);
     }
   });
 
@@ -378,6 +423,33 @@ export default function AdminSuppliers() {
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
+
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Leverancier verwijderen</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Weet je zeker dat je leverancier "{supplier.business_name}" wilt verwijderen? 
+                                Deze actie kan niet ongedaan worden gemaakt. De gebruiker krijgt weer de rol 'user'.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Annuleren</AlertDialogCancel>
+                              <AlertDialogAction
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                onClick={() => deleteSupplierMutation.mutate(supplier.id)}
+                                disabled={deleteSupplierMutation.isPending}
+                              >
+                                Verwijderen
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>

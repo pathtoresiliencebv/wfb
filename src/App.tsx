@@ -324,16 +324,6 @@ function AppRoutes() {
                   } 
                 />
                 <Route 
-                  path="/admin/settings" 
-                  element={
-                    <AdminRoute requireRole="moderator">
-                      <AdminLayout>
-                        <AdminSettings />
-                      </AdminLayout>
-                    </AdminRoute>
-                  } 
-                />
-                <Route 
                   path="/admin/suppliers" 
                   element={
                     <AdminRoute requireRole="moderator">

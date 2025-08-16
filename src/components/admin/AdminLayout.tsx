@@ -6,6 +6,8 @@ import { Footer } from "../layout/Footer";
 import { Home, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import logoLight from "@/assets/wietforum-logo-light.png";
+import logoDark from "@/assets/wietforum-logo-dark.png";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -28,7 +30,19 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <div className="flex items-center gap-3">
                 <SidebarTrigger />
                 <div className="h-6 w-px bg-border" />
-                <h1 className="font-semibold text-lg">Admin Dashboard</h1>
+                <Link to="/admin" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                  <img 
+                    src={logoLight} 
+                    alt="WietForum" 
+                    className="h-8 w-auto dark:hidden"
+                  />
+                  <img 
+                    src={logoDark} 
+                    alt="WietForum" 
+                    className="h-8 w-auto hidden dark:block"
+                  />
+                  <span className="font-semibold text-lg hidden sm:block">Admin Dashboard</span>
+                </Link>
               </div>
               
               <div className="flex items-center gap-2">
