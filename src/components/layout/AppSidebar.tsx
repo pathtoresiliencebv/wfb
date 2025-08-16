@@ -112,11 +112,11 @@ export function AppSidebar() {
       <SidebarContent className={isMobile ? "p-2" : "p-4"}>
         {/* Logo Section */}
         <div className="mb-6 flex items-center justify-center">
-          <div className="flex h-12 w-12 items-center justify-center">
+          <div className="flex h-20 w-20 items-center justify-center">
             <img 
               src="/lovable-uploads/8721330a-f235-4c3b-9c21-85436a192135.png" 
               alt="Wiet Forum België" 
-              className="h-48 w-auto object-contain"
+              className="h-16 w-auto object-contain"
             />
           </div>
         </div>
