@@ -296,11 +296,19 @@ export default function AdminLogin() {
               </form>
             </Form>
 
-            <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">Geen admin account? </span>
-              <Link to="/" className="text-primary hover:underline font-medium">
-                Ga naar hoofdpagina
-              </Link>
+            <div className="mt-6 text-center text-sm space-y-2">
+              <div>
+                <span className="text-muted-foreground">Geen admin account? </span>
+                <Link to="/admin/register" className="text-primary hover:underline font-medium">
+                  Admin account aanmaken
+                </Link>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Of ga naar de </span>
+                <Link to="/" className="text-primary hover:underline font-medium">
+                  hoofdpagina
+                </Link>
+              </div>
             </div>
 
             <div className="mt-4 text-center space-y-2">

@@ -44,6 +44,7 @@ import Gamification from "./pages/Gamification";
 import { SupplierProfile as SupplierProfilePage } from "./pages/SupplierProfile";
 import SupplierDashboard from "./pages/SupplierDashboard";
 import AdminLogin from "./pages/AdminLogin";
+import AdminRegister from "./pages/AdminRegister";
 import SupplierLogin from "./pages/SupplierLogin";
 
 // Create QueryClient instance outside of component to prevent recreation
@@ -95,12 +96,20 @@ function AppRoutes() {
                   } 
                 />
                 
-                {/* Admin login route */}
+                {/* Admin auth routes */}
                 <Route 
                   path="/admin/login" 
                   element={
                     <ProtectedRoute requireAuth={false}>
                       <AdminLogin />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/register" 
+                  element={
+                    <ProtectedRoute requireAuth={false}>
+                      <AdminRegister />
                     </ProtectedRoute>
                   } 
                 />
