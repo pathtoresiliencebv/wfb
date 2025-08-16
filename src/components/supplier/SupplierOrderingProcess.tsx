@@ -1,13 +1,17 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, ArrowRight, Package } from 'lucide-react';
-import zoekenIcon from '@/assets/icons/zoeken.webp';
-import afspraakIcon from '@/assets/icons/afspraak.webp';
-import akkoordIcon from '@/assets/icons/akkoord.webp';
-import betalenIcon from '@/assets/icons/betalen.webp';
-import bezorgenIcon from '@/assets/icons/bezorgen.webp';
-import ontvangenIcon from '@/assets/icons/ontvangen.webp';
+import { 
+  ShoppingCart, 
+  ArrowRight, 
+  Package, 
+  MessageSquare, 
+  Search, 
+  CheckCircle, 
+  CreditCard, 
+  Truck, 
+  Gift 
+} from 'lucide-react';
 
 interface SupplierOrderingProcessProps {
   supplierName: string;
@@ -18,37 +22,37 @@ interface SupplierOrderingProcessProps {
 const PROCESS_STEPS = [
   {
     id: 'contact',
-    icon: afspraakIcon,
+    icon: MessageSquare,
     title: 'Maak Contact',
     defaultDescription: 'Neem contact op via Wire of Telegram voor je bestelling'
   },
   {
     id: 'menu',
-    icon: zoekenIcon,
+    icon: Search,
     title: 'Zoek & Selecteer',
     defaultDescription: 'Bekijk onze menukaart en kies je favoriete producten'
   },
   {
     id: 'order',
-    icon: akkoordIcon,
+    icon: CheckCircle,
     title: 'Bevestig Bestelling',
     defaultDescription: 'Bevestig je bestelling en leveringsdetails'
   },
   {
     id: 'address',
-    icon: betalenIcon,
+    icon: CreditCard,
     title: 'Betaal & Adres',
     defaultDescription: 'Betaal via onze veilige betaalmethoden en geef je adres door'
   },
   {
     id: 'delivery',
-    icon: bezorgenIcon,
+    icon: Truck,
     title: 'Discrete Bezorging',
     defaultDescription: 'Je bestelling wordt discreet aan huis bezorgd'
   },
   {
     id: 'complete',
-    icon: ontvangenIcon,
+    icon: Gift,
     title: 'Ontvang & Geniet',
     defaultDescription: 'Geniet van je hoogwaardige producten'
   }
@@ -64,84 +68,92 @@ export const SupplierOrderingProcess: React.FC<SupplierOrderingProcessProps> = (
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-2xl">
-          <ShoppingCart className="h-6 w-6 text-green-600" />
+    <Card className="overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5">
+        <CardTitle className="flex items-center gap-3 text-2xl text-center justify-center">
+          <ShoppingCart className="h-6 w-6 text-primary" />
           Hoe kun je {productName} bestellen bij {supplierName}?
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        {/* Interactive Process Steps */}
-        <div className="relative">
-          {/* Connection Lines */}
-          <div className="hidden lg:block absolute top-16 left-0 right-0 h-0.5 bg-gradient-to-r from-green-200 via-green-300 to-green-200"></div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
-            {PROCESS_STEPS.map((step, index) => (
+      <CardContent className="p-8">
+        {/* Process Steps Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {PROCESS_STEPS.map((step, index) => {
+            const Icon = step.icon;
+            return (
               <div 
                 key={step.id} 
-                className="group hover:scale-105 transition-all duration-300 cursor-pointer"
+                className="group relative bg-gradient-to-br from-card to-card/80 rounded-xl p-6 border border-border shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
               >
-                <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent group-hover:border-green-300 group-hover:shadow-xl">
-                  {/* Step Number */}
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="bg-green-100 text-green-700 text-sm font-bold px-3 py-1 rounded-full">
-                      Stap {index + 1}
-                    </span>
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  </div>
-                  
-                  {/* Icon */}
-                  <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-green-200">
-                    <img 
-                      src={step.icon} 
-                      alt={step.title}
-                      className="w-12 h-12 object-contain filter brightness-0 invert"
-                    />
-                  </div>
-                  
-                  {/* Content */}
-                  <div className="text-center">
-                    <h3 className="font-bold text-lg mb-3 text-gray-800 group-hover:text-green-700">
-                      {step.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 leading-relaxed">
-                      {getDescription(step.id, step.defaultDescription)}
-                    </p>
-                  </div>
-                  
-                  {/* Interactive Arrow */}
-                  {index < PROCESS_STEPS.length - 1 && (
-                    <div className="hidden lg:block absolute -right-4 top-1/2 transform -translate-y-1/2 z-20">
-                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
-                        <ArrowRight className="h-4 w-4 text-white" />
-                      </div>
-                    </div>
-                  )}
+                {/* Step Number Badge */}
+                <div className="absolute -top-3 -left-3 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-lg">
+                  {index + 1}
                 </div>
+                
+                {/* Icon Circle */}
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-primary/10 to-primary/20 rounded-2xl flex items-center justify-center group-hover:from-primary/20 group-hover:to-primary/30 transition-all duration-300">
+                  <Icon className="h-8 w-8 text-primary" />
+                </div>
+                
+                {/* Content */}
+                <div className="text-center space-y-3">
+                  <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">
+                    {step.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {getDescription(step.id, step.defaultDescription)}
+                  </p>
+                </div>
+                
+                {/* Connection Arrow for Desktop */}
+                {index < PROCESS_STEPS.length - 1 && index % 3 !== 2 && (
+                  <div className="hidden lg:block absolute -right-3 top-1/2 transform -translate-y-1/2 z-10">
+                    <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center">
+                      <ArrowRight className="h-3 w-3 text-primary" />
+                    </div>
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
         
-        {/* Call to Action */}
-        <div className="mt-12 text-center">
-          <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl p-8 text-white shadow-2xl">
-            <div className="max-w-md mx-auto">
-              <h3 className="text-2xl font-bold mb-3">
-                Klaar om te bestellen bij {supplierName}?
-              </h3>
-              <p className="text-green-100 mb-6 text-lg">
-                Scroll naar boven en bekijk onze {productName} of neem direct contact op!
+        {/* Call to Action Section */}
+        <div className="text-center">
+          <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-2xl p-8 border border-primary/20">
+            <div className="max-w-2xl mx-auto space-y-4">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <Package className="h-6 w-6 text-primary" />
+                <h3 className="text-2xl font-bold text-foreground">
+                  Klaar om te bestellen bij {supplierName}?
+                </h3>
+                <Package className="h-6 w-6 text-primary" />
+              </div>
+              <p className="text-muted-foreground text-lg">
+                Scroll naar boven en bekijk onze {productName} of neem direct contact op via de knoppen!
               </p>
-              <Button 
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="bg-white text-green-600 hover:bg-green-50 px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                <Package className="h-5 w-5 mr-2" />
-                Start je bestelling nu
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
+                <Button 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <Package className="h-5 w-5 mr-2" />
+                  Bekijk Menukaart
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    const contactSection = document.querySelector('[data-contact-section]');
+                    if (contactSection) {
+                      contactSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                  className="border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-3 text-lg font-semibold transition-all duration-300"
+                >
+                  <MessageSquare className="h-5 w-5 mr-2" />
+                  Direct Contact
+                </Button>
+              </div>
             </div>
           </div>
         </div>

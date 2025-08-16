@@ -67,7 +67,7 @@ export const SupplierMenu: React.FC<SupplierMenuProps> = ({ supplierId }) => {
     return <div className="text-muted-foreground text-sm">Nog geen items beschikbaar.</div>;
   }
 
-  // Group items by category
+  // Group items by category (including category string fallback)
   const itemsWithCategoryPricing = items.map(item => {
     const category = categories.find(c => c.id === item.category_id);
     const effectivePricing = item.use_category_pricing && category?.category_pricing 
@@ -81,6 +81,7 @@ export const SupplierMenu: React.FC<SupplierMenuProps> = ({ supplierId }) => {
     };
   });
 
+  // Group by actual categories
   const categorizedItems = categories.reduce((acc, category) => {
     const categoryItems = itemsWithCategoryPricing.filter(item => 
       item.category_id === category.id && item.use_category_pricing
@@ -94,18 +95,38 @@ export const SupplierMenu: React.FC<SupplierMenuProps> = ({ supplierId }) => {
     return acc;
   }, {} as Record<string, { category: SupplierCategory; items: typeof itemsWithCategoryPricing }>);
 
-  const individualItems = itemsWithCategoryPricing.filter(item => !item.use_category_pricing);
+  // Group by category string for items without category_id
+  const categoryStringGroups = items
+    .filter(item => !item.category_id && item.category)
+    .reduce((acc, item) => {
+      const categoryName = item.category || 'Overige';
+      if (!acc[categoryName]) {
+        acc[categoryName] = [];
+      }
+      acc[categoryName].push(item);
+      return acc;
+    }, {} as Record<string, SupplierMenuItem[]>);
 
-  // Filter out items and categories with no pricing or empty data
+  const individualItems = itemsWithCategoryPricing.filter(item => 
+    !item.use_category_pricing && !item.category
+  );
+
+  // Filter valid items
   const validCategorizedItems = Object.values(categorizedItems).filter(({ category }) => 
     category.category_pricing && Object.keys(category.category_pricing).length > 0
+  );
+  
+  const validCategoryStringGroups = Object.entries(categoryStringGroups).filter(([_, items]) =>
+    items.some(item => 
+      (item.pricing_tiers && Object.keys(item.pricing_tiers).length > 0) || item.price > 0
+    )
   );
   
   const validIndividualItems = individualItems.filter(item => 
     (item.effectivePricing && Object.keys(item.effectivePricing).length > 0) || item.price > 0
   );
 
-  if (validCategorizedItems.length === 0 && validIndividualItems.length === 0) {
+  if (validCategorizedItems.length === 0 && validCategoryStringGroups.length === 0 && validIndividualItems.length === 0) {
     return (
       <div className="text-center py-8">
         <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -183,6 +204,92 @@ export const SupplierMenu: React.FC<SupplierMenuProps> = ({ supplierId }) => {
               </div>
             </div>
           ))}
+
+          {/* Category String Groups */}
+          {validCategoryStringGroups.map(([categoryName, categoryItems], index) => (
+            <div key={categoryName} className={validCategorizedItems.length > 0 || index > 0 ? "mt-12" : ""}>
+              {/* Category Header */}
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-3 px-6 py-3 bg-primary/10 rounded-full border border-primary/20">
+                  <Star className="h-5 w-5 text-primary" />
+                  <h3 className="text-2xl font-bold text-primary">{categoryName}</h3>
+                  <Star className="h-5 w-5 text-primary" />
+                </div>
+              </div>
+
+              {/* Category Items in 3-Column Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {categoryItems.map((item) => {
+                  const pricingTiers = formatPricingTiers(item.pricing_tiers);
+                  return (
+                    <div key={item.id} className="bg-card/50 border border-border rounded-lg p-4 space-y-3">
+                      <div className="text-center">
+                        <h4 className="text-lg font-semibold text-foreground">{item.name}</h4>
+                        {item.description && (
+                          <p className="text-muted-foreground text-sm mt-1 italic">{item.description}</p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        {pricingTiers.length > 0 ? pricingTiers.map((tier) => (
+                          <div key={tier.weight} className="flex justify-between items-center border-b border-dotted border-border pb-1">
+                            <span className="text-sm font-medium text-muted-foreground">{tier.weight}</span>
+                            <span className="text-base font-bold text-primary">€{tier.price.toFixed(0)}</span>
+                          </div>
+                        )) : item.price > 0 && (
+                          <div className="flex justify-between items-center border-b border-dotted border-border pb-1">
+                            <span className="text-sm font-medium text-muted-foreground">{item.unit || 'stuk'}</span>
+                            <span className="text-base font-bold text-primary">€{item.price.toFixed(0)}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+
+          {/* Individual Items */}
+          {validIndividualItems.length > 0 && (
+            <div className={(validCategorizedItems.length > 0 || validCategoryStringGroups.length > 0) ? "mt-12" : ""}>
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-3 px-6 py-3 bg-primary/10 rounded-full border border-primary/20">
+                  <Package className="h-5 w-5 text-primary" />
+                  <h3 className="text-2xl font-bold text-primary">Overige Producten</h3>
+                  <Package className="h-5 w-5 text-primary" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {validIndividualItems.map((item) => {
+                  const pricingTiers = formatPricingTiers(item.effectivePricing);
+                  return (
+                    <div key={item.id} className="bg-card/50 border border-border rounded-lg p-4 space-y-3">
+                      <div className="text-center">
+                        <h4 className="text-lg font-semibold text-foreground">{item.name}</h4>
+                        {item.description && (
+                          <p className="text-muted-foreground text-sm mt-1 italic">{item.description}</p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        {pricingTiers.length > 0 ? pricingTiers.map((tier) => (
+                          <div key={tier.weight} className="flex justify-between items-center border-b border-dotted border-border pb-1">
+                            <span className="text-sm font-medium text-muted-foreground">{tier.weight}</span>
+                            <span className="text-base font-bold text-primary">€{tier.price.toFixed(0)}</span>
+                          </div>
+                        )) : item.price > 0 && (
+                          <div className="flex justify-between items-center border-b border-dotted border-border pb-1">
+                            <span className="text-sm font-medium text-muted-foreground">{item.unit || 'stuk'}</span>
+                            <span className="text-base font-bold text-primary">€{item.price.toFixed(0)}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
         </CardContent>
       </Card>

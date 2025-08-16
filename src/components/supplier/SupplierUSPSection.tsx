@@ -10,6 +10,8 @@ interface SupplierUSPSectionProps {
     rating?: number;
     delivery_time?: string;
     success_rate?: number;
+    experience_years?: number;
+    delivery_days?: number;
   };
 }
 
@@ -60,15 +62,19 @@ export const SupplierUSPSection: React.FC<SupplierUSPSectionProps> = ({
   const getTitle = (item: typeof USP_ITEMS[0]) => {
     let title = item.title;
     
-    // Replace placeholders with actual data
-    if (item.id === 'experience') {
+    // Replace placeholders with actual data from stats
+    if (item.id === 'experience' && stats?.experience_years) {
+      title = title.replace('{{years}}', String(stats.experience_years));
+    } else if (item.id === 'experience') {
       // Calculate years since creation or use a default
-      const years = '5'; // Could be calculated from supplier creation date
+      const years = '5';
       title = title.replace('{{years}}', years);
     }
     
-    if (item.id === 'delivery') {
-      const days = '7'; // Could come from supplier settings
+    if (item.id === 'delivery' && stats?.delivery_days) {
+      title = title.replace('{{days}}', String(stats.delivery_days));
+    } else if (item.id === 'delivery') {
+      const days = '7';
       title = title.replace('{{days}}', days);
     }
     
@@ -89,7 +95,12 @@ export const SupplierUSPSection: React.FC<SupplierUSPSectionProps> = ({
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {USP_ITEMS.map((item) => {
+          {USP_ITEMS.filter(item => {
+            // Only show USP items that have descriptions or are core items
+            const hasDescription = descriptions[item.id];
+            const coreItems = ['quality', 'service', 'reliability'];
+            return hasDescription || coreItems.includes(item.id);
+          }).map((item) => {
             const Icon = item.icon;
             return (
               <div key={item.id} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">

@@ -76,91 +76,113 @@ export default function SupplierPublic() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-background">
-        {/* Hero Section */}
-        <div className="relative">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background/98 to-secondary/5">
+        {/* Enhanced Hero Section */}
+        <div className="relative overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-secondary/5 opacity-50" />
+          
           <SupplierHeader supplier={supplier} isOwner={false} onEdit={() => {}} />
           
-          {/* Floating Contact Buttons */}
-          <div className="absolute bottom-4 right-4 flex gap-2">
+          {/* Enhanced Floating Contact Buttons */}
+          <div className="absolute bottom-6 right-6 flex flex-col gap-3">
             {supplier.contact_info?.telegram && (
               <Button 
-                className="bg-blue-500 hover:bg-blue-600 text-white"
+                size="lg"
+                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 onClick={() => window.open(`https://t.me/${supplier.contact_info.telegram.replace('@', '')}`)}
               >
-                <Send className="h-4 w-4 mr-2" />
+                <Send className="h-5 w-5 mr-2" />
                 Telegram
               </Button>
             )}
             {supplier.contact_info?.wire && (
               <Button 
-                className="bg-green-600 hover:bg-green-700 text-white"
+                size="lg"
+                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 onClick={() => window.open(`https://wire.com/${supplier.contact_info.wire.replace('@', '')}`)}
               >
-                <MessageCircle className="h-4 w-4 mr-2" />
+                <MessageCircle className="h-5 w-5 mr-2" />
                 Wire
               </Button>
             )}
           </div>
         </div>
 
-        <div className="container mx-auto p-6 space-y-8">
-          {/* Menu Section with Description */}
-          <div>
-            <div className="flex items-center gap-3 mb-6">
-              <Package className="h-6 w-6 text-green-600" />
-              <h2 className="text-2xl font-bold">{supplier.business_name} Menukaart</h2>
+        <div className="container mx-auto p-6 space-y-12">
+          {/* Enhanced Menu Section */}
+          <div className="relative">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-3 mb-4">
+                <Package className="h-8 w-8 text-primary" />
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  {supplier.business_name} Menukaart
+                </h2>
+                <Package className="h-8 w-8 text-primary" />
+              </div>
+              {supplier.description && (
+                <p className="text-muted-foreground text-lg max-w-3xl mx-auto leading-relaxed">
+                  {supplier.description}
+                </p>
+              )}
             </div>
-            {supplier.description && (
-              <p className="text-muted-foreground mb-6 text-lg">{supplier.description}</p>
-            )}
           </div>
 
-          {/* Stats */}
-          <SupplierStats supplier={supplier} />
+          {/* Enhanced Stats Section */}
+          <div className="bg-gradient-to-r from-card/50 to-card/30 rounded-2xl p-8 border border-border/50 shadow-lg">
+            <SupplierStats supplier={supplier} />
+          </div>
 
-          <Separator />
+          <Separator className="my-12" />
 
-          {/* Features & Services */}
-          <SupplierFeatures supplier={supplier} />
+          {/* Enhanced Features Section */}
+          <div className="bg-gradient-to-l from-card/50 to-card/30 rounded-2xl p-8 border border-border/50 shadow-lg">
+            <SupplierFeatures supplier={supplier} />
+          </div>
 
-          <Separator />
+          <Separator className="my-12" />
 
-          {/* Menu Card */}
-          <div>
+          {/* Enhanced Menu Section */}
+          <div className="relative">
             <SupplierMenu supplierId={supplier.id} />
           </div>
 
-          <Separator />
+          <Separator className="my-12" />
 
-          {/* USP Section - "Waarom bestellen bij {{supplier_name}}" */}
-          <SupplierUSPSection 
-            supplierName={supplier.business_name} 
-            descriptions={(supplier.why_choose_us_descriptions as Record<string, string>) || {}}
-            stats={supplier.stats}
-          />
+          {/* Enhanced USP Section */}
+          <div className="bg-gradient-to-br from-primary/5 via-card/80 to-secondary/5 rounded-2xl p-8 border border-primary/20 shadow-lg">
+            <SupplierUSPSection 
+              supplierName={supplier.business_name} 
+              descriptions={(supplier.why_choose_us_descriptions as Record<string, string>) || {}}
+              stats={supplier.stats}
+            />
+          </div>
 
-          <Separator />
+          <Separator className="my-12" />
 
-          {/* Ordering Process */}
-          <SupplierOrderingProcess 
-            supplierName={supplier.business_name}
-            productName={supplier.product_name || 'producten'}
-            descriptions={(supplier.ordering_process_descriptions as Record<string, string>) || {}}
-          />
+          {/* Enhanced Ordering Process */}
+          <div className="relative">
+            <SupplierOrderingProcess 
+              supplierName={supplier.business_name}
+              productName={supplier.product_name || 'producten'}
+              descriptions={(supplier.ordering_process_descriptions as Record<string, string>) || {}}
+            />
+          </div>
 
-          <Separator />
+          <Separator className="my-12" />
 
-          {/* Contact Section */}
-          <SupplierContactSection 
-            supplierName={supplier.business_name}
-            description={supplier.contact_description}
-            contactInfo={{
-              wire: supplier.contact_info?.wire,
-              telegram: supplier.contact_info?.telegram,
-              email: supplier.contact_info?.email
-            }}
-          />
+          {/* Enhanced Contact Section */}
+          <div data-contact-section className="bg-gradient-to-tr from-secondary/5 via-card/80 to-primary/5 rounded-2xl p-8 border border-secondary/20 shadow-lg">
+            <SupplierContactSection 
+              supplierName={supplier.business_name}
+              description={supplier.contact_description}
+              contactInfo={{
+                wire: supplier.contact_info?.wire,
+                telegram: supplier.contact_info?.telegram,
+                email: supplier.contact_info?.email
+              }}
+            />
+          </div>
         </div>
       </div>
     </Layout>
