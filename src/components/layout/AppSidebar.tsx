@@ -20,8 +20,8 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import wietforumLogoLight from 'https://wfb.pathtoresilience.dev/assets/wietforum-logo-light.png';
-import wietforumLogoDark from 'https://wfb.pathtoresilience.dev/assets/wietforum-logo-dark.png';
+import wietforumLogoLight from '@/assets/wietforum-logo-light.png';
+import wietforumLogoDark from '@/assets/wietforum-logo-dark.png';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
