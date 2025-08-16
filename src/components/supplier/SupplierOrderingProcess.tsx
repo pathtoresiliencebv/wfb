@@ -17,28 +17,28 @@ interface SupplierOrderingProcessProps {
 
 const PROCESS_STEPS = [
   {
-    id: 'search',
+    id: 'contact',
+    icon: afspraakIcon,
+    title: 'Maak Contact',
+    defaultDescription: 'Neem contact op via Wire of Telegram voor je bestelling'
+  },
+  {
+    id: 'menu',
     icon: zoekenIcon,
     title: 'Zoek & Selecteer',
     defaultDescription: 'Bekijk onze menukaart en kies je favoriete producten'
   },
   {
-    id: 'contact',
-    icon: afspraakIcon,
-    title: 'Maak Afspraak',
-    defaultDescription: 'Neem contact op via Wire of Telegram voor je bestelling'
-  },
-  {
-    id: 'agree',
+    id: 'order',
     icon: akkoordIcon,
     title: 'Bevestig Bestelling',
     defaultDescription: 'Bevestig je bestelling en leveringsdetails'
   },
   {
-    id: 'payment',
+    id: 'address',
     icon: betalenIcon,
-    title: 'Betaal Veilig',
-    defaultDescription: 'Betaal via onze veilige betaalmethoden'
+    title: 'Betaal & Adres',
+    defaultDescription: 'Betaal via onze veilige betaalmethoden en geef je adres door'
   },
   {
     id: 'delivery',
@@ -47,7 +47,7 @@ const PROCESS_STEPS = [
     defaultDescription: 'Je bestelling wordt discreet aan huis bezorgd'
   },
   {
-    id: 'receive',
+    id: 'complete',
     icon: ontvangenIcon,
     title: 'Ontvang & Geniet',
     defaultDescription: 'Geniet van je hoogwaardige producten'
