@@ -119,12 +119,11 @@ export const SupplierMenu: React.FC<SupplierMenuProps> = ({ supplierId }) => {
       {/* Menu Card Header */}
       <Card className="border-2 border-primary/20 shadow-lg mb-6">
         <CardHeader className="text-center border-b border-border bg-gradient-to-r from-primary/5 to-secondary/5">
-          <div className="flex items-center justify-center gap-3 mb-2">
+          <div className="flex items-center justify-center gap-3">
             <Leaf className="h-8 w-8 text-primary" />
             <CardTitle className="text-3xl font-bold text-foreground">Menukaart</CardTitle>
             <Leaf className="h-8 w-8 text-primary" />
           </div>
-          <p className="text-muted-foreground text-lg">Verse producten, eerlijke prijzen</p>
         </CardHeader>
         
         <CardContent className="p-8">
@@ -158,30 +157,25 @@ export const SupplierMenu: React.FC<SupplierMenuProps> = ({ supplierId }) => {
                 </div>
               )}
 
-              {/* Category Items with Pricing */}
-              <div className="space-y-4">
+              {/* Category Items in 3-Column Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {categoryItems.map((item) => {
                   const pricingTiers = formatPricingTiers(category.category_pricing);
                   return (
-                    <div key={item.id} className="border-b border-dotted border-border pb-4">
-                      <div className="flex justify-between items-start gap-4">
-                        <div className="flex-1">
-                          <h4 className="text-lg font-semibold text-foreground">{item.name}</h4>
-                          {item.description && (
-                            <p className="text-muted-foreground text-sm mt-1 italic">{item.description}</p>
-                          )}
-                        </div>
-                        <div className="flex-shrink-0 text-right">
-                          <div className="space-y-1">
-                            {pricingTiers.map((tier) => (
-                              <div key={tier.weight} className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-muted-foreground min-w-[45px]">{tier.weight}</span>
-                                <div className="flex-1 border-b border-dotted border-border mx-2" style={{minWidth: '60px'}} />
-                                <span className="text-lg font-bold text-primary min-w-[70px]">€{tier.price.toFixed(0)}</span>
-                              </div>
-                            ))}
+                    <div key={item.id} className="bg-card/50 border border-border rounded-lg p-4 space-y-3">
+                      <div className="text-center">
+                        <h4 className="text-lg font-semibold text-foreground">{item.name}</h4>
+                        {item.description && (
+                          <p className="text-muted-foreground text-sm mt-1 italic">{item.description}</p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        {pricingTiers.map((tier) => (
+                          <div key={tier.weight} className="flex justify-between items-center border-b border-dotted border-border pb-1">
+                            <span className="text-sm font-medium text-muted-foreground">{tier.weight}</span>
+                            <span className="text-base font-bold text-primary">€{tier.price.toFixed(0)}</span>
                           </div>
-                        </div>
+                        ))}
                       </div>
                     </div>
                   );
@@ -190,61 +184,6 @@ export const SupplierMenu: React.FC<SupplierMenuProps> = ({ supplierId }) => {
             </div>
           ))}
 
-          {/* Individual Items (with own pricing) */}
-          {validIndividualItems.length > 0 && (
-            <div className={validCategorizedItems.length > 0 ? "mt-12" : ""}>
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center gap-3 px-6 py-3 bg-secondary/10 rounded-full border border-secondary/20">
-                  <Package className="h-5 w-5 text-secondary-foreground" />
-                  <h3 className="text-2xl font-bold text-secondary-foreground">Specialiteiten</h3>
-                  <Package className="h-5 w-5 text-secondary-foreground" />
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                {validIndividualItems.map((item) => {
-                  const pricingTiers = formatPricingTiers(item.effectivePricing);
-                  return (
-                    <div key={item.id} className="border-b border-dotted border-border pb-4">
-                      <div className="flex justify-between items-start gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="text-lg font-semibold text-foreground">{item.name}</h4>
-                            {item.categoryData && (
-                              <Badge variant="outline" className="text-xs">{item.categoryData.name}</Badge>
-                            )}
-                          </div>
-                          {item.description && (
-                            <p className="text-muted-foreground text-sm italic">{item.description}</p>
-                          )}
-                        </div>
-                        
-                        <div className="flex-shrink-0 text-right">
-                          {pricingTiers.length > 0 ? (
-                            <div className="space-y-1">
-                              {pricingTiers.map((tier) => (
-                                <div key={tier.weight} className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-muted-foreground min-w-[45px]">{tier.weight}</span>
-                                  <div className="flex-1 border-b border-dotted border-border mx-2" style={{minWidth: '60px'}} />
-                                  <span className="text-lg font-bold text-primary min-w-[70px]">€{tier.price.toFixed(0)}</span>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-muted-foreground">{item.unit || 'stuk'}</span>
-                              <div className="flex-1 border-b border-dotted border-border mx-2" style={{minWidth: '60px'}} />
-                              <span className="text-lg font-bold text-primary">€{Number(item.price).toFixed(0)}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
     </div>
