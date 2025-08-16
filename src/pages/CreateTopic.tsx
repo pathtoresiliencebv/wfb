@@ -8,11 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+import { AdvancedWYSIWYGEditor } from '@/components/rich-text/AdvancedWYSIWYGEditor';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 
 const topicSchema = z.object({
   title: z.string().min(5, 'Titel moet minimaal 5 karakters bevatten').max(100, 'Titel mag maximaal 100 karakters bevatten'),
@@ -23,11 +24,27 @@ const topicSchema = z.object({
 type TopicFormData = z.infer<typeof topicSchema>;
 
 export default function CreateTopic() {
-  const [categories, setCategories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Check if user is admin for advanced editor features
+  const { data: userProfile } = useQuery({
+    queryKey: ['user-profile', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+      return data;
+    },
+    enabled: !!user
+  });
+
+  const isAdmin = userProfile?.role === 'admin';
 
   const form = useForm<TopicFormData>({
     resolver: zodResolver(topicSchema),
@@ -38,17 +55,18 @@ export default function CreateTopic() {
     },
   });
 
-  useEffect(() => {
-    const fetchCategories = async () => {
+  // Fetch categories
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
       const { data } = await supabase
         .from('categories')
         .select('*')
         .eq('is_active', true)
         .order('sort_order');
-      setCategories(data || []);
-    };
-    fetchCategories();
-  }, []);
+      return data || [];
+    }
+  });
 
   const onSubmit = async (data: TopicFormData) => {
     if (!user) return;
@@ -162,10 +180,12 @@ export default function CreateTopic() {
                   <FormItem>
                     <FormLabel>Inhoud</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="Beschrijf je topic..." 
-                        className="min-h-[200px]" 
-                        {...field} 
+                      <AdvancedWYSIWYGEditor 
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Beschrijf je topic in detail..."
+                        minHeight={300}
+                        showAdminFeatures={isAdmin}
                       />
                     </FormControl>
                     <FormMessage />
