@@ -58,6 +58,8 @@ const queryClient = new QueryClient({
   },
 });
 
+console.log('📋 QueryClient initialized');
+
 function AppRoutes() {
   const { showOnboarding, setShowOnboarding, user } = useAuth();
 
@@ -356,6 +358,8 @@ function AppRoutes() {
 }
 
 function App() {
+  console.log('🎯 App component rendering...');
+  
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
