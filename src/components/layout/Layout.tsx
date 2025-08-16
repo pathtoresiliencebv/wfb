@@ -5,6 +5,7 @@ import { AppSidebar } from './AppSidebar';
 import { Header } from './Header';
 import { EmailVerificationBanner } from '@/components/auth/EmailVerificationBanner';
 import { Footer } from './Footer';
+import { MobileBottomNavigation } from '@/components/mobile/MobileBottomNavigation';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,7 +21,7 @@ export function Layout({ children }: LayoutProps) {
   const isHome = location.pathname === '/';
   const showAppHeader = !(isHome && !user); // Don't show header on homepage for unauthenticated users
   const showSidebar = !(isHome && !user);
-  const mainInnerClass = showSidebar ? `container mx-auto ${isMobile ? 'p-4' : 'p-6'}` : 'p-0';
+  const mainInnerClass = showSidebar ? `container mx-auto ${isMobile ? 'p-4 pb-20' : 'p-6'}` : `${isMobile ? 'pb-20' : 'p-0'}`;
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
@@ -39,6 +40,8 @@ export function Layout({ children }: LayoutProps) {
           
           <Footer />
         </div>
+        
+        <MobileBottomNavigation />
       </div>
     </SidebarProvider>
   );
