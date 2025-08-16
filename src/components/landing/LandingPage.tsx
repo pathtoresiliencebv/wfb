@@ -223,7 +223,7 @@ export function LandingPage() {
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <img src="/lovable-uploads/a6faafc3-e2bd-47ec-8de8-603497930570.png" alt="Wiet Forum België Logo" className="h-12 w-auto object-contain" />
+            <img src="/favicon-logo.png" alt="Wiet Forum België Logo" className="h-16 w-auto object-contain" />
             <span className="font-heading text-xl font-bold text-foreground hidden sm:block">
               Wiet Forum België
             </span>
@@ -257,9 +257,9 @@ export function LandingPage() {
               <div className="relative mb-8">
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-full blur-3xl scale-150"></div>
                 <img 
-                  src="/lovable-uploads/a6faafc3-e2bd-47ec-8de8-603497930570.png" 
+                  src="/favicon-logo.png" 
                   alt="Wiet Forum België Logo" 
-                  className="relative h-40 w-auto object-contain hover:scale-105 transition-transform duration-300" 
+                  className="relative h-56 w-auto object-contain hover:scale-105 transition-transform duration-300" 
                 />
               </div>
               
