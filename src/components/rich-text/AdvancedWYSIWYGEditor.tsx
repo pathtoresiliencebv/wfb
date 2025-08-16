@@ -27,10 +27,17 @@ import {
   Building2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import DOMPurify from 'dompurify';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+
+// Dynamic import DOMPurify to prevent SSR issues
+let DOMPurify: any = null;
+if (typeof window !== 'undefined') {
+  import('dompurify').then(module => {
+    DOMPurify = module.default;
+  });
+}
 
 interface AdvancedWYSIWYGEditorProps {
   value: string;
@@ -238,11 +245,14 @@ ${supplier.description || ''}
     });
 
     // Sanitize HTML to prevent XSS attacks but allow more tags for advanced formatting
-    return DOMPurify.sanitize(html, {
-      ALLOWED_TAGS: ['strong', 'em', 'u', 's', 'a', 'blockquote', 'li', 'img', 'br', 'div', 'span', 'pre', 'code', 'table', 'tr', 'td'],
-      ALLOWED_ATTR: ['href', 'class', 'src', 'alt', 'style'],
-      ALLOW_DATA_ATTR: false
-    });
+    if (DOMPurify) {
+      return DOMPurify.sanitize(html, {
+        ALLOWED_TAGS: ['strong', 'em', 'u', 's', 'a', 'blockquote', 'li', 'img', 'br', 'div', 'span', 'pre', 'code', 'table', 'tr', 'td'],
+        ALLOWED_ATTR: ['href', 'class', 'src', 'alt', 'style'],
+        ALLOW_DATA_ATTR: false
+      });
+    }
+    return html; // Fallback if DOMPurify not loaded yet
   };
 
   return (

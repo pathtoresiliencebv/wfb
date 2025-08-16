@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AdvancedWYSIWYGEditor } from '@/components/rich-text/AdvancedWYSIWYGEditor';
+import { RichTextEditor } from '@/components/rich-text/RichTextEditor';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,23 +28,6 @@ export default function CreateTopic() {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-
-  // Check if user is admin for advanced editor features
-  const { data: userProfile } = useQuery({
-    queryKey: ['user-profile', user?.id],
-    queryFn: async () => {
-      if (!user) return null;
-      const { data } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('user_id', user.id)
-        .single();
-      return data;
-    },
-    enabled: !!user
-  });
-
-  const isAdmin = userProfile?.role === 'admin';
 
   const form = useForm<TopicFormData>({
     resolver: zodResolver(topicSchema),
@@ -180,12 +163,11 @@ export default function CreateTopic() {
                   <FormItem>
                     <FormLabel>Inhoud</FormLabel>
                     <FormControl>
-                      <AdvancedWYSIWYGEditor 
+                      <RichTextEditor 
                         value={field.value}
                         onChange={field.onChange}
                         placeholder="Beschrijf je topic in detail..."
                         minHeight={300}
-                        showAdminFeatures={isAdmin}
                       />
                     </FormControl>
                     <FormMessage />

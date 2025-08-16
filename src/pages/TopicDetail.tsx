@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { AdvancedWYSIWYGEditor } from '@/components/rich-text/AdvancedWYSIWYGEditor';
-import { EnhancedUserCard } from '@/components/forum/EnhancedUserCard';
+import { RichTextEditor } from '@/components/rich-text/RichTextEditor';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { VotingButtons } from '@/components/interactive/VotingButtons';
@@ -68,50 +67,6 @@ export default function TopicDetail() {
   const [loading, setLoading] = useState(true);
   const [replyVotes, setReplyVotes] = useState<Record<string, any>>({});
 
-  // Check if user is admin for advanced editor features
-  const { data: userProfile } = useQuery({
-    queryKey: ['user-profile', user?.id],
-    queryFn: async () => {
-      if (!user) return null;
-      const { data } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('user_id', user.id)
-        .single();
-      return data;
-    },
-    enabled: !!user
-  });
-
-  const isAdmin = userProfile?.role === 'admin';
-
-  // Fetch topic author's supplier profile if they are a supplier
-  const { data: topicAuthorSupplierProfile } = useQuery({
-    queryKey: ['supplier-profile', topic?.profiles?.username],
-    queryFn: async () => {
-      if (!topic?.profiles) return null;
-      
-      // First get the user_id from profiles table
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('user_id')
-        .eq('username', topic.profiles.username)
-        .single();
-      
-      if (!profileData) return null;
-      
-      // Then get supplier profile
-      const { data } = await supabase
-        .from('supplier_profiles')
-        .select('*')
-        .eq('user_id', profileData.user_id)
-        .eq('is_active', true)
-        .single();
-      
-      return data;
-    },
-    enabled: !!topic?.profiles?.username
-  });
 
   // Initialize voting data for topic and replies
   const initialVotes: Record<string, any> = {};
@@ -438,18 +393,31 @@ export default function TopicDetail() {
       {/* Original Post */}
       <Card>
         <CardHeader className="border-b">
-          <EnhancedUserCard 
-            profile={{
-              username: topic.profiles?.username || 'Anonymous',
-              role: topic.profiles?.role || 'user',
-              reputation: topic.profiles?.reputation || 0,
-              created_at: topic.profiles?.created_at || topic.created_at
-            }}
-            supplierProfile={topicAuthorSupplierProfile}
-            showSupplierInfo={!!topicAuthorSupplierProfile}
-            isCompact={false}
-          />
-          <div className="flex justify-end mt-2">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10">
+                <AvatarFallback className={getRoleColor(topic.profiles?.role || 'user')}>
+                  {getUserInitials(topic.profiles?.username || 'Anonymous')}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{topic.profiles?.username}</span>
+                  {topic.profiles?.role === 'moderator' && (
+                    <Badge variant="secondary" className="text-xs">MOD</Badge>
+                  )}
+                  {topic.profiles?.role === 'expert' && (
+                    <Badge variant="default" className="text-xs">EXPERT</Badge>
+                  )}
+                  {topic.profiles?.role === 'supplier' && (
+                    <Badge variant="outline" className="text-xs border-purple-500 text-purple-500">LEVERANCIER</Badge>
+                  )}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {topic.profiles?.reputation || 0} reputatie • Lid sinds {new Date(topic.profiles?.created_at || topic.created_at).getFullYear()}
+                </div>
+              </div>
+            </div>
             <ReportModal itemId={topic.id} itemType="topic">
               <Button variant="ghost" size="sm">
                 <Flag className="h-4 w-4" />
@@ -504,25 +472,32 @@ export default function TopicDetail() {
           <Card key={reply.id}>
             <CardHeader className="border-b pb-3">
               <div className="flex items-start justify-between">
-                <EnhancedUserCard 
-                  profile={{
-                    username: reply.profiles?.username || 'Anonymous',
-                    role: reply.profiles?.role || 'user',
-                    reputation: 0,
-                    created_at: reply.created_at
-                  }}
-                  isCompact={true}
-                />
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">
-                    {formatDate(reply.created_at)}
-                  </span>
-                  <ReportModal itemId={reply.id} itemType="reply">
-                    <Button variant="ghost" size="sm">
-                      <Flag className="h-3 w-3" />
-                    </Button>
-                  </ReportModal>
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className={getRoleColor(reply.profiles?.role || 'user')}>
+                      {getUserInitials(reply.profiles?.username || 'Anonymous')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">{reply.profiles?.username}</span>
+                      {reply.profiles?.role === 'expert' && (
+                        <Badge variant="default" className="text-xs">EXPERT</Badge>
+                      )}
+                      {reply.profiles?.role === 'supplier' && (
+                        <Badge variant="outline" className="text-xs border-purple-500 text-purple-500">LEVERANCIER</Badge>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {formatDate(reply.created_at)}
+                    </div>
+                  </div>
                 </div>
+                <ReportModal itemId={reply.id} itemType="reply">
+                  <Button variant="ghost" size="sm">
+                    <Flag className="h-3 w-3" />
+                  </Button>
+                </ReportModal>
               </div>
             </CardHeader>
             <CardContent className="pt-4">
@@ -561,19 +536,13 @@ export default function TopicDetail() {
         <Card>
           <CardHeader>
             <h4 className="font-medium">Reageer op dit topic</h4>
-            {topic.is_locked && !isAdmin && (
-              <p className="text-sm text-muted-foreground">
-                Dit topic is vergrendeld, maar je kunt nog steeds reageren.
-              </p>
-            )}
           </CardHeader>
           <CardContent className="space-y-4">
-            <AdvancedWYSIWYGEditor
+            <RichTextEditor
               value={replyContent}
               onChange={setReplyContent}
               placeholder="Deel je gedachten over dit topic..."
               minHeight={120}
-              showAdminFeatures={isAdmin}
             />
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setReplyContent('')}>
