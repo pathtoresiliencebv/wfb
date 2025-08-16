@@ -64,7 +64,7 @@ function AppRoutes() {
   const { showOnboarding, setShowOnboarding, user } = useAuth();
 
   return (
-    <React.Fragment>
+    <>
       {showOnboarding && user && (
         <OnboardingWelcome
           username={user.username}
@@ -353,7 +353,7 @@ function AppRoutes() {
         {/* Catch-all route */}
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </React.Fragment>
+    </>
   );
 }
 
