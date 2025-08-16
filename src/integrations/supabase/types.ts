@@ -1889,6 +1889,10 @@ export type Database = {
         }
         Returns: Json
       }
+      reset_admin_password: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       update_user_reputation: {
         Args: {
           change_amount: number
