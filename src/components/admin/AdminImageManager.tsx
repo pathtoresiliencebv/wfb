@@ -47,7 +47,7 @@ export const AdminImageManager: React.FC = () => {
         .from('images')
         .select(`
           *,
-          profiles!inner (
+          profiles!images_user_id_fkey (
             username,
             display_name,
             avatar_url
