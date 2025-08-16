@@ -31,23 +31,24 @@ export function useRealTimeStats() {
           .select('*', { count: 'exact', head: true })
           .in('role', ['expert', 'admin', 'moderator']);
 
-        // For now, we'll use mock data for topics until forum system is implemented
-        // In the future, this would come from a topics/posts table
-        const topicCount = Math.max(userCount ? userCount * 3 : 0, 50); // Mock: ~3 topics per user
+        // Get actual topic count from topics table
+        const { count: topicCount } = await supabase
+          .from('topics')
+          .select('*', { count: 'exact', head: true });
 
         setStats({
           userCount: userCount || 0,
-          topicCount,
+          topicCount: topicCount || 0,
           expertCount: expertCount || 0,
           verifiedCommunity: '100%',
         });
       } catch (error) {
         console.error('Error fetching stats:', error);
-        // Fallback to mock data
+        // Fallback to 0 values if query fails
         setStats({
-          userCount: 247,
-          topicCount: 432,
-          expertCount: 16,
+          userCount: 0,
+          topicCount: 0,
+          expertCount: 0,
           verifiedCommunity: '100%',
         });
       } finally {
@@ -57,11 +58,17 @@ export function useRealTimeStats() {
 
     fetchStats();
 
-    // Subscribe to real-time updates for user count
-    const profilesSubscription = supabase
-      .channel('profiles_count')
+    // Subscribe to real-time updates for all relevant tables
+    const subscription = supabase
+      .channel('admin_stats')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'profiles' },
+        () => {
+          fetchStats();
+        }
+      )
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'topics' },
         () => {
           fetchStats();
         }
@@ -69,7 +76,7 @@ export function useRealTimeStats() {
       .subscribe();
 
     return () => {
-      profilesSubscription.unsubscribe();
+      subscription.unsubscribe();
     };
   }, []);
 

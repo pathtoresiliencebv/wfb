@@ -44,6 +44,19 @@ export default function AdminDashboard() {
     }
   });
 
+  // Fetch active online users
+  const { data: onlineUsers, isLoading: onlineUsersLoading } = useQuery({
+    queryKey: ['admin-online-users'],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('user_online_status')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_online', true);
+      
+      return count || 0;
+    }
+  });
+
   const dashboardStats = [
     {
       title: 'Totaal Gebruikers',
@@ -283,7 +296,9 @@ export default function AdminDashboard() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">Actieve Sessies</span>
-                <span className="text-sm font-medium">{isLoading ? '...' : '247'}</span>
+                <span className="text-sm font-medium">
+                  {onlineUsersLoading ? '...' : onlineUsers?.toString() || '0'}
+                </span>
               </div>
               <Button variant="outline" size="sm" className="w-full" asChild>
                 <a href="/admin/analytics">
