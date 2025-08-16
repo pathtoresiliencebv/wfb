@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { SupplierMenuItem, SupplierCategory } from '@/types/supplier';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Package, Star } from 'lucide-react';
 
 interface SupplierMenuProps {
   supplierId: string;
@@ -75,109 +77,143 @@ export const SupplierMenu: React.FC<SupplierMenuProps> = ({ supplierId }) => {
 
   const individualItems = itemsWithCategoryPricing.filter(item => !item.use_category_pricing);
 
+  // Filter out items and categories with no pricing or empty data
+  const validCategorizedItems = Object.values(categorizedItems).filter(({ category }) => 
+    category.category_pricing && Object.keys(category.category_pricing).length > 0
+  );
+  
+  const validIndividualItems = individualItems.filter(item => 
+    (item.effectivePricing && Object.keys(item.effectivePricing).length > 0) || item.price > 0
+  );
+
+  if (validCategorizedItems.length === 0 && validIndividualItems.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <p className="text-muted-foreground">Nog geen menukaart beschikbaar.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Categorized Items (with category pricing) */}
-      {Object.values(categorizedItems).map(({ category, items: categoryItems }) => (
-        <div key={category.id} className="space-y-3">
-          {/* Category Header */}
-          <div className="border-b pb-3">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-lg font-semibold">{category.name}</h3>
-              {category.product_count && category.product_count > 0 && (
-                <Badge variant="secondary" className="text-xs">
-                  {category.product_count} soorten
-                </Badge>
-              )}
+      {validCategorizedItems.map(({ category, items: categoryItems }) => (
+        <Card key={category.id} className="overflow-hidden">
+          <CardContent className="p-6">
+            {/* Category Header */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Package className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xl font-semibold">{category.name}</h3>
+                  {category.product_count && category.product_count > 0 && (
+                    <Badge variant="secondary" className="text-xs">
+                      {category.product_count} soorten
+                    </Badge>
+                  )}
+                </div>
+                {category.description && (
+                  <p className="text-sm text-muted-foreground mt-1">{category.description}</p>
+                )}
+              </div>
             </div>
-            {category.description && (
-              <p className="text-sm text-muted-foreground mt-1">{category.description}</p>
-            )}
-            
+
             {/* Description Lines */}
             {category.description_lines && Array.isArray(category.description_lines) && category.description_lines.length > 0 && (
-              <div className="mt-2">
+              <div className="mb-4 space-y-1">
                 {category.description_lines.map((line, index) => (
-                  <div key={index} className="text-sm text-muted-foreground flex items-center gap-1">
-                    <span className="w-1 h-1 bg-muted-foreground rounded-full flex-shrink-0"></span>
+                  <div key={index} className="text-sm text-muted-foreground flex items-center gap-2">
+                    <Star className="h-3 w-3 text-primary flex-shrink-0" />
                     {line}
                   </div>
                 ))}
               </div>
             )}
-            
-            {/* Category Pricing Display - SAME AS INDIVIDUAL PRODUCTS */}
-            {category.category_pricing && Object.keys(category.category_pricing).length > 0 && (
-              <div className="space-y-1 mt-2">
-                <div className="text-sm font-medium text-muted-foreground">Prijzen:</div>
-                <div className="flex flex-wrap gap-1">
-                  {Object.entries(category.category_pricing).map(([weight, price]) => (
-                    <Badge key={weight} variant="outline" className="text-xs">
-                      {weight}gr: €{Number(price).toFixed(2)}
-                    </Badge>
-                  ))}
-                </div>
+
+            {/* Category Pricing Display */}
+            <div className="bg-muted/50 rounded-lg p-4 mb-4">
+              <h4 className="font-medium mb-3">Prijzen voor alle {category.name.toLowerCase()}</h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {Object.entries(category.category_pricing).map(([weight, price]) => (
+                  <div key={weight} className="bg-background rounded-lg p-3 text-center border">
+                    <div className="text-sm font-medium text-muted-foreground">{weight}gr</div>
+                    <div className="text-lg font-bold text-primary">€{Number(price).toFixed(2)}</div>
+                  </div>
+                ))}
               </div>
-            )}
-          </div>
-          
-          {/* Category Items */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {categoryItems.map((item) => (
-              <div key={item.id} className="p-3 rounded-lg bg-muted/30">
-                <div className="font-medium">{item.name}</div>
-                {item.description && (
-                  <div className="text-sm text-muted-foreground mt-1">{item.description}</div>
-                )}
+            </div>
+
+            {/* Category Items */}
+            <div className="space-y-2">
+              <h4 className="font-medium text-sm text-muted-foreground">Beschikbare varianten:</h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {categoryItems.map((item) => (
+                  <div key={item.id} className="p-3 rounded-lg bg-muted/30 border">
+                    <div className="font-medium text-sm">{item.name}</div>
+                    {item.description && (
+                      <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{item.description}</div>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       ))}
 
       {/* Individual Items (with own pricing) */}
-      {individualItems.length > 0 && (
-        <div className="space-y-3">
-          {Object.keys(categorizedItems).length > 0 && (
-            <div className="border-b pb-2">
-              <h3 className="text-lg font-semibold">Overige Producten</h3>
+      {validIndividualItems.length > 0 && (
+        <Card className="overflow-hidden">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-secondary/10">
+                <Package className="h-5 w-5 text-secondary-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold">Individuele Producten</h3>
             </div>
-          )}
-          
-          {individualItems.map((item) => (
-            <div key={item.id} className="p-3 rounded-lg bg-muted/30">
-              <div className="flex items-center justify-between mb-2">
-                <div className="font-medium flex items-center gap-2">
-                  {item.name}
-                  {item.categoryData && (
-                    <Badge variant="secondary" className="text-xs">{item.categoryData.name}</Badge>
-                  )}
+            
+            <div className="space-y-4">
+              {validIndividualItems.map((item) => (
+                <div key={item.id} className="border rounded-lg p-4 hover:bg-muted/30 transition-colors">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-medium">{item.name}</h4>
+                        {item.categoryData && (
+                          <Badge variant="outline" className="text-xs">{item.categoryData.name}</Badge>
+                        )}
+                      </div>
+                      {item.description && (
+                        <p className="text-sm text-muted-foreground">{item.description}</p>
+                      )}
+                    </div>
+                    
+                    <div className="flex-shrink-0">
+                      {item.effectivePricing && typeof item.effectivePricing === 'object' && Object.keys(item.effectivePricing).length > 0 ? (
+                        <div className="flex flex-wrap gap-2 justify-end">
+                          {Object.entries(item.effectivePricing).map(([weight, price]) => (
+                            <div key={weight} className="bg-primary/10 rounded-lg px-3 py-1 text-center min-w-[80px]">
+                              <div className="text-xs font-medium text-muted-foreground">{weight}</div>
+                              <div className="text-sm font-bold text-primary">€{Number(price).toFixed(2)}</div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="bg-primary/10 rounded-lg px-4 py-2 text-center">
+                          <div className="text-lg font-bold text-primary">€{Number(item.price).toFixed(2)}</div>
+                          {item.unit && <div className="text-xs text-muted-foreground">per {item.unit}</div>}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-              {item.description && (
-                <div className="text-sm text-muted-foreground mb-2">{item.description}</div>
-              )}
-              <div className="space-y-1">
-                {/* Show pricing tiers if available */}
-                {item.effectivePricing && typeof item.effectivePricing === 'object' && Object.keys(item.effectivePricing).length > 0 ? (
-                  <div className="flex flex-wrap gap-1">
-                    {Object.entries(item.effectivePricing).map(([weight, price]) => (
-                      <Badge key={weight} variant="outline" className="text-xs">
-                        {weight}: €{Number(price).toFixed(2)}
-                      </Badge>
-                    ))}
-                  </div>
-                ) : (
-                  /* Fallback to simple price display */
-                  <div className="text-right font-semibold">
-                    € {Number(item.price).toFixed(2)}
-                    {item.unit && <span className="text-sm text-muted-foreground"> / {item.unit}</span>}
-                  </div>
-                )}
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
