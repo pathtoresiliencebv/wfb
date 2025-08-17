@@ -8,10 +8,11 @@ import { CategoryManagement } from '@/components/admin/CategoryManagement';
 import { TopicManagement } from '@/components/admin/TopicManagement';
 import { TagManagement } from '@/components/admin/TagManagement';
 import { ForumSettings } from '@/components/admin/ForumSettings';
-import { Users, Shield, Flag, BarChart3, ImageIcon, Folder, MessageSquare, Tag, Settings, Search } from 'lucide-react';
+import { Users, Shield, Flag, BarChart3, ImageIcon, Folder, MessageSquare, Tag, Settings, Search, Crown } from 'lucide-react';
 import { AdminUserManagement } from '@/components/admin/AdminUserManagement';
 import { AdminAnalytics } from '@/components/admin/AdminAnalytics';
 import { SEOSettings } from '@/components/admin/SEOSettings';
+import { SupplierRankingManager } from '@/components/admin/SupplierRankingManager';
 
 export default function Admin() {
   return (
@@ -49,6 +50,10 @@ export default function Admin() {
           <TabsTrigger value="images" className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
             <ImageIcon className="h-4 w-4" />
             Afbeeldingen
+          </TabsTrigger>
+          <TabsTrigger value="rankings" className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
+            <Crown className="h-4 w-4" />
+            Rankings
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
             <Shield className="h-4 w-4" />
@@ -90,6 +95,10 @@ export default function Admin() {
 
         <TabsContent value="images" className="space-y-4">
           <AdminImageManager />
+        </TabsContent>
+
+        <TabsContent value="rankings" className="space-y-4">
+          <SupplierRankingManager />
         </TabsContent>
 
         <TabsContent value="security" className="space-y-4">
