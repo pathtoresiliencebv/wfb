@@ -99,25 +99,25 @@ export function CategoryTopics({ categoryId }: CategoryTopicsProps) {
             className="group hover:shadow-xl hover:scale-[1.01] transition-all duration-300 border border-border/50 bg-gradient-to-r from-card to-card/80 overflow-hidden"
           >
             <CardContent className="p-0">
-              <div className="flex items-center">
+              <div className="flex flex-col sm:flex-row sm:items-center">
                 {/* Left colored accent */}
-                <div className="w-1 h-20 bg-gradient-to-b from-primary to-secondary" />
+                <div className="w-full h-1 sm:w-1 sm:h-20 bg-gradient-to-r sm:bg-gradient-to-b from-primary to-secondary" />
                 
-                <div className="flex-1 p-6">
-                  <div className="flex items-start justify-between">
+                <div className="flex-1 p-3 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-0">
                     <div className="flex-1 min-w-0">
                       {/* Title and Pin */}
-                      <div className="flex items-start gap-3 mb-3">
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3 mb-3">
                         <div className="flex-1">
                           <Link 
                             to={`/topic/${topic.id}`}
-                            className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-2 block"
+                            className="font-semibold text-base sm:text-lg group-hover:text-primary transition-colors line-clamp-2 block"
                           >
                             {topic.title}
                           </Link>
                         </div>
                         {topic.is_pinned && (
-                          <Badge variant="secondary" className="flex-shrink-0 bg-yellow-100 text-yellow-800 border-yellow-200">
+                          <Badge variant="secondary" className="flex-shrink-0 self-start bg-yellow-100 text-yellow-800 border-yellow-200">
                             <PlusCircle className="h-3 w-3 mr-1" />
                             Vastgezet
                           </Badge>
@@ -125,33 +125,33 @@ export function CategoryTopics({ categoryId }: CategoryTopicsProps) {
                       </div>
                       
                       {/* Author and Date */}
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-2">
                         <div className="flex items-center gap-1">
                           <span className="text-foreground/60">Door</span>
-                          <span className="font-medium text-foreground hover:text-primary transition-colors">
+                          <span className="font-medium text-foreground hover:text-primary transition-colors truncate">
                             {topic.profiles?.display_name || topic.profiles?.username || 'Onbekend'}
                           </span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
+                          <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
                           <span>{format(new Date(topic.created_at), 'dd MMM yyyy', { locale: nl })}</span>
                         </div>
                       </div>
                     </div>
                     
                     {/* Stats */}
-                    <div className="flex items-center gap-6 text-sm text-muted-foreground ml-6">
+                    <div className="flex items-center justify-center sm:justify-start gap-4 sm:gap-6 text-sm text-muted-foreground sm:ml-3">
                       <div className="text-center">
                         <div className="flex items-center gap-1 text-primary">
-                          <MessageSquare className="h-4 w-4" />
-                          <span className="font-semibold">{topic.reply_count}</span>
+                          <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span className="font-semibold text-xs sm:text-sm">{topic.reply_count}</span>
                         </div>
                         <div className="text-xs">reacties</div>
                       </div>
                       <div className="text-center">
                         <div className="flex items-center gap-1 text-secondary">
-                          <Eye className="h-4 w-4" />
-                          <span className="font-semibold">{topic.view_count}</span>
+                          <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span className="font-semibold text-xs sm:text-sm">{topic.view_count}</span>
                         </div>
                         <div className="text-xs">views</div>
                       </div>
