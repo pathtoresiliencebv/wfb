@@ -9,13 +9,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { MessageCircle, Send, Plus, Search, Users } from 'lucide-react';
+import { MessageCircle, Send, Plus, Search, Users, ArrowLeft, ChevronRight } from 'lucide-react';
 import { useMessaging, Conversation, Message } from '@/hooks/useMessaging';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface User {
   user_id: string;
@@ -26,6 +27,7 @@ interface User {
 
 export function MessageCenter() {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const {
     conversations,
     conversationsLoading,
@@ -43,6 +45,7 @@ export function MessageCenter() {
   const [isNewConversationOpen, setIsNewConversationOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState('');
   const [searchUsers, setSearchUsers] = useState('');
+  const [showConversationView, setShowConversationView] = useState(false); // Mobile conversation view
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { data: messages, isLoading: messagesLoading } = useConversationMessages(selectedConversation);
@@ -112,15 +115,29 @@ export function MessageCenter() {
     return formatDistanceToNow(new Date(date), { addSuffix: true, locale: nl });
   };
 
+  const handleSelectConversation = (conversationId: string) => {
+    setSelectedConversation(conversationId);
+    if (isMobile) {
+      setShowConversationView(true);
+    }
+  };
+
+  const handleBackToConversations = () => {
+    if (isMobile) {
+      setShowConversationView(false);
+      setSelectedConversation(null);
+    }
+  };
+
   if (conversationsLoading) {
     return (
-      <Card className="h-[600px]">
-        <CardContent className="p-6 flex items-center justify-center">
+      <Card className="h-[400px] md:h-[600px]">
+        <CardContent className="p-4 md:p-6 flex items-center justify-center">
           <div className="animate-pulse">
-            <div className="h-8 bg-muted rounded w-48 mb-4" />
+            <div className="h-6 md:h-8 bg-muted rounded w-32 md:w-48 mb-4" />
             <div className="space-y-3">
               {[1, 2, 3].map(i => (
-                <div key={i} className="h-16 bg-muted rounded" />
+                <div key={i} className="h-12 md:h-16 bg-muted rounded" />
               ))}
             </div>
           </div>
@@ -129,6 +146,244 @@ export function MessageCenter() {
     );
   }
 
+  // Mobile: Show either conversations list or individual conversation
+  if (isMobile) {
+    if (showConversationView && selectedConversation) {
+      // Mobile Conversation View
+      const conversation = conversations.find(c => c.id === selectedConversation);
+      const otherParticipant = conversation ? getOtherParticipant(conversation) : null;
+
+      return (
+        <div className="flex flex-col h-[calc(100vh-8rem)] border rounded-lg overflow-hidden">
+          {/* Mobile Header */}
+          <div className="p-3 border-b bg-background flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBackToConversations}
+              className="min-h-[44px] px-3"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={otherParticipant?.profiles.avatar_url} />
+              <AvatarFallback>
+                {otherParticipant?.profiles.username.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-sm truncate">
+                {otherParticipant?.profiles.display_name || otherParticipant?.profiles.username}
+              </div>
+              <div className="text-xs text-muted-foreground truncate">
+                @{otherParticipant?.profiles.username}
+              </div>
+            </div>
+          </div>
+
+          {/* Messages */}
+          <ScrollArea className="flex-1 p-3">
+            <div className="space-y-3">
+              {messagesLoading ? (
+                <div className="animate-pulse space-y-3">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="h-12 bg-muted rounded" />
+                  ))}
+                </div>
+              ) : (
+                messages?.map((message) => {
+                  const isOwnMessage = message.sender_id === user?.id;
+                  
+                  return (
+                    <div
+                      key={message.id}
+                      className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={`max-w-[85%] p-3 rounded-2xl ${
+                          isOwnMessage
+                            ? 'bg-primary text-primary-foreground rounded-br-md'
+                            : 'bg-muted rounded-bl-md'
+                        }`}
+                      >
+                        <div className="text-sm leading-relaxed">{message.content}</div>
+                        <div
+                          className={`text-xs mt-1 ${
+                            isOwnMessage ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                          }`}
+                        >
+                          {formatMessageTime(message.created_at)}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          </ScrollArea>
+
+          {/* Mobile Message Input */}
+          <div className="p-3 border-t bg-background">
+            <form onSubmit={handleSendMessage} className="flex gap-2">
+              <Textarea
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Typ je bericht..."
+                className="flex-1 min-h-[44px] max-h-[120px] resize-none text-base"
+                rows={1}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage(e);
+                  }
+                }}
+              />
+              <Button
+                type="submit"
+                disabled={!newMessage.trim() || isSendingMessage}
+                className="self-end min-h-[44px] px-4"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    // Mobile Conversations List
+    return (
+      <div className="border rounded-lg overflow-hidden">
+        <div className="p-4 border-b bg-background">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-lg">Berichten</h3>
+            <Dialog open={isNewConversationOpen} onOpenChange={setIsNewConversationOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="outline" className="min-h-[44px]">
+                  <Plus className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Nieuw</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="w-[95vw] max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Nieuw gesprek starten</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Zoek gebruikers..."
+                      value={searchUsers}
+                      onChange={(e) => setSearchUsers(e.target.value)}
+                      className="pl-10 min-h-[44px]"
+                    />
+                  </div>
+                  
+                  <ScrollArea className="h-48">
+                    <div className="space-y-2">
+                      {availableUsers?.map((availableUser) => (
+                        <div
+                          key={availableUser.user_id}
+                          className={`p-3 rounded-lg cursor-pointer transition-colors min-h-[44px] flex items-center ${
+                            selectedUserId === availableUser.user_id
+                              ? 'bg-primary text-primary-foreground'
+                              : 'hover:bg-muted'
+                          }`}
+                          onClick={() => setSelectedUserId(availableUser.user_id)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src={availableUser.avatar_url} />
+                              <AvatarFallback>
+                                {availableUser.username.slice(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <div className="font-medium text-sm">
+                                {availableUser.display_name || availableUser.username}
+                              </div>
+                              <div className="text-xs opacity-70">@{availableUser.username}</div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                  
+                  <Button
+                    onClick={handleCreateConversation}
+                    disabled={!selectedUserId || isCreatingConversation}
+                    className="w-full min-h-[44px]"
+                  >
+                    {isCreatingConversation ? 'Gesprek starten...' : 'Start gesprek'}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+
+        <div className="divide-y">
+          {conversations.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p className="text-base">Nog geen gesprekken</p>
+              <p className="text-sm text-muted-foreground mt-1">Start een nieuw gesprek om te beginnen</p>
+            </div>
+          ) : (
+            conversations.map((conversation) => {
+              const otherParticipant = getOtherParticipant(conversation);
+
+              return (
+                <div
+                  key={conversation.id}
+                  className="p-4 cursor-pointer transition-colors hover:bg-muted/50 active:bg-muted min-h-[80px] flex items-center"
+                  onClick={() => handleSelectConversation(conversation.id)}
+                >
+                  <div className="flex items-center gap-3 flex-1">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={otherParticipant?.profiles.avatar_url} />
+                      <AvatarFallback>
+                        {otherParticipant?.profiles.username.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="font-medium text-base truncate">
+                          {otherParticipant?.profiles.display_name || otherParticipant?.profiles.username}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {conversation.unread_count! > 0 && (
+                            <Badge variant="secondary" className="text-xs">
+                              {conversation.unread_count}
+                            </Badge>
+                          )}
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      </div>
+                      {conversation.last_message && (
+                        <div className="text-sm text-muted-foreground truncate mb-1">
+                          {conversation.last_message.content}
+                        </div>
+                      )}
+                      {conversation.last_message_at && (
+                        <div className="text-xs text-muted-foreground">
+                          {formatMessageTime(conversation.last_message_at)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop: Original side-by-side layout
   return (
     <div className="flex h-[600px] border rounded-lg overflow-hidden">
       {/* Conversations List */}
@@ -219,7 +474,7 @@ export function MessageCenter() {
                     className={`p-3 rounded-lg cursor-pointer transition-colors mb-2 ${
                       isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
                     }`}
-                    onClick={() => setSelectedConversation(conversation.id)}
+                    onClick={() => handleSelectConversation(conversation.id)}
                   >
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10">
