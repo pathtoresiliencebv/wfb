@@ -122,6 +122,26 @@ export default function AdminUsers() {
     }
   });
 
+  // Delete user mutation
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('user_id', userId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast.success('Gebruiker verwijderd');
+    },
+    onError: (error) => {
+      toast.error('Fout bij verwijderen gebruiker');
+      console.error('Error deleting user:', error);
+    }
+  });
+
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'admin': return <Crown className="h-4 w-4" />;
@@ -375,6 +395,36 @@ export default function AdminUsers() {
                             <UserCheck className="h-4 w-4" />
                           )}
                         </Button>
+
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Gebruiker verwijderen</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Weet je zeker dat je {user.username} wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Annuleren</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteUserMutation.mutate(user.user_id)}
+                                disabled={deleteUserMutation.isPending}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Verwijderen
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   </TableRow>
