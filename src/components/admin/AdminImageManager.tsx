@@ -5,11 +5,13 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Trash2, Search, Eye, Download, Calendar, FileImage } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { Trash2, Search, Eye, Download, Calendar, FileImage, Upload } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import { ImageUpload } from '@/components/ui/image-upload';
 
 interface ImageData {
   id: string;
@@ -223,12 +225,36 @@ export const AdminImageManager: React.FC = () => {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <FileImage className="w-5 h-5" />
-          Afbeeldingen beheren
-        </CardTitle>
+    <div className="space-y-6">
+      {/* Upload Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Upload className="w-5 h-5" />
+            Nieuwe Afbeelding Uploaden
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ImageUpload
+            onImageUploaded={() => {
+              toast({
+                title: "Succes",
+                description: "Afbeelding succesvol geüpload!"
+              });
+              fetchImages();
+            }}
+            showPreview={true}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Images Management Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileImage className="w-5 h-5" />
+            Afbeeldingen beheren
+          </CardTitle>
         <div className="flex items-center gap-4">
           <div className="flex-1">
             <div className="relative">
@@ -397,5 +423,6 @@ export const AdminImageManager: React.FC = () => {
         )}
       </CardContent>
     </Card>
+    </div>
   );
 };
