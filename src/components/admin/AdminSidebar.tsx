@@ -64,12 +64,24 @@ export function AdminSidebar() {
         {/* Admin Header */}
         <div className="p-4 border-b">
           <div className="flex items-center gap-2">
-            <Shield className="h-6 w-6 text-primary" />
-            {!collapsed && (
-              <div>
-                <h2 className="font-bold text-lg">Admin Panel</h2>
-                <p className="text-xs text-muted-foreground">Forum Beheer</p>
-              </div>
+            {collapsed ? (
+              <img 
+                src="/lovable-uploads/8721330a-f235-4c3b-9c21-85436a192135.png" 
+                alt="WietForum België" 
+                className="h-6 w-6"
+              />
+            ) : (
+              <>
+                <img 
+                  src="/lovable-uploads/8721330a-f235-4c3b-9c21-85436a192135.png" 
+                  alt="WietForum België" 
+                  className="h-6 w-6"
+                />
+                <div>
+                  <h2 className="font-bold text-lg">Admin Panel</h2>
+                  <p className="text-xs text-muted-foreground">Forum Beheer</p>
+                </div>
+              </>
             )}
           </div>
         </div>
