@@ -8,9 +8,10 @@ import { CategoryManagement } from '@/components/admin/CategoryManagement';
 import { TopicManagement } from '@/components/admin/TopicManagement';
 import { TagManagement } from '@/components/admin/TagManagement';
 import { ForumSettings } from '@/components/admin/ForumSettings';
-import { Users, Shield, Flag, BarChart3, ImageIcon, Folder, MessageSquare, Tag, Settings } from 'lucide-react';
+import { Users, Shield, Flag, BarChart3, ImageIcon, Folder, MessageSquare, Tag, Settings, Search } from 'lucide-react';
 import { AdminUserManagement } from '@/components/admin/AdminUserManagement';
 import { AdminAnalytics } from '@/components/admin/AdminAnalytics';
+import { SEOSettings } from '@/components/admin/SEOSettings';
 
 export default function Admin() {
   return (
@@ -24,7 +25,7 @@ export default function Admin() {
       </div>
 
       <Tabs defaultValue="moderation" className="w-full">
-        <TabsList className="grid w-full grid-cols-9 overflow-x-auto">
+        <TabsList className="grid w-full grid-cols-10 overflow-x-auto">
           <TabsTrigger value="moderation" className="flex items-center gap-2">
             <Flag className="h-4 w-4" />
             Moderatie
@@ -60,6 +61,10 @@ export default function Admin() {
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             Instellingen
+          </TabsTrigger>
+          <TabsTrigger value="seo" className="flex items-center gap-2">
+            <Search className="h-4 w-4" />
+            SEO
           </TabsTrigger>
         </TabsList>
 
@@ -97,6 +102,10 @@ export default function Admin() {
 
         <TabsContent value="settings" className="space-y-4">
           <ForumSettings />
+        </TabsContent>
+
+        <TabsContent value="seo" className="space-y-4">
+          <SEOSettings />
         </TabsContent>
       </Tabs>
     </div>

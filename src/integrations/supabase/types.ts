@@ -223,7 +223,12 @@ export type Database = {
           id: string
           image_url: string | null
           is_active: boolean | null
+          meta_description: string | null
+          meta_title: string | null
           name: string
+          og_description: string | null
+          og_image: string | null
+          og_title: string | null
           reply_count: number | null
           slug: string
           sort_order: number | null
@@ -237,7 +242,12 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
           name: string
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
           reply_count?: number | null
           slug: string
           sort_order?: number | null
@@ -251,7 +261,12 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          meta_description?: string | null
+          meta_title?: string | null
           name?: string
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
           reply_count?: number | null
           slug?: string
           sort_order?: number | null
@@ -790,6 +805,39 @@ export type Database = {
           },
         ]
       }
+      seo_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          setting_key: string
+          setting_type: string
+          setting_value: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          setting_key: string
+          setting_type?: string
+          setting_value?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          setting_key?: string
+          setting_type?: string
+          setting_value?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       supplier_categories: {
         Row: {
           category_pricing: Json | null
@@ -1195,6 +1243,11 @@ export type Database = {
           is_locked: boolean | null
           is_pinned: boolean | null
           last_activity_at: string | null
+          meta_description: string | null
+          meta_title: string | null
+          og_description: string | null
+          og_image: string | null
+          og_title: string | null
           reply_count: number | null
           title: string
           updated_at: string
@@ -1211,6 +1264,11 @@ export type Database = {
           is_locked?: boolean | null
           is_pinned?: boolean | null
           last_activity_at?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
           reply_count?: number | null
           title: string
           updated_at?: string
@@ -1227,6 +1285,11 @@ export type Database = {
           is_locked?: boolean | null
           is_pinned?: boolean | null
           last_activity_at?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
           reply_count?: number | null
           title?: string
           updated_at?: string
