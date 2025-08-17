@@ -25,44 +25,44 @@ export default function Admin() {
       </div>
 
       <Tabs defaultValue="moderation" className="w-full">
-        <TabsList className="grid w-full grid-cols-10 overflow-x-auto">
-          <TabsTrigger value="moderation" className="flex items-center gap-2">
+        <TabsList className="flex w-full overflow-x-auto scrollbar-hide flex-nowrap h-auto min-h-[44px] p-1">
+          <TabsTrigger value="moderation" className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
             <Flag className="h-4 w-4" />
             Moderatie
           </TabsTrigger>
-          <TabsTrigger value="users" className="flex items-center gap-2">
+          <TabsTrigger value="users" className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
             <Users className="h-4 w-4" />
             Gebruikers
           </TabsTrigger>
-          <TabsTrigger value="categories" className="flex items-center gap-2">
+          <TabsTrigger value="categories" className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
             <Folder className="h-4 w-4" />
             Categorieën
           </TabsTrigger>
-          <TabsTrigger value="topics" className="flex items-center gap-2">
+          <TabsTrigger value="topics" className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
             <MessageSquare className="h-4 w-4" />
             Topics
           </TabsTrigger>
-          <TabsTrigger value="tags" className="flex items-center gap-2">
+          <TabsTrigger value="tags" className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
             <Tag className="h-4 w-4" />
             Tags
           </TabsTrigger>
-          <TabsTrigger value="images" className="flex items-center gap-2">
+          <TabsTrigger value="images" className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
             <ImageIcon className="h-4 w-4" />
             Afbeeldingen
           </TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-2">
+          <TabsTrigger value="security" className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
             <Shield className="h-4 w-4" />
             Beveiliging
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
+          <TabsTrigger value="analytics" className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
             <BarChart3 className="h-4 w-4" />
             Analytics
           </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-2">
+          <TabsTrigger value="settings" className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
             <Settings className="h-4 w-4" />
             Instellingen
           </TabsTrigger>
-          <TabsTrigger value="seo" className="flex items-center gap-2">
+          <TabsTrigger value="seo" className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
             <Search className="h-4 w-4" />
             SEO
           </TabsTrigger>
