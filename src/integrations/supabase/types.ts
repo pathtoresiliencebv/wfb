@@ -1187,9 +1187,11 @@ export type Database = {
         Row: {
           author_id: string
           category_id: string
+          color: string | null
           content: string
           created_at: string
           id: string
+          image_url: string | null
           is_locked: boolean | null
           is_pinned: boolean | null
           last_activity_at: string | null
@@ -1201,9 +1203,11 @@ export type Database = {
         Insert: {
           author_id: string
           category_id: string
+          color?: string | null
           content: string
           created_at?: string
           id?: string
+          image_url?: string | null
           is_locked?: boolean | null
           is_pinned?: boolean | null
           last_activity_at?: string | null
@@ -1215,9 +1219,11 @@ export type Database = {
         Update: {
           author_id?: string
           category_id?: string
+          color?: string | null
           content?: string
           created_at?: string
           id?: string
+          image_url?: string | null
           is_locked?: boolean | null
           is_pinned?: boolean | null
           last_activity_at?: string | null
