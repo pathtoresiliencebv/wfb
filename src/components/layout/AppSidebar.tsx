@@ -36,7 +36,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { TopSuppliers } from '@/components/supplier/TopSuppliers';
+import { SidebarTopSuppliers } from '@/components/supplier/SidebarTopSuppliers';
 
 const mainNavItems = [
   { title: 'Feed', url: '/', icon: Home },
@@ -177,7 +177,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Top Leveranciers</SidebarGroupLabel>
           <SidebarGroupContent>
-            <TopSuppliers />
+            <SidebarTopSuppliers />
           </SidebarGroupContent>
         </SidebarGroup>
 
