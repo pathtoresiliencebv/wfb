@@ -48,12 +48,12 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-[100] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
-        <SidebarTrigger className="mr-4" />
+      <div className="container flex h-14 md:h-16 items-center px-2 sm:px-4">
+        <SidebarTrigger className="mr-2 md:mr-4 p-2" />
         
         {/* Primary navigation (desktop) - only show for logged-in users */}
         {user && (
-          <nav aria-label="Hoofdnavigatie" className="hidden md:flex items-center gap-1 mr-4">
+          <nav aria-label="Hoofdnavigatie" className="hidden lg:flex items-center gap-1 mr-4">
             {[
               { title: 'Feed', to: '/' },
               { title: 'Forums', to: '/forums' },
@@ -64,7 +64,7 @@ export function Header() {
               <Link
                 key={item.to}
                 to={item.to}
-                className="px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent"
+                className="px-2 lg:px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent whitespace-nowrap"
               >
                 {item.title}
               </Link>
@@ -73,13 +73,13 @@ export function Header() {
         )}
         
         {/* Search */}
-        <div className="flex flex-1 items-center space-x-4">
-          <div className="relative max-w-sm">
+        <div className="flex flex-1 items-center space-x-2 md:space-x-4">
+          <div className="relative w-full max-w-sm">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Zoek in forums..."
-              className="pl-8"
+              placeholder="Zoek..."
+              className="pl-8 h-9 text-sm"
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   const query = (e.target as HTMLInputElement).value;
@@ -93,15 +93,15 @@ export function Header() {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center space-x-2">
-          {/* Online/Offline indicator */}
-          <div className="flex items-center gap-1 text-xs">
+        <div className="flex items-center space-x-1 md:space-x-2">
+          {/* Online/Offline indicator - hide on small mobile */}
+          <div className="hidden sm:flex items-center gap-1 text-xs">
             {isOnline ? (
               <Wifi className="w-4 h-4 text-green-500" />
             ) : (
               <WifiOff className="w-4 h-4 text-red-500" />
             )}
-            <span className={isOnline ? "text-green-500" : "text-red-500"}>
+            <span className={`${isOnline ? "text-green-500" : "text-red-500"} hidden md:inline`}>
               {isOnline ? "Online" : "Offline"}
             </span>
           </div>
@@ -115,50 +115,50 @@ export function Header() {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                  <Avatar className="h-9 w-9">
+                <Button variant="ghost" className="relative h-8 w-8 md:h-9 md:w-9 rounded-full p-0">
+                  <Avatar className="h-8 w-8 md:h-9 md:w-9">
                     <AvatarImage src={user.avatar || undefined} alt={user.username} />
-                    <AvatarFallback>
+                    <AvatarFallback className="text-xs md:text-sm">
                       {getUserInitials(user.username)}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 z-[110] bg-popover border" align="end" forceMount>
+              <DropdownMenuContent className="w-56 z-[110] bg-popover border mr-2" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user.displayName || user.username}</p>
-                    <p className="text-xs leading-none text-muted-foreground">
+                    <p className="text-sm font-medium leading-none truncate">{user.displayName || user.username}</p>
+                    <p className="text-xs leading-none text-muted-foreground truncate">
                       {user.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link to={`/members/${user.username}`} className="flex items-center">
+                  <Link to={`/members/${user.username}`} className="flex items-center min-h-[44px] cursor-pointer">
                     <User className="h-4 w-4 mr-2" />
                     Profiel
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/settings" className="flex items-center">
+                  <Link to="/settings" className="flex items-center min-h-[44px] cursor-pointer">
                     <Settings className="h-4 w-4 mr-2" />
                     Instellingen
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="flex items-center">
+                <DropdownMenuItem onClick={handleLogout} className="flex items-center min-h-[44px] cursor-pointer">
                   <LogOut className="h-4 w-4 mr-2" />
                   Uitloggen
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="sm" asChild>
+            <div className="flex items-center space-x-1 md:space-x-2">
+              <Button variant="ghost" size="sm" className="text-xs md:text-sm px-2 md:px-3 h-8 md:h-9" asChild>
                 <Link to="/login">Inloggen</Link>
               </Button>
-              <Button variant="default" size="sm" asChild>
+              <Button variant="default" size="sm" className="text-xs md:text-sm px-2 md:px-3 h-8 md:h-9" asChild>
                 <Link to="/register">Registreren</Link>
               </Button>
             </div>

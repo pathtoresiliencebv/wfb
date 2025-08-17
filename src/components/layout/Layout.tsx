@@ -21,7 +21,9 @@ export function Layout({ children }: LayoutProps) {
   const isHome = location.pathname === '/';
   const showAppHeader = !(isHome && !user); // Don't show header on homepage for unauthenticated users
   const showSidebar = !(isHome && !user);
-  const mainInnerClass = showSidebar ? `container mx-auto ${isMobile ? 'p-4 pb-20' : 'p-6'}` : `${isMobile ? 'pb-20' : 'p-0'}`;
+  const mainInnerClass = showSidebar 
+    ? `container mx-auto ${isMobile ? 'px-3 sm:px-4 py-4 pb-20' : 'px-6 py-6'}` 
+    : `${isMobile ? 'pb-20' : 'p-0'}`;
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>

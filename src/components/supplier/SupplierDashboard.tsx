@@ -180,61 +180,63 @@ export const SupplierDashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6 px-2 sm:px-0">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="flex items-center gap-2 md:gap-3">
           <div className="flex items-center gap-2">
-            <Store className="h-6 w-6 text-primary" />
-            <h1 className="text-2xl font-bold">Leverancier Dashboard</h1>
+            <Store className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold">Leverancier Dashboard</h1>
           </div>
           {supplierProfile && <CrownBadge />}
         </div>
         <Button
           onClick={() => setIsEditing(!isEditing)}
           variant={isEditing ? 'outline' : 'default'}
+          className="min-h-[44px] px-4"
         >
           <Settings className="h-4 w-4 mr-2" />
-          {isEditing ? 'Annuleren' : 'Bewerken'}
+          <span className="hidden sm:inline">{isEditing ? 'Annuleren' : 'Bewerken'}</span>
+          <span className="sm:hidden">{isEditing ? 'Stop' : 'Edit'}</span>
         </Button>
       </div>
 
       {/* Stats Overview */}
       {supplierProfile && (
-        <div className="grid md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <Card>
-            <CardContent className="p-6 text-center">
-              <Users className="h-8 w-8 text-primary mx-auto mb-2" />
-              <div className="text-2xl font-bold">
+            <CardContent className="p-4 md:p-6 text-center">
+              <Users className="h-6 w-6 md:h-8 md:w-8 text-primary mx-auto mb-2" />
+              <div className="text-lg md:text-2xl font-bold">
                 {(supplierProfile.stats as SupplierStats)?.customers || 0}+
               </div>
-              <p className="text-sm text-muted-foreground">Klanten</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Klanten</p>
             </CardContent>
           </Card>
           
           <Card>
-            <CardContent className="p-6 text-center">
-              <Star className="h-8 w-8 text-yellow-500 fill-current mx-auto mb-2" />
-              <div className="text-2xl font-bold">
+            <CardContent className="p-4 md:p-6 text-center">
+              <Star className="h-6 w-6 md:h-8 md:w-8 text-yellow-500 fill-current mx-auto mb-2" />
+              <div className="text-lg md:text-2xl font-bold">
                 {(supplierProfile.stats as SupplierStats)?.rating || 'N/A'}
               </div>
-              <p className="text-sm text-muted-foreground">Rating</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Rating</p>
             </CardContent>
           </Card>
           
           <Card>
-            <CardContent className="p-6 text-center">
-              <TrendingUp className="h-8 w-8 text-green-500 mx-auto mb-2" />
-              <div className="text-2xl font-bold">
+            <CardContent className="p-4 md:p-6 text-center">
+              <TrendingUp className="h-6 w-6 md:h-8 md:w-8 text-green-500 mx-auto mb-2" />
+              <div className="text-lg md:text-2xl font-bold">
                 {supplierProfile.ranking || 'Ongerangschikt'}
               </div>
-              <p className="text-sm text-muted-foreground">Ranking</p>
+              <p className="text-xs md:text-sm text-muted-foreground">Ranking</p>
             </CardContent>
           </Card>
           
-          <Card>
-            <CardContent className="p-6 text-center">
-              <Badge variant="secondary" className="text-lg px-3 py-1">
+          <Card className="col-span-2 lg:col-span-1">
+            <CardContent className="p-4 md:p-6 text-center flex items-center justify-center">
+              <Badge variant="secondary" className="text-sm md:text-lg px-3 py-1">
                 {supplierProfile.is_active ? 'Actief' : 'Inactief'}
               </Badge>
             </CardContent>
@@ -244,33 +246,35 @@ export const SupplierDashboard: React.FC = () => {
 
       {/* Profile Form */}
       <Card>
-        <CardHeader>
-          <CardTitle>Profiel Instellingen</CardTitle>
+        <CardHeader className="p-4 md:p-6">
+          <CardTitle className="text-lg md:text-xl">Profiel Instellingen</CardTitle>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <CardContent className="p-4 md:p-6">
+          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             {/* Basic Info */}
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="business_name">Bedrijfsnaam *</Label>
+                <Label htmlFor="business_name" className="text-sm font-medium">Bedrijfsnaam *</Label>
                 <Input
                   id="business_name"
                   value={formData.business_name}
                   onChange={(e) => setFormData(prev => ({ ...prev, business_name: e.target.value }))}
                   disabled={!isEditing}
                   required
+                  className="min-h-[44px]"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Beschrijving</Label>
+              <Label htmlFor="description" className="text-sm font-medium">Beschrijving</Label>
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 disabled={!isEditing}
-                rows={4}
+                rows={3}
+                className="min-h-[100px] resize-y"
                 placeholder="Vertel over je bedrijf en wat je aanbiedt..."
               />
             </div>
@@ -279,30 +283,32 @@ export const SupplierDashboard: React.FC = () => {
 
             {/* Contact Info */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">Contact Informatie</h3>
-              <div className="grid md:grid-cols-3 gap-4">
+              <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Contact Informatie</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="wire">Wire Username</Label>
+                  <Label htmlFor="wire" className="text-sm font-medium">Wire Username</Label>
                   <Input
                     id="wire"
                     value={formData.contact_wire}
                     onChange={(e) => setFormData(prev => ({ ...prev, contact_wire: e.target.value }))}
                     disabled={!isEditing}
                     placeholder="@username"
+                    className="min-h-[44px]"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="telegram">Telegram Username</Label>
+                  <Label htmlFor="telegram" className="text-sm font-medium">Telegram Username</Label>
                   <Input
                     id="telegram"
                     value={formData.contact_telegram}
                     onChange={(e) => setFormData(prev => ({ ...prev, contact_telegram: e.target.value }))}
                     disabled={!isEditing}
                     placeholder="@username"
+                    className="min-h-[44px]"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                <div className="space-y-2 sm:col-span-2 lg:col-span-1">
+                  <Label htmlFor="email" className="text-sm font-medium">Email</Label>
                   <Input
                     id="email"
                     type="email"
@@ -310,6 +316,7 @@ export const SupplierDashboard: React.FC = () => {
                     onChange={(e) => setFormData(prev => ({ ...prev, contact_email: e.target.value }))}
                     disabled={!isEditing}
                     placeholder="contact@bedrijf.be"
+                    className="min-h-[44px]"
                   />
                 </div>
               </div>
@@ -319,10 +326,10 @@ export const SupplierDashboard: React.FC = () => {
 
             {/* Statistics */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">Statistieken</h3>
-              <div className="grid md:grid-cols-4 gap-4">
+              <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4">Statistieken</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="customers">Aantal Klanten</Label>
+                  <Label htmlFor="customers" className="text-sm font-medium">Aantal Klanten</Label>
                   <Input
                     id="customers"
                     type="number"
@@ -330,10 +337,11 @@ export const SupplierDashboard: React.FC = () => {
                     onChange={(e) => setFormData(prev => ({ ...prev, customers: e.target.value }))}
                     disabled={!isEditing}
                     placeholder="800"
+                    className="min-h-[44px]"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="rating">Rating</Label>
+                  <Label htmlFor="rating" className="text-sm font-medium">Rating</Label>
                   <Input
                     id="rating"
                     type="number"
@@ -344,20 +352,22 @@ export const SupplierDashboard: React.FC = () => {
                     onChange={(e) => setFormData(prev => ({ ...prev, rating: e.target.value }))}
                     disabled={!isEditing}
                     placeholder="4.8"
+                    className="min-h-[44px]"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="delivery_time">Bezorgtijd</Label>
+                  <Label htmlFor="delivery_time" className="text-sm font-medium">Bezorgtijd</Label>
                   <Input
                     id="delivery_time"
                     value={formData.delivery_time}
                     onChange={(e) => setFormData(prev => ({ ...prev, delivery_time: e.target.value }))}
                     disabled={!isEditing}
                     placeholder="Zelfde dag"
+                    className="min-h-[44px]"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="success_rate">Succespercentage</Label>
+                  <Label htmlFor="success_rate" className="text-sm font-medium">Succespercentage</Label>
                   <Input
                     id="success_rate"
                     type="number"
@@ -367,6 +377,7 @@ export const SupplierDashboard: React.FC = () => {
                     onChange={(e) => setFormData(prev => ({ ...prev, success_rate: e.target.value }))}
                     disabled={!isEditing}
                     placeholder="100"
+                    className="min-h-[44px]"
                   />
                 </div>
               </div>

@@ -39,18 +39,18 @@ export function Footer() {
 
   return (
     <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 mt-auto">
-      <div className="container mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="container mx-auto px-4 sm:px-6 py-6 md:py-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {/* Top Leveranciers */}
-          <div>
-            <h3 className="font-semibold text-foreground mb-4">Top Leveranciers</h3>
+          <div className="sm:col-span-2 lg:col-span-1">
+            <h3 className="font-semibold text-foreground mb-3 md:mb-4 text-sm md:text-base">Top Leveranciers</h3>
             <div className="space-y-2">
               {displaySuppliers.length > 0 ? (
                 displaySuppliers.map((supplier, index) => (
                   <Link
                     key={supplier.id}
                     to={`/aanbod/${supplier.profiles.username}`}
-                    className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="block text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] flex items-center truncate"
                   >
                     {index + 1}. {supplier.business_name}
                   </Link>
@@ -63,23 +63,23 @@ export function Footer() {
 
           {/* WietForum Info */}
           <div>
-            <h3 className="font-semibold text-foreground mb-4">WietForum Info</h3>
+            <h3 className="font-semibold text-foreground mb-3 md:mb-4 text-sm md:text-base">WietForum Info</h3>
             <div className="space-y-2">
               <Link
                 to="/over"
-                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] flex items-center"
               >
                 Over
               </Link>
               <Link
                 to="/faq"
-                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] flex items-center"
               >
                 FAQ
               </Link>
               <Link
                 to="/blog"
-                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] flex items-center"
               >
                 Blog
               </Link>
@@ -88,23 +88,23 @@ export function Footer() {
 
           {/* Extra */}
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Extra</h3>
+            <h3 className="font-semibold text-foreground mb-3 md:mb-4 text-sm md:text-base">Extra</h3>
             <div className="space-y-2">
               <Link
                 to="/moonrocks"
-                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] flex items-center"
               >
                 Moonrocks kopen
               </Link>
               <Link
                 to="/weetgod"
-                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] flex items-center"
               >
                 Weetgod menu
               </Link>
               <Link
                 to="/suppliers"
-                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] flex items-center"
               >
                 Wiet online kopen
               </Link>
@@ -113,8 +113,8 @@ export function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="border-t mt-8 pt-6">
-          <p className="text-sm text-muted-foreground text-center">
+        <div className="border-t mt-6 md:mt-8 pt-4 md:pt-6">
+          <p className="text-xs md:text-sm text-muted-foreground text-center">
             © 2024 WietForum. Alle rechten voorbehouden.
           </p>
         </div>

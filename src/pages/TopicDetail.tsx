@@ -303,39 +303,43 @@ export default function TopicDetail() {
   const topicVoteData = getVoteData(topic.id);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6 px-2 sm:px-0">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="sm" onClick={() => navigate(`/forums/${categoryId}`)}>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+        <Button variant="ghost" size="sm" onClick={() => navigate(`/forums/${categoryId}`)} className="self-start">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Terug naar {topic.categories?.name}
+          <span className="hidden sm:inline">Terug naar {topic.categories?.name}</span>
+          <span className="sm:hidden">Terug</span>
         </Button>
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <Link to={`/forums/${categoryId}`} className="text-sm text-muted-foreground hover:text-primary">
+        
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-2 text-xs sm:text-sm">
+            <Link to={`/forums/${categoryId}`} className="text-muted-foreground hover:text-primary truncate">
               {topic.categories?.name}
             </Link>
             <span className="text-muted-foreground">•</span>
-            <span className="text-sm text-muted-foreground">Topic</span>
+            <span className="text-muted-foreground">Topic</span>
           </div>
-          <h1 className="font-heading text-2xl font-bold">{topic.title}</h1>
+          <h1 className="font-heading text-lg sm:text-xl md:text-2xl font-bold line-clamp-2">{topic.title}</h1>
         </div>
-        <div className="flex items-center gap-2">
+        
+        <div className="flex items-center gap-2 self-end sm:self-center">
           <Button 
             variant={isSubscribed ? "default" : "outline"} 
             size="sm"
             onClick={() => toggleSubscription(topic.id)}
             disabled={isToggling}
+            className="text-xs min-h-[44px] px-3"
           >
             {isSubscribed ? (
               <>
-                <BellOff className="h-4 w-4 mr-1" />
-                Uitschrijven
+                <BellOff className="h-3 w-3 mr-1" />
+                <span className="hidden sm:inline">Uitschrijven</span>
               </>
             ) : (
               <>
-                <Bell className="h-4 w-4 mr-1" />
-                Volgen
+                <Bell className="h-3 w-3 mr-1" />
+                <span className="hidden sm:inline">Volgen</span>
               </>
             )}
           </Button>
@@ -343,8 +347,9 @@ export default function TopicDetail() {
             variant={isBookmarked(topic.id) ? "default" : "outline"} 
             size="sm"
             onClick={() => toggleBookmark(topic.id, 'topic')}
+            className="min-h-[44px] px-3"
           >
-            <Bookmark className={`h-4 w-4 ${isBookmarked(topic.id) ? 'fill-current' : ''}`} />
+            <Bookmark className={`h-3 w-3 ${isBookmarked(topic.id) ? 'fill-current' : ''}`} />
           </Button>
           <PostActions
             itemId={topic.id}
@@ -356,53 +361,56 @@ export default function TopicDetail() {
       </div>
 
       {/* Topic Stats & Tags */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-6 text-sm text-muted-foreground">
+      <div className="space-y-3 md:space-y-4">
+        <div className="flex items-center gap-3 md:gap-6 text-xs md:text-sm text-muted-foreground flex-wrap">
           <div className="flex items-center gap-1">
-            <Eye className="h-4 w-4" />
+            <Eye className="h-3 w-3 md:h-4 md:w-4" />
             <span>{topic.view_count} views</span>
           </div>
           <div className="flex items-center gap-1">
-            <MessageSquare className="h-4 w-4" />
+            <MessageSquare className="h-3 w-3 md:h-4 md:w-4" />
             <span>{topic.reply_count} reacties</span>
           </div>
           <div className="flex items-center gap-1">
-            <Clock className="h-4 w-4" />
-            <span>{formatDate(topic.created_at)}</span>
+            <Clock className="h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">{formatDate(topic.created_at)}</span>
+            <span className="sm:hidden">{new Date(topic.created_at).toLocaleDateString('nl-BE')}</span>
           </div>
         </div>
 
         {/* Tags */}
         {topic.topic_tags && topic.topic_tags.length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap">
-            <Tag className="h-4 w-4 text-muted-foreground" />
-            {topic.topic_tags.map(({ tags }) => (
-              <Badge 
-                key={tags.id} 
-                variant="outline" 
-                className="text-xs"
-                style={{ borderColor: tags.color, color: tags.color }}
-              >
-                {tags.name}
-              </Badge>
-            ))}
+          <div className="flex items-start gap-2 flex-wrap">
+            <Tag className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground mt-1" />
+            <div className="flex flex-wrap gap-1 md:gap-2">
+              {topic.topic_tags.map(({ tags }) => (
+                <Badge 
+                  key={tags.id} 
+                  variant="outline" 
+                  className="text-xs"
+                  style={{ borderColor: tags.color, color: tags.color }}
+                >
+                  {tags.name}
+                </Badge>
+              ))}
+            </div>
           </div>
         )}
       </div>
 
       {/* Original Post */}
       <Card>
-        <CardHeader className="border-b">
+        <CardHeader className="border-b p-3 md:p-6">
           <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10">
+            <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+              <Avatar className="h-8 w-8 md:h-10 md:w-10 flex-shrink-0">
                 <AvatarFallback className={getRoleColor(topic.profiles?.role || 'user')}>
                   {getUserInitials(topic.profiles?.username || 'Anonymous')}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{topic.profiles?.username}</span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1 md:gap-2 flex-wrap">
+                  <span className="font-medium text-sm md:text-base truncate">{topic.profiles?.username}</span>
                   {topic.profiles?.role === 'moderator' && (
                     <Badge variant="secondary" className="text-xs">MOD</Badge>
                   )}
@@ -413,22 +421,23 @@ export default function TopicDetail() {
                     <Badge variant="outline" className="text-xs border-purple-500 text-purple-500">LEVERANCIER</Badge>
                   )}
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  {topic.profiles?.reputation || 0} reputatie • Lid sinds {new Date(topic.profiles?.created_at || topic.created_at).getFullYear()}
+                <div className="text-xs md:text-sm text-muted-foreground">
+                  <span className="hidden sm:inline">{topic.profiles?.reputation || 0} reputatie • Lid sinds {new Date(topic.profiles?.created_at || topic.created_at).getFullYear()}</span>
+                  <span className="sm:hidden">Lid sinds {new Date(topic.profiles?.created_at || topic.created_at).getFullYear()}</span>
                 </div>
               </div>
             </div>
             <ReportModal itemId={topic.id} itemType="topic">
-              <Button variant="ghost" size="sm">
-                <Flag className="h-4 w-4" />
+              <Button variant="ghost" size="sm" className="min-h-[44px] px-2">
+                <Flag className="h-3 w-3 md:h-4 md:w-4" />
               </Button>
             </ReportModal>
           </div>
         </CardHeader>
-        <CardContent className="pt-6">
-          <div className="flex gap-4">
+        <CardContent className="p-3 md:p-6">
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
             {/* Vote Section */}
-            <div className="flex flex-col items-center min-w-[4rem]">
+            <div className="flex flex-row sm:flex-col items-center justify-center sm:min-w-[4rem] order-2 sm:order-1">
               {topicVoteData && (
                 <VotingButtons
                   itemId={topic.id}
@@ -441,9 +450,9 @@ export default function TopicDetail() {
             </div>
 
             {/* Content */}
-            <div className="flex-1">
+            <div className="flex-1 order-1 sm:order-2">
               <div 
-                className="prose prose-sm max-w-none mb-6 text-foreground"
+                className="prose prose-sm max-w-none mb-4 md:mb-6 text-foreground text-sm md:text-base"
                 dangerouslySetInnerHTML={{ 
                   __html: topic.content.replace(/\n/g, '<br>') 
                 }}
