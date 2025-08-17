@@ -106,25 +106,25 @@ export default function CreateTopic() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center gap-4 mb-6">
+    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
         <Link to="/forums">
           <Button variant="ghost" size="sm" className="gap-2">
             <ArrowLeft className="h-4 w-4" />
             Terug naar forums
           </Button>
         </Link>
-        <h1 className="text-3xl font-bold">Nieuw Topic</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">Nieuw Topic</h1>
       </div>
 
       <Card className="max-w-4xl">
-        <CardHeader>
-          <CardTitle>Topic aanmaken</CardTitle>
-          <CardDescription>Start een nieuwe discussie</CardDescription>
+        <CardHeader className="pb-4 sm:pb-6">
+          <CardTitle className="text-lg sm:text-xl">Topic aanmaken</CardTitle>
+          <CardDescription className="text-sm sm:text-base">Start een nieuwe discussie</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
               <FormField
                 control={form.control}
                 name="category_id"
@@ -164,7 +164,7 @@ export default function CreateTopic() {
                 )}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <FormField
                   control={form.control}
                   name="image_url"
@@ -240,13 +240,13 @@ export default function CreateTopic() {
                 )}
               />
 
-              <div className="flex gap-4">
-                <Button type="submit" disabled={isLoading}>
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <Button type="submit" disabled={isLoading} className="h-11 sm:h-10">
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Topic aanmaken
                 </Button>
-                <Link to="/forums">
-                  <Button type="button" variant="outline">Annuleren</Button>
+                <Link to="/forums" className="w-full sm:w-auto">
+                  <Button type="button" variant="outline" className="w-full h-11 sm:h-10">Annuleren</Button>
                 </Link>
               </div>
             </form>

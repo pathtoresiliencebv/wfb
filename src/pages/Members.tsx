@@ -72,11 +72,11 @@ export default function Members() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
         <div>
-        <h1 className="font-heading text-3xl font-bold">Community Leden</h1>
-        <p className="text-muted-foreground">
+        <h1 className="font-heading text-2xl sm:text-3xl font-bold">Community Leden</h1>
+        <p className="text-muted-foreground text-sm sm:text-base">
           {loading ? 'Laden...' : `Ontmoet de ${members.length} leden van onze cannabis community`}
         </p>
       </div>
@@ -113,10 +113,10 @@ export default function Members() {
               <p className="text-destructive">{error}</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {members.map((member) => (
               <Card key={member.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-start gap-4">
                     <div className="relative">
                       <Avatar className="h-12 w-12">

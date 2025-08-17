@@ -188,11 +188,11 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-background p-3 sm:p-4">
+      <div className="w-full max-w-md space-y-4 sm:space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-primary">Wiet Forum België</h1>
-          <p className="text-muted-foreground mt-2">Cannabis community voor België</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary">Wiet Forum België</h1>
+          <p className="text-muted-foreground text-sm sm:text-base mt-2">Cannabis community voor België</p>
         </div>
 
         <Card>
@@ -284,14 +284,14 @@ export default function Login() {
                   )}
                 />
 
-                <Button type="submit" className="w-full" disabled={isLoading || rateLimitInfo?.locked}>
+                <Button type="submit" className="w-full h-11 sm:h-10" disabled={isLoading || rateLimitInfo?.locked}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {isLoading ? 'Inloggen...' : 'Inloggen'}
                 </Button>
               </form>
             </Form>
 
-            <div className="mt-6 text-center text-sm">
+            <div className="mt-4 sm:mt-6 text-center text-sm">
               <span className="text-muted-foreground">Nog geen account? </span>
               <Link to="/register" className="text-primary hover:underline font-medium">
                 Registreer hier
@@ -303,12 +303,12 @@ export default function Login() {
                 Wachtwoord vergeten?
               </Link>
               
-              <div className="flex justify-center gap-4 text-sm text-muted-foreground">
-                <Link to="/admin/login" className="hover:text-primary">
+              <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 text-sm text-muted-foreground">
+                <Link to="/admin/login" className="hover:text-primary text-center">
                   Admin login
                 </Link>
-                <span>•</span>
-                <Link to="/supplier-login" className="hover:text-primary">
+                <span className="hidden sm:inline">•</span>
+                <Link to="/supplier-login" className="hover:text-primary text-center">
                   Leverancier login
                 </Link>
               </div>

@@ -108,17 +108,17 @@ export default function UserProfile() {
       {/* Profile Header */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row items-start gap-6">
-            <div className="flex flex-col items-center text-center">
-              <Avatar className="h-24 w-24 mb-4">
+          <div className="flex flex-col md:flex-row items-start gap-4 sm:gap-6">
+            <div className="flex flex-col items-center text-center w-full sm:w-auto">
+              <Avatar className="h-20 sm:h-24 w-20 sm:w-24 mb-3 sm:mb-4">
                 <AvatarImage src={profile.avatar_url || undefined} />
-                <AvatarFallback className={`${getRoleColor(profile.role)} text-white text-lg`}>
+                <AvatarFallback className={`${getRoleColor(profile.role)} text-white text-base sm:text-lg`}>
                   {getUserInitials(profile.username)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex items-center gap-1 mb-2">
                 <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-xs sm:text-sm text-muted-foreground">
                   Lid sinds {formatDate(profile.created_at)}
                 </span>
               </div>
@@ -177,7 +177,7 @@ export default function UserProfile() {
               )}
 
               {/* Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                 <div className="text-center">
                   <div className="font-bold text-lg text-primary">{profile.reputation}</div>
                   <div className="text-sm text-muted-foreground">Reputatie</div>
@@ -204,10 +204,10 @@ export default function UserProfile() {
 
       {/* Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="posts">Recente Posts</TabsTrigger>
-          <TabsTrigger value="topics">Topics Gestart</TabsTrigger>
-          <TabsTrigger value="activity">Activiteit</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 h-auto">
+          <TabsTrigger value="posts" className="text-xs sm:text-sm py-2 sm:py-2.5">Recente Posts</TabsTrigger>
+          <TabsTrigger value="topics" className="text-xs sm:text-sm py-2 sm:py-2.5">Topics Gestart</TabsTrigger>
+          <TabsTrigger value="activity" className="text-xs sm:text-sm py-2 sm:py-2.5">Activiteit</TabsTrigger>
         </TabsList>
 
         <TabsContent value="posts" className="space-y-4">

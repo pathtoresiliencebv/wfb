@@ -466,10 +466,10 @@ const Settings = () => {
                         className="transition-all focus:ring-2 focus:ring-primary/20 resize-none"
                       />
                     </div>
-                    <Button 
+                     <Button 
                       onClick={handleSaveProfile} 
                       disabled={isSaving}
-                      className="transition-all hover:scale-105"
+                      className="transition-all hover:scale-105 h-11 sm:h-10"
                     >
                       {isSaving ? 'Opslaan...' : 'Profiel opslaan'}
                     </Button>

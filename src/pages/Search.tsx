@@ -361,11 +361,11 @@ export default function Search() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="font-heading text-3xl font-bold mb-2">Zoeken</h1>
-        <p className="text-muted-foreground">
+        <h1 className="font-heading text-2xl sm:text-3xl font-bold mb-2">Zoeken</h1>
+        <p className="text-muted-foreground text-sm sm:text-base">
           Doorzoek topics, reacties en leden van de community
         </p>
       </div>
@@ -390,24 +390,26 @@ export default function Search() {
             </div>
           </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="all">
-                Alles ({results.length})
-              </TabsTrigger>
-              <TabsTrigger value="topics">
-                <BookOpen size={16} />
-                <span className="ml-1">Topics ({results.filter(r => r.type === 'topic').length})</span>
-              </TabsTrigger>
-              <TabsTrigger value="replies">
-                <MessageSquare size={16} />
-                <span className="ml-1">Reacties ({results.filter(r => r.type === 'reply').length})</span>
-              </TabsTrigger>
-              <TabsTrigger value="users">
-                <Users size={16} />
-                <span className="ml-1">Leden ({results.filter(r => r.type === 'user').length})</span>
-              </TabsTrigger>
-            </TabsList>
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <div className="overflow-x-auto">
+              <TabsList className="grid w-full grid-cols-4 min-w-[500px] sm:min-w-0">
+                <TabsTrigger value="all" className="text-xs sm:text-sm">
+                  Alles ({results.length})
+                </TabsTrigger>
+                <TabsTrigger value="topics" className="text-xs sm:text-sm">
+                  <BookOpen size={14} className="sm:mr-1" />
+                  <span className="hidden sm:inline">Topics</span> ({results.filter(r => r.type === 'topic').length})
+                </TabsTrigger>
+                <TabsTrigger value="replies" className="text-xs sm:text-sm">
+                  <MessageSquare size={14} className="sm:mr-1" />
+                  <span className="hidden sm:inline">Reacties</span> ({results.filter(r => r.type === 'reply').length})
+                </TabsTrigger>
+                <TabsTrigger value="users" className="text-xs sm:text-sm">
+                  <Users size={14} className="sm:mr-1" />
+                  <span className="hidden sm:inline">Leden</span> ({results.filter(r => r.type === 'user').length})
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value={activeTab} className="space-y-4 mt-6">
               {loading ? (

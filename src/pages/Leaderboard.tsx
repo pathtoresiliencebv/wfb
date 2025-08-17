@@ -64,13 +64,13 @@ export default function Leaderboard() {
   const earnedAchievementIds = userAchievements?.map(ua => ua.achievement_id) || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Trophy className="h-8 w-8 text-primary" />
+        <Trophy className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
         <div>
-          <h1 className="font-heading text-3xl font-bold">Leaderboard</h1>
-          <p className="text-muted-foreground">
+          <h1 className="font-heading text-2xl sm:text-3xl font-bold">Leaderboard</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Onze meest waardevolle community leden
           </p>
         </div>
@@ -86,14 +86,14 @@ export default function Leaderboard() {
           <EnhancedLeaderboard limit={10} showUserPosition={true} />
         </TabsContent>
 
-        <TabsContent value="achievements" className="space-y-6">
+        <TabsContent value="achievements" className="space-y-4 sm:space-y-6">
           {allAchievements && allAchievements.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
               {allAchievements.map((achievement) => {
                 const isEarned = userAchievements?.some(ua => ua.achievement_id === achievement.id) || false;
                 return (
                   <Card key={achievement.id} className={`${isEarned ? 'border-primary' : 'opacity-60'}`}>
-                    <CardContent className="p-6 text-center">
+                    <CardContent className="p-4 sm:p-6 text-center">
                       <div className={`h-12 w-12 mx-auto mb-3 flex items-center justify-center rounded-full ${isEarned ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
                         {achievement.icon ? (
                           <span className="text-2xl">{achievement.icon}</span>
