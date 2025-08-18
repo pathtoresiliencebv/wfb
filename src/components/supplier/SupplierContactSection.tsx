@@ -2,8 +2,6 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, Send, Mail } from 'lucide-react';
-import telegramIcon from '@/assets/icons/telegram.webp';
-import wireIcon from '@/assets/icons/wire.webp';
 
 interface SupplierContactSectionProps {
   supplierName: string;
@@ -38,7 +36,7 @@ export const SupplierContactSection: React.FC<SupplierContactSectionProps> = ({
           <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer border-blue-200 hover:border-blue-400 hover:scale-105">
             <CardContent className="p-6 text-center">
               <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <img src={wireIcon} alt="Wire" className="w-8 h-8" />
+                <MessageCircle className="w-8 h-8 text-white" />
               </div>
               <h3 className="font-semibold text-lg mb-2">Wire</h3>
               <p className="text-sm text-muted-foreground mb-4">
@@ -63,7 +61,7 @@ export const SupplierContactSection: React.FC<SupplierContactSectionProps> = ({
           <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer border-blue-200 hover:border-blue-400 hover:scale-105">
             <CardContent className="p-6 text-center">
               <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-400 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <img src={telegramIcon} alt="Telegram" className="w-8 h-8" />
+                <Send className="w-8 h-8 text-white" />
               </div>
               <h3 className="font-semibold text-lg mb-2">Telegram</h3>
               <p className="text-sm text-muted-foreground mb-4">
