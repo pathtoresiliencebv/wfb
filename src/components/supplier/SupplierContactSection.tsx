@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, Send, Mail } from 'lucide-react';
+import { Smartphone, MessagesSquare, Mail } from 'lucide-react';
 
 interface SupplierContactSectionProps {
   supplierName: string;
@@ -22,7 +22,7 @@ export const SupplierContactSection: React.FC<SupplierContactSectionProps> = ({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-2xl">
-          <MessageCircle className="h-6 w-6 text-green-600" />
+          <MessagesSquare className="h-6 w-6 text-green-600" />
           Contact Opnemen
         </CardTitle>
       </CardHeader>
@@ -36,7 +36,7 @@ export const SupplierContactSection: React.FC<SupplierContactSectionProps> = ({
           <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer border-blue-200 hover:border-blue-400 hover:scale-105">
             <CardContent className="p-6 text-center">
               <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <MessageCircle className="w-8 h-8 text-white" />
+                <Smartphone className="w-8 h-8 text-white" />
               </div>
               <h3 className="font-semibold text-lg mb-2">Wire</h3>
               <p className="text-sm text-muted-foreground mb-4">
@@ -51,7 +51,7 @@ export const SupplierContactSection: React.FC<SupplierContactSectionProps> = ({
                 className="w-full bg-blue-600 hover:bg-blue-700"
                 onClick={() => window.open(`https://wfb.pathtoresilience.dev/contact/wire/${(contactInfo?.wire || 'wire_username').replace('@', '')}`, '_blank', 'noopener,noreferrer')}
               >
-                <MessageCircle className="h-4 w-4 mr-2" />
+                <Smartphone className="h-4 w-4 mr-2" />
                 Contact via Wire
               </Button>
             </CardContent>
@@ -61,7 +61,7 @@ export const SupplierContactSection: React.FC<SupplierContactSectionProps> = ({
           <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer border-blue-200 hover:border-blue-400 hover:scale-105">
             <CardContent className="p-6 text-center">
               <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-400 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <Send className="w-8 h-8 text-white" />
+                <MessagesSquare className="w-8 h-8 text-white" />
               </div>
               <h3 className="font-semibold text-lg mb-2">Telegram</h3>
               <p className="text-sm text-muted-foreground mb-4">
@@ -76,7 +76,7 @@ export const SupplierContactSection: React.FC<SupplierContactSectionProps> = ({
                 className="w-full bg-blue-500 hover:bg-blue-600"
                 onClick={() => window.open(`https://wfb.pathtoresilience.dev/contact/telegram/${(contactInfo?.telegram || 'telegram_username').replace('@', '')}`, '_blank', 'noopener,noreferrer')}
               >
-                <Send className="h-4 w-4 mr-2" />
+                <MessagesSquare className="h-4 w-4 mr-2" />
                 Contact via Telegram
               </Button>
             </CardContent>
