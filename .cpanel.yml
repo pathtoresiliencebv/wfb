@@ -1,0 +1,20 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/username/public_html/
+    - export NODEJS_VERSION=20
+    - export NODE_PATH=/home/username/nodevenv/public_html/20/lib/node_modules
+    - export PATH=/home/username/nodevenv/public_html/20/bin:$PATH
+    - source /home/username/nodevenv/public_html/20/bin/activate
+    - npm install
+    - npm run build
+    - cp -R dist/* $DEPLOYPATH
+    - echo 'Options -MultiViews
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.html [QSA,L]' > $DEPLOYPATH/.htaccess
+    - chmod 644 $DEPLOYPATH/.htaccess
+    - find $DEPLOYPATH -type f -name "*.html" -exec chmod 644 {} \;
+    - find $DEPLOYPATH -type f -name "*.css" -exec chmod 644 {} \;
+    - find $DEPLOYPATH -type f -name "*.js" -exec chmod 644 {} \;
+    - find $DEPLOYPATH -type d -exec chmod 755 {} \;
