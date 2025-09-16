@@ -1,11 +1,11 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/username/public_html/
+    - export DEPLOYPATH=/home/wietforu/public_html/
     - export NODEJS_VERSION=20
-    - export NODE_PATH=/home/username/nodevenv/public_html/20/lib/node_modules
-    - export PATH=/home/username/nodevenv/public_html/20/bin:$PATH
-    - source /home/username/nodevenv/public_html/20/bin/activate
+    - export NODE_PATH=/home/wietforu/nodevenv/public_html/20/lib/node_modules
+    - export PATH=/home/wietforu/nodevenv/public_html/20/bin:$PATH
+    - source /home/wietforu/nodevenv/public_html/20/bin/activate
     - npm install
     - npm run build
     - cp -R dist/* $DEPLOYPATH
