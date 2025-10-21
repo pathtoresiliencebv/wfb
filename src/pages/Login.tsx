@@ -18,7 +18,6 @@ import { useServerSideRateLimit } from '@/hooks/useServerSideRateLimit';
 import { useAuditLog } from '@/hooks/useAuditLog';
 import { validateEmail } from '@/lib/security';
 import { TwoFactorModal } from '@/components/auth/TwoFactorModal';
-import { TestCredentials } from '@/components/auth/TestCredentials';
 import { use2FA } from '@/hooks/use2FA';
 
 const loginSchema = z.object({
@@ -321,8 +320,6 @@ export default function Login() {
           onComplete={handle2FAComplete}
           userEmail={pendingLogin?.email || ''}
         />
-
-        <TestCredentials />
 
         <div className="text-center text-sm text-muted-foreground">
           <p>Door in te loggen ga je akkoord met onze</p>
