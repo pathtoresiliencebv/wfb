@@ -177,7 +177,7 @@ export function AdminUserManagement() {
           Gebruikers Beheer
         </CardTitle>
         <CardDescription>
-          Beheer gebruikersaccounts, rollen en verificaties
+          Beheer gebruikers, rollen en verificaties
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
