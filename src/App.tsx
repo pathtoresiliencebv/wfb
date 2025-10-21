@@ -46,6 +46,8 @@ import SupplierDashboard from "./pages/SupplierDashboard";
 import AdminLogin from "./pages/AdminLogin";
 import AdminRegister from "./pages/AdminRegister";
 import SupplierLogin from "./pages/SupplierLogin";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 
 // Create QueryClient instance outside of component to prevent recreation
 const queryClient = new QueryClient({
@@ -348,6 +350,16 @@ function AppRoutes() {
                 <Route 
                   path="/leverancier/dashboard" 
                   element={<SupplierDashboard />} 
+                />
+                
+                {/* Legal pages */}
+                <Route 
+                  path="/terms" 
+                  element={<Terms />} 
+                />
+                <Route 
+                  path="/privacy" 
+                  element={<Privacy />} 
                 />
                 
         {/* Catch-all route */}
