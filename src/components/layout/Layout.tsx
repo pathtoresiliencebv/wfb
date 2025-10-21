@@ -4,7 +4,6 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { Header } from './Header';
 import { EmailVerificationBanner } from '@/components/auth/EmailVerificationBanner';
-import { Footer } from './Footer';
 import { MobileBottomNavigation } from '@/components/mobile/MobileBottomNavigation';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocation } from 'react-router-dom';
@@ -39,8 +38,6 @@ export function Layout({ children }: LayoutProps) {
               {children}
             </div>
           </main>
-          
-          <Footer />
         </div>
         
         <MobileBottomNavigation />
