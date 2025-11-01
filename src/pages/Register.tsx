@@ -300,7 +300,7 @@ export default function Register() {
                              }
                              initialFocus
                              className={cn("p-3 pointer-events-auto")}
-                             captionLayout="dropdown-buttons"
+                             captionLayout="dropdown"
                              fromYear={1900}
                              toYear={new Date().getFullYear()}
                              locale={nl}
