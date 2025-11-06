@@ -8,6 +8,9 @@ import { CommunityHighlights } from '@/components/home/CommunityHighlights';
 import { NewsletterSignup } from '@/components/home/NewsletterSignup';
 import { PublicActivityPreview } from '@/components/home/PublicActivityPreview';
 import { TopSuppliers } from '@/components/supplier/TopSuppliers';
+import { ForumCategoriesPreview } from '@/components/home/ForumCategoriesPreview';
+import { FAQSection } from '@/components/home/FAQSection';
+import { SocialProofSection } from '@/components/home/SocialProofSection';
 import { useRealTimeStats } from '@/hooks/useRealTimeStats';
 import { useState, useEffect } from 'react';
 import { Separator } from '@/components/ui/separator';
@@ -94,8 +97,15 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Trending Topics */}
+      {/* Forum Categories Preview */}
       <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <ForumCategoriesPreview />
+        </div>
+      </section>
+
+      {/* Trending Topics */}
+      <section className="py-16">
         <div className="container mx-auto px-4">
           <TrendingTopics limit={6} showHeader={true} />
         </div>
@@ -111,17 +121,33 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* Social Proof Section */}
+      <section className="py-16 bg-gradient-to-b from-muted/30 to-background">
+        <div className="container mx-auto px-4">
+          <SocialProofSection />
+        </div>
+      </section>
+
       {/* Recent Activity */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold mb-2">Wat Er Gebeurt</h2>
+              <h2 className="text-3xl font-bold mb-2">Recente Topics</h2>
               <p className="text-muted-foreground">
                 Bekijk de nieuwste discussies in onze community
               </p>
             </div>
             <PublicActivityPreview />
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <FAQSection />
           </div>
         </div>
       </section>
