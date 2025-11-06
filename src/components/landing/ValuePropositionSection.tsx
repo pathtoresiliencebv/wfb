@@ -9,6 +9,10 @@ import {
   TrendingUp,
   Heart
 } from 'lucide-react';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
+import { fadeInUp, staggerContainer } from '@/lib/animations';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 const benefits = [
   {
@@ -62,30 +66,70 @@ const benefits = [
 ];
 
 export function ValuePropositionSection() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
+  const prefersReducedMotion = useReducedMotion();
+
+  const MotionDiv = prefersReducedMotion ? 'div' : motion.div;
+  const MotionCard = prefersReducedMotion ? Card : motion(Card);
+
   return (
     <section className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <MotionDiv 
+          className="text-center mb-16"
+          {...(!prefersReducedMotion && {
+            initial: { opacity: 0, y: 30 },
+            animate: isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 },
+            transition: { duration: 0.5 }
+          })}
+        >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Waarom Wiet Forum België?
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             De meest complete cannabis community van België. Alles wat je nodig hebt op één plek.
           </p>
-        </div>
+        </MotionDiv>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <motion.div 
+          ref={ref}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          {...(!prefersReducedMotion && {
+            variants: staggerContainer,
+            initial: "hidden",
+            animate: isInView ? "visible" : "hidden"
+          })}
+        >
           {benefits.map((benefit, index) => {
             const Icon = benefit.icon;
             return (
-              <Card 
+              <MotionCard 
                 key={index}
-                className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                className="group transition-all duration-300"
+                {...(!prefersReducedMotion && {
+                  variants: fadeInUp,
+                  transition: { delay: index * 0.08 },
+                  whileHover: { 
+                    scale: 1.05,
+                    y: -5,
+                    boxShadow: '0 20px 40px -12px hsl(var(--primary) / 0.2)'
+                  }
+                })}
               >
                 <CardContent className="p-6 space-y-4">
-                  <div className={`${benefit.color} bg-background rounded-full w-14 h-14 flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                  <motion.div 
+                    className={`${benefit.color} bg-background rounded-full w-14 h-14 flex items-center justify-center`}
+                    {...(!prefersReducedMotion && {
+                      whileHover: { 
+                        rotate: [0, -10, 10, 0],
+                        scale: 1.1,
+                        transition: { duration: 0.5 }
+                      }
+                    })}
+                  >
                     <Icon className="h-7 w-7" />
-                  </div>
+                  </motion.div>
                   <div>
                     <h3 className="font-semibold text-lg mb-2">{benefit.title}</h3>
                     <p className="text-sm text-muted-foreground">
@@ -93,10 +137,10 @@ export function ValuePropositionSection() {
                     </p>
                   </div>
                 </CardContent>
-              </Card>
+              </MotionCard>
             );
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

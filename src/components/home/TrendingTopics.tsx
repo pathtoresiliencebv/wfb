@@ -7,6 +7,10 @@ import { useTrendingTopics } from '@/hooks/useTrendingTopics';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
+import { fadeInUp, staggerContainer } from '@/lib/animations';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 interface TrendingTopicsProps {
   limit?: number;
@@ -15,6 +19,12 @@ interface TrendingTopicsProps {
 
 export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsProps) {
   const { topics, isLoading } = useTrendingTopics(limit);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
+  const prefersReducedMotion = useReducedMotion();
+
+  const MotionDiv = prefersReducedMotion ? 'div' : motion.div;
+  const MotionCard = prefersReducedMotion ? Card : motion(Card);
 
   if (isLoading) {
     return (
@@ -36,15 +46,55 @@ export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsP
   return (
     <div className="space-y-6">
       {showHeader && (
-        <div className="flex items-center gap-2">
-          <TrendingUp className="h-6 w-6 text-primary" />
+        <MotionDiv 
+          className="flex items-center gap-2"
+          {...(!prefersReducedMotion && {
+            initial: { opacity: 0, x: -30 },
+            animate: isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 },
+            transition: { duration: 0.5 }
+          })}
+        >
+          <motion.div
+            {...(!prefersReducedMotion && {
+              animate: { 
+                scale: [1, 1.2, 1],
+                rotate: [0, 5, -5, 0]
+              },
+              transition: { 
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }
+            })}
+          >
+            <TrendingUp className="h-6 w-6 text-primary" />
+          </motion.div>
           <h2 className="text-3xl font-bold">Trending Topics</h2>
-        </div>
+        </MotionDiv>
       )}
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {topics.map((topic) => (
-          <Card key={topic.id} className="hover:shadow-lg transition-shadow">
+      <motion.div 
+        ref={ref}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        {...(!prefersReducedMotion && {
+          variants: staggerContainer,
+          initial: "hidden",
+          animate: isInView ? "visible" : "hidden"
+        })}
+      >
+        {topics.map((topic, index) => (
+          <MotionCard 
+            key={topic.id} 
+            className="transition-shadow"
+            {...(!prefersReducedMotion && {
+              variants: fadeInUp,
+              transition: { delay: index * 0.08 },
+              whileHover: { 
+                scale: 1.02,
+                boxShadow: '0 20px 40px -12px hsl(var(--primary) / 0.2)'
+              }
+            })}
+          >
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-2">
                 <CardTitle className="text-base line-clamp-2">
@@ -56,13 +106,24 @@ export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsP
                   </Link>
                 </CardTitle>
               </div>
-              <Badge variant="secondary" className="w-fit mt-2">
-                {topic.categories.name}
-              </Badge>
+              <motion.div
+                {...(!prefersReducedMotion && {
+                  whileHover: { scale: 1.05 }
+                })}
+              >
+                <Badge variant="secondary" className="w-fit mt-2">
+                  {topic.categories.name}
+                </Badge>
+              </motion.div>
             </CardHeader>
             <CardContent className="space-y-3">
               {topic.profiles && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <motion.div 
+                  className="flex items-center gap-2 text-sm text-muted-foreground"
+                  {...(!prefersReducedMotion && {
+                    whileHover: { x: 5 }
+                  })}
+                >
                   <Avatar className="h-6 w-6">
                     <AvatarImage src={topic.profiles.avatar_url || undefined} />
                     <AvatarFallback>
@@ -72,18 +133,28 @@ export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsP
                   <span className="truncate">
                     {topic.profiles.display_name || topic.profiles.username}
                   </span>
-                </div>
+                </motion.div>
               )}
               
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
+                <motion.div 
+                  className="flex items-center gap-1"
+                  {...(!prefersReducedMotion && {
+                    whileHover: { scale: 1.1 }
+                  })}
+                >
                   <Eye className="h-4 w-4" />
                   <span>{topic.view_count}</span>
-                </div>
-                <div className="flex items-center gap-1">
+                </motion.div>
+                <motion.div 
+                  className="flex items-center gap-1"
+                  {...(!prefersReducedMotion && {
+                    whileHover: { scale: 1.1 }
+                  })}
+                >
                   <MessageSquare className="h-4 w-4" />
                   <span>{topic.reply_count}</span>
-                </div>
+                </motion.div>
                 <span className="ml-auto text-xs">
                   {formatDistanceToNow(new Date(topic.created_at), { 
                     addSuffix: true,
@@ -92,18 +163,25 @@ export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsP
                 </span>
               </div>
             </CardContent>
-          </Card>
+          </MotionCard>
         ))}
-      </div>
+      </motion.div>
       
-      <div className="text-center">
+      <MotionDiv 
+        className="text-center"
+        {...(!prefersReducedMotion && {
+          initial: { opacity: 0, y: 20 },
+          animate: isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 },
+          transition: { delay: 0.5 }
+        })}
+      >
         <Link 
           to="/forums"
           className="inline-flex items-center gap-2 text-primary hover:underline"
         >
           Bekijk alle topics →
         </Link>
-      </div>
+      </MotionDiv>
     </div>
   );
 }

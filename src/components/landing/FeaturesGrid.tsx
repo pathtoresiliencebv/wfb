@@ -13,6 +13,10 @@ import {
   Bell,
   Star
 } from 'lucide-react';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
+import { fadeInUp, staggerContainer } from '@/lib/animations';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 const features = [
   {
@@ -102,38 +106,74 @@ const features = [
 ];
 
 export function FeaturesGrid() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
+  const prefersReducedMotion = useReducedMotion();
+
+  const MotionDiv = prefersReducedMotion ? 'div' : motion.div;
+  const MotionCard = prefersReducedMotion ? Card : motion(Card);
+
   return (
     <section className="py-20 bg-muted/50">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16 space-y-4">
+        <MotionDiv 
+          className="text-center mb-16 space-y-4"
+          {...(!prefersReducedMotion && {
+            initial: { opacity: 0, y: 30 },
+            animate: isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 },
+            transition: { duration: 0.5 }
+          })}
+        >
           <h2 className="text-4xl md:text-5xl font-bold font-heading">
             Alles Wat Je <span className="text-primary">Nodig Hebt</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Ontdek alle features die Wiet Forum België de beste cannabis community van België maken
           </p>
-        </div>
+        </MotionDiv>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <motion.div 
+          ref={ref}
+          className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          {...(!prefersReducedMotion && {
+            variants: staggerContainer,
+            initial: "hidden",
+            animate: isInView ? "visible" : "hidden"
+          })}
+        >
           {features.map((feature, index) => (
-            <Card 
+            <MotionCard 
               key={index} 
-              className="group hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 hover:border-primary/30 bg-gradient-to-br from-card to-card/50"
+              className="group transition-all duration-300 border-2 hover:border-primary/30 bg-gradient-to-br from-card to-card/50"
+              {...(!prefersReducedMotion && {
+                variants: fadeInUp,
+                transition: { delay: index * 0.05 },
+                whileHover: { 
+                  scale: 1.05,
+                  boxShadow: '0 25px 50px -12px hsl(var(--primary) / 0.25)'
+                }
+              })}
             >
               <CardContent className="pt-6 space-y-4">
-                <div 
-                  className={`inline-flex p-4 rounded-2xl ${feature.bgColor} group-hover:scale-110 transition-transform shadow-lg`}
+                <MotionDiv 
+                  className={`inline-flex p-4 rounded-2xl ${feature.bgColor} shadow-lg`}
+                  {...(!prefersReducedMotion && {
+                    whileHover: { 
+                      rotate: 5, 
+                      scale: 1.15 
+                    }
+                  })}
                 >
                   <feature.icon className={`h-7 w-7 ${feature.color}`} />
-                </div>
+                </MotionDiv>
                 <h3 className="font-bold text-lg group-hover:text-primary transition-colors">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {feature.description}
                 </p>
               </CardContent>
-            </Card>
+            </MotionCard>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
