@@ -51,6 +51,8 @@ export default function Members() {
     setActiveTab(tab);
     if (tab === 'all') {
       searchMembers(searchQuery);
+    } else if (tab === 'users') {
+      filterByRole('user');
     } else if (tab === 'online') {
       filterByOnlineStatus(true);
     } else if (tab === 'suppliers') {
@@ -98,6 +100,7 @@ export default function Members() {
       <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList>
           <TabsTrigger value="all">Alle Leden</TabsTrigger>
+          <TabsTrigger value="users">Gebruikers</TabsTrigger>
           <TabsTrigger value="online">Online Nu</TabsTrigger>
           <TabsTrigger value="suppliers">Leveranciers</TabsTrigger>
           <TabsTrigger value="moderators">Moderators</TabsTrigger>
