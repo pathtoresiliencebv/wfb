@@ -12,6 +12,10 @@ export interface Message {
   created_at: string;
   updated_at: string;
   is_read: boolean;
+  is_deleted?: boolean;
+  deleted_at?: string;
+  is_edited?: boolean;
+  edited_at?: string;
 }
 
 export interface Conversation {
@@ -27,6 +31,7 @@ export interface Conversation {
       username: string;
       display_name: string;
       avatar_url?: string;
+      is_verified?: boolean;
     };
   }>;
   last_message?: any;
@@ -55,7 +60,8 @@ export function useMessaging() {
             profiles (
               username,
               display_name,
-              avatar_url
+              avatar_url,
+              is_verified
             )
           )
         `)
@@ -128,6 +134,7 @@ export function useMessaging() {
           .from('messages')
           .select('*')
           .eq('conversation_id', conversationId)
+          .eq('is_deleted', false)
           .order('created_at', { ascending: true });
 
         if (error) throw error;
@@ -234,6 +241,59 @@ export function useMessaging() {
     },
   });
 
+  // Delete message (soft delete)
+  const deleteMessageMutation = useMutation({
+    mutationFn: async (messageId: string) => {
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await supabase
+        .from('messages')
+        .update({ 
+          is_deleted: true, 
+          deleted_at: new Date().toISOString() 
+        })
+        .eq('id', messageId)
+        .eq('sender_id', user.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['messages'] });
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      toast({
+        title: 'Bericht verwijderd',
+        description: 'Je bericht is succesvol verwijderd',
+      });
+    },
+  });
+
+  // Edit message
+  const editMessageMutation = useMutation({
+    mutationFn: async ({ messageId, newContent }: { messageId: string; newContent: string }) => {
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await supabase
+        .from('messages')
+        .update({ 
+          content: newContent,
+          is_edited: true,
+          edited_at: new Date().toISOString() 
+        })
+        .eq('id', messageId)
+        .eq('sender_id', user.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['messages'] });
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      toast({
+        title: 'Bericht bewerkt',
+        description: 'Je bericht is succesvol bijgewerkt',
+      });
+    },
+  });
+
   // Set up real-time subscription for messages
   useEffect(() => {
     if (!user) return;
@@ -282,6 +342,14 @@ export function useMessaging() {
     markConversationAsReadMutation.mutate(conversationId);
   };
 
+  const deleteMessage = (messageId: string) => {
+    deleteMessageMutation.mutate(messageId);
+  };
+
+  const editMessage = (messageId: string, newContent: string) => {
+    editMessageMutation.mutate({ messageId, newContent });
+  };
+
   // Calculate total unread messages across all conversations
   const totalUnreadCount = conversations?.reduce(
     (total, conv) => total + (conv.unread_count || 0),
@@ -295,9 +363,13 @@ export function useMessaging() {
     createConversation,
     sendMessage,
     markConversationAsRead,
+    deleteMessage,
+    editMessage,
     totalUnreadCount,
     isSendingMessage: sendMessageMutation.isPending,
     isCreatingConversation: createConversationMutation.isPending,
     isMarkingAsRead: markConversationAsReadMutation.isPending,
+    isDeletingMessage: deleteMessageMutation.isPending,
+    isEditingMessage: editMessageMutation.isPending,
   };
 }

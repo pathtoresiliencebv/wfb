@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,10 +18,12 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { ThemeToggle } from './ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
+import { useMessaging } from '@/hooks/useMessaging';
 
 export function Header() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { totalUnreadCount } = useMessaging();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   // Online/offline status
@@ -58,15 +61,23 @@ export function Header() {
               { title: 'Feed', to: '/' },
               { title: 'Forums', to: '/forums' },
               { title: 'Leden', to: '/members' },
-              { title: 'Berichten', to: '/messages' },
+              { title: 'Berichten', to: '/messages', badge: totalUnreadCount },
               { title: 'Leaderboard', to: '/leaderboard' },
             ].map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
-                className="px-2 lg:px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent whitespace-nowrap"
+                className="px-2 lg:px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent whitespace-nowrap relative"
               >
                 {item.title}
+                {item.badge && item.badge > 0 && (
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute -top-1 -right-1 h-5 min-w-[20px] flex items-center justify-center text-xs px-1"
+                  >
+                    {item.badge > 9 ? '9+' : item.badge}
+                  </Badge>
+                )}
               </Link>
             ))}
           </nav>

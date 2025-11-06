@@ -484,7 +484,11 @@ export type Database = {
           content: string
           conversation_id: string
           created_at: string
+          deleted_at: string | null
+          edited_at: string | null
           id: string
+          is_deleted: boolean | null
+          is_edited: boolean | null
           is_read: boolean | null
           sender_id: string
           updated_at: string
@@ -493,7 +497,11 @@ export type Database = {
           content: string
           conversation_id: string
           created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
           id?: string
+          is_deleted?: boolean | null
+          is_edited?: boolean | null
           is_read?: boolean | null
           sender_id: string
           updated_at?: string
@@ -502,7 +510,11 @@ export type Database = {
           content?: string
           conversation_id?: string
           created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
           id?: string
+          is_deleted?: boolean | null
+          is_edited?: boolean | null
           is_read?: boolean | null
           sender_id?: string
           updated_at?: string

@@ -9,7 +9,13 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { MessageCircle, Send, Plus, Search, Users, ArrowLeft, ChevronRight } from 'lucide-react';
+import { MessageCircle, Send, Plus, Search, Users, ArrowLeft, ChevronRight, MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useMessaging, Conversation, Message } from '@/hooks/useMessaging';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
@@ -17,12 +23,16 @@ import { nl } from 'date-fns/locale';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useTypingIndicator } from '@/hooks/useTypingIndicator';
+import { TypingIndicator } from '@/components/ui/typing-indicator';
+import { VerifiedBadge } from '@/components/ui/verified-badge';
 
 interface User {
   user_id: string;
   username: string;
   display_name: string;
   avatar_url?: string;
+  is_verified?: boolean;
 }
 
 export function MessageCenter() {
@@ -35,9 +45,13 @@ export function MessageCenter() {
     createConversation,
     sendMessage,
     markConversationAsRead,
+    deleteMessage,
+    editMessage,
     totalUnreadCount,
     isSendingMessage,
     isCreatingConversation,
+    isDeletingMessage,
+    isEditingMessage,
   } = useMessaging();
 
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
@@ -46,7 +60,15 @@ export function MessageCenter() {
   const [selectedUserId, setSelectedUserId] = useState('');
   const [searchUsers, setSearchUsers] = useState('');
   const [showConversationView, setShowConversationView] = useState(false); // Mobile conversation view
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editingContent, setEditingContent] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Typing indicator
+  const { typingUsers, startTyping, stopTyping } = useTypingIndicator(
+    undefined,
+    selectedConversation || undefined
+  );
 
   const { data: messages, isLoading: messagesLoading } = useConversationMessages(selectedConversation);
 
@@ -58,7 +80,7 @@ export function MessageCenter() {
 
       let query = supabase
         .from('profiles')
-        .select('user_id, username, display_name, avatar_url')
+        .select('user_id, username, display_name, avatar_url, is_verified')
         .neq('user_id', user.id)
         .limit(20);
 
@@ -89,8 +111,36 @@ export function MessageCenter() {
     e.preventDefault();
     if (!selectedConversation || !newMessage.trim()) return;
 
-    sendMessage(selectedConversation, newMessage);
+    if (editingMessageId) {
+      // Update existing message
+      editMessage(editingMessageId, newMessage);
+      setEditingMessageId(null);
+    } else {
+      // Send new message
+      sendMessage(selectedConversation, newMessage);
+    }
+    
     setNewMessage('');
+    stopTyping();
+  };
+
+  const handleDeleteMessage = (messageId: string) => {
+    if (confirm('Weet je zeker dat je dit bericht wilt verwijderen?')) {
+      deleteMessage(messageId);
+    }
+  };
+
+  const handleEditMessage = (message: Message) => {
+    setEditingMessageId(message.id);
+    setEditingContent(message.content);
+    setNewMessage(message.content);
+  };
+
+  const canModifyMessage = (messageTimestamp: string) => {
+    const messageTime = new Date(messageTimestamp);
+    const now = new Date();
+    const diffInMinutes = (now.getTime() - messageTime.getTime()) / (1000 * 60);
+    return diffInMinutes <= 15;
   };
 
   const handleCreateConversation = async () => {
@@ -172,8 +222,9 @@ export function MessageCenter() {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <div className="font-medium text-sm truncate">
+              <div className="font-medium text-sm truncate flex items-center gap-1">
                 {otherParticipant?.profiles.display_name || otherParticipant?.profiles.username}
+                {otherParticipant?.profiles.is_verified && <VerifiedBadge className="h-3.5 w-3.5" />}
               </div>
               <div className="text-xs text-muted-foreground truncate">
                 @{otherParticipant?.profiles.username}
@@ -191,33 +242,83 @@ export function MessageCenter() {
                   ))}
                 </div>
               ) : (
-                messages?.map((message) => {
-                  const isOwnMessage = message.sender_id === user?.id;
-                  
-                  return (
-                    <div
-                      key={message.id}
-                      className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
-                    >
+                <>
+                  {messages?.map((message) => {
+                    const isOwnMessage = message.sender_id === user?.id;
+                    const canModify = isOwnMessage && canModifyMessage(message.created_at);
+                    
+                    return (
                       <div
-                        className={`max-w-[85%] p-3 rounded-2xl ${
-                          isOwnMessage
-                            ? 'bg-primary text-primary-foreground rounded-br-md'
-                            : 'bg-muted rounded-bl-md'
-                        }`}
+                        key={message.id}
+                        className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} group`}
                       >
-                        <div className="text-sm leading-relaxed">{message.content}</div>
                         <div
-                          className={`text-xs mt-1 ${
-                            isOwnMessage ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                          className={`max-w-[85%] p-3 rounded-2xl relative ${
+                            isOwnMessage
+                              ? 'bg-primary text-primary-foreground rounded-br-md'
+                              : 'bg-muted rounded-bl-md'
                           }`}
                         >
-                          {formatMessageTime(message.created_at)}
+                          <div className="text-sm leading-relaxed">
+                            {message.is_deleted ? (
+                              <span className="italic opacity-50">[Bericht verwijderd]</span>
+                            ) : (
+                              message.content
+                            )}
+                          </div>
+                          <div
+                            className={`text-xs mt-1 flex items-center gap-1 ${
+                              isOwnMessage ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                            }`}
+                          >
+                            {formatMessageTime(message.created_at)}
+                            {message.is_edited && !message.is_deleted && (
+                              <span className="italic">(bewerkt)</span>
+                            )}
+                          </div>
+                          
+                          {/* Edit/Delete dropdown */}
+                          {canModify && !message.is_deleted && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="absolute -top-2 -right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <MoreVertical className="h-3 w-3" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleEditMessage(message)}>
+                                  <Edit2 className="h-3 w-3 mr-2" />
+                                  Bewerken
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeleteMessage(message.id)}
+                                  className="text-destructive"
+                                >
+                                  <Trash2 className="h-3 w-3 mr-2" />
+                                  Verwijderen
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
                         </div>
                       </div>
+                    );
+                  })}
+                  
+                  {/* Typing indicator */}
+                  {typingUsers.length > 0 && (
+                    <div className="flex justify-start">
+                      <TypingIndicator 
+                        usernames={typingUsers.map(u => u.username)} 
+                        className="max-w-[85%]"
+                      />
                     </div>
-                  );
-                })
+                  )}
+                </>
               )}
               <div ref={messagesEndRef} />
             </div>
@@ -225,10 +326,34 @@ export function MessageCenter() {
 
           {/* Mobile Message Input */}
           <div className="p-3 border-t bg-background">
+            {editingMessageId && (
+              <div className="mb-2 px-2 py-1 bg-muted rounded text-xs flex items-center justify-between">
+                <span>Bericht bewerken...</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2"
+                  onClick={() => {
+                    setEditingMessageId(null);
+                    setNewMessage('');
+                  }}
+                >
+                  Annuleren
+                </Button>
+              </div>
+            )}
             <form onSubmit={handleSendMessage} className="flex gap-2">
               <Textarea
                 value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
+                onChange={(e) => {
+                  setNewMessage(e.target.value);
+                  if (e.target.value.length > 0 && !editingMessageId) {
+                    startTyping();
+                  } else if (e.target.value.length === 0) {
+                    stopTyping();
+                  }
+                }}
+                onBlur={stopTyping}
                 placeholder="Typ je bericht..."
                 className="flex-1 min-h-[44px] max-h-[120px] resize-none text-base"
                 rows={1}
@@ -241,7 +366,7 @@ export function MessageCenter() {
               />
               <Button
                 type="submit"
-                disabled={!newMessage.trim() || isSendingMessage}
+                disabled={!newMessage.trim() || isSendingMessage || isEditingMessage}
                 className="self-end min-h-[44px] px-4"
               >
                 <Send className="h-4 w-4" />
@@ -350,8 +475,9 @@ export function MessageCenter() {
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <div className="font-medium text-base truncate">
+                        <div className="font-medium text-base truncate flex items-center gap-1">
                           {otherParticipant?.profiles.display_name || otherParticipant?.profiles.username}
+                          {otherParticipant?.profiles.is_verified && <VerifiedBadge className="h-3.5 w-3.5 flex-shrink-0" />}
                         </div>
                         <div className="flex items-center gap-2">
                           {conversation.unread_count! > 0 && (
@@ -533,8 +659,9 @@ export function MessageCenter() {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <div className="font-medium">
+                      <div className="font-medium flex items-center gap-1">
                         {otherParticipant?.profiles.display_name || otherParticipant?.profiles.username}
+                        {otherParticipant?.profiles.is_verified && <VerifiedBadge className="h-3.5 w-3.5" />}
                       </div>
                       <div className="text-sm text-muted-foreground">
                         @{otherParticipant?.profiles.username}
@@ -555,33 +682,83 @@ export function MessageCenter() {
                     ))}
                   </div>
                 ) : (
-                  messages?.map((message) => {
-                    const isOwnMessage = message.sender_id === user?.id;
-                    
-                    return (
-                      <div
-                        key={message.id}
-                        className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
-                      >
+                  <>
+                    {messages?.map((message) => {
+                      const isOwnMessage = message.sender_id === user?.id;
+                      const canModify = isOwnMessage && canModifyMessage(message.created_at);
+                      
+                      return (
                         <div
-                          className={`max-w-[70%] p-3 rounded-lg ${
-                            isOwnMessage
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted'
-                          }`}
+                          key={message.id}
+                          className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} group`}
                         >
-                          <div className="text-sm">{message.content}</div>
                           <div
-                            className={`text-xs mt-1 ${
-                              isOwnMessage ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                            className={`max-w-[70%] p-3 rounded-lg relative ${
+                              isOwnMessage
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted'
                             }`}
                           >
-                            {formatMessageTime(message.created_at)}
+                            <div className="text-sm">
+                              {message.is_deleted ? (
+                                <span className="italic opacity-50">[Bericht verwijderd]</span>
+                              ) : (
+                                message.content
+                              )}
+                            </div>
+                            <div
+                              className={`text-xs mt-1 flex items-center gap-1 ${
+                                isOwnMessage ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                              }`}
+                            >
+                              {formatMessageTime(message.created_at)}
+                              {message.is_edited && !message.is_deleted && (
+                                <span className="italic">(bewerkt)</span>
+                              )}
+                            </div>
+                            
+                            {/* Edit/Delete dropdown */}
+                            {canModify && !message.is_deleted && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="absolute -top-2 -right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    <MoreVertical className="h-3 w-3" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => handleEditMessage(message)}>
+                                    <Edit2 className="h-3 w-3 mr-2" />
+                                    Bewerken
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    onClick={() => handleDeleteMessage(message.id)}
+                                    className="text-destructive"
+                                  >
+                                    <Trash2 className="h-3 w-3 mr-2" />
+                                    Verwijderen
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
                           </div>
                         </div>
+                      );
+                    })}
+                    
+                    {/* Typing indicator */}
+                    {typingUsers.length > 0 && (
+                      <div className="flex justify-start">
+                        <TypingIndicator 
+                          usernames={typingUsers.map(u => u.username)} 
+                          className="max-w-[70%]"
+                        />
                       </div>
-                    );
-                  })
+                    )}
+                  </>
                 )}
                 <div ref={messagesEndRef} />
               </div>
@@ -589,10 +766,34 @@ export function MessageCenter() {
 
             {/* Message Input */}
             <div className="p-4 border-t">
+              {editingMessageId && (
+                <div className="mb-2 px-2 py-1 bg-muted rounded text-xs flex items-center justify-between">
+                  <span>Bericht bewerken...</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2"
+                    onClick={() => {
+                      setEditingMessageId(null);
+                      setNewMessage('');
+                    }}
+                  >
+                    Annuleren
+                  </Button>
+                </div>
+              )}
               <form onSubmit={handleSendMessage} className="flex gap-2">
                 <Textarea
                   value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
+                  onChange={(e) => {
+                    setNewMessage(e.target.value);
+                    if (e.target.value.length > 0 && !editingMessageId) {
+                      startTyping();
+                    } else if (e.target.value.length === 0) {
+                      stopTyping();
+                    }
+                  }}
+                  onBlur={stopTyping}
                   placeholder="Typ je bericht..."
                   className="flex-1 min-h-[60px] max-h-[120px]"
                   onKeyDown={(e) => {
@@ -604,7 +805,7 @@ export function MessageCenter() {
                 />
                 <Button
                   type="submit"
-                  disabled={!newMessage.trim() || isSendingMessage}
+                  disabled={!newMessage.trim() || isSendingMessage || isEditingMessage}
                   className="self-end"
                 >
                   <Send className="h-4 w-4" />
