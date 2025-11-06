@@ -118,7 +118,7 @@ export type Database = {
           action: string
           created_at: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           new_values: Json | null
           old_values: Json | null
           record_id: string | null
@@ -130,7 +130,7 @@ export type Database = {
           action: string
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           new_values?: Json | null
           old_values?: Json | null
           record_id?: string | null
@@ -142,7 +142,7 @@ export type Database = {
           action?: string
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           new_values?: Json | null
           old_values?: Json | null
           record_id?: string | null
@@ -1723,7 +1723,7 @@ export type Database = {
           event_description: string
           event_type: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           metadata: Json | null
           risk_level: string
           user_agent: string | null
@@ -1734,7 +1734,7 @@ export type Database = {
           event_description: string
           event_type: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           metadata?: Json | null
           risk_level?: string
           user_agent?: string | null
@@ -1745,7 +1745,7 @@ export type Database = {
           event_description?: string
           event_type?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           metadata?: Json | null
           risk_level?: string
           user_agent?: string | null
@@ -1786,7 +1786,7 @@ export type Database = {
           device_info: Json | null
           expires_at: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           last_activity_at: string
           location: string | null
           session_token: string
@@ -1797,7 +1797,7 @@ export type Database = {
           device_info?: Json | null
           expires_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           last_activity_at?: string
           location?: string | null
           session_token: string
@@ -1808,7 +1808,7 @@ export type Database = {
           device_info?: Json | null
           expires_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           last_activity_at?: string
           location?: string | null
           session_token?: string
@@ -1946,14 +1946,8 @@ export type Database = {
         }
         Returns: string
       }
-      get_client_ip: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      get_client_ip: { Args: never; Returns: unknown }
+      get_current_user_role: { Args: never; Returns: string }
       get_profile_visibility: {
         Args: { target_user_id: string }
         Returns: string
@@ -1966,10 +1960,7 @@ export type Database = {
         }
         Returns: Json
       }
-      reset_admin_password: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      reset_admin_password: { Args: never; Returns: string }
       update_user_reputation: {
         Args: {
           change_amount: number
