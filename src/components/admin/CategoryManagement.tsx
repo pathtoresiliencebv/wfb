@@ -13,6 +13,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface Category {
   id: string;
@@ -136,6 +139,57 @@ export function CategoryManagement() {
     },
   });
 
+  // Update sort order mutation
+  const updateSortOrderMutation = useMutation({
+    mutationFn: async (updates: { id: string; sort_order: number }[]) => {
+      const results = await Promise.all(
+        updates.map(({ id, sort_order }) =>
+          supabase.from('categories').update({ sort_order }).eq('id', id)
+        )
+      );
+      const errors = results.filter(r => r.error);
+      if (errors.length > 0) throw errors[0].error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-categories'] });
+      toast({ title: 'Volgorde bijgewerkt' });
+    },
+    onError: () => {
+      toast({
+        title: 'Fout',
+        description: 'Kon volgorde niet bijwerken',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Drag & Drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id && categories) {
+      const oldIndex = categories.findIndex((cat) => cat.id === active.id);
+      const newIndex = categories.findIndex((cat) => cat.id === over.id);
+
+      const reorderedCategories = arrayMove(categories, oldIndex, newIndex);
+      
+      // Update sort_order for all categories
+      const updates = reorderedCategories.map((cat, index) => ({
+        id: cat.id,
+        sort_order: index + 1,
+      }));
+
+      updateSortOrderMutation.mutate(updates);
+    }
+  };
+
   const handleCreateCategory = () => {
     if (!newCategory.name.trim()) {
       toast({ 
@@ -243,110 +297,34 @@ export function CategoryManagement() {
       </CardHeader>
       <CardContent>
         <div className="border rounded-md">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px]"></TableHead>
-                <TableHead>Naam</TableHead>
-                <TableHead>Beschrijving</TableHead>
-                <TableHead>Topics</TableHead>
-                <TableHead>Replies</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-[100px]">Acties</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {categories?.map((category) => (
-                <TableRow key={category.id}>
-                  <TableCell>
-                    <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div 
-                        className="w-4 h-4 rounded-sm" 
-                        style={{ backgroundColor: category.color }}
-                      />
-                      <div>
-                        <div className="font-medium">{category.name}</div>
-                        <div className="text-sm text-muted-foreground">/{category.slug}</div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="max-w-md truncate">
-                      {category.description || '-'}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">{category.topic_count}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">{category.reply_count}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={category.is_active ? "default" : "secondary"}>
-                      {category.is_active ? 'Actief' : 'Inactief'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setEditingCategory(category)}>
-                          <Edit className="h-4 w-4 mr-2" />
-                          Bewerken
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => toggleCategoryStatus(category)}>
-                          {category.is_active ? (
-                            <>
-                              <EyeOff className="h-4 w-4 mr-2" />
-                              Deactiveren
-                            </>
-                          ) : (
-                            <>
-                              <Eye className="h-4 w-4 mr-2" />
-                              Activeren
-                            </>
-                          )}
-                        </DropdownMenuItem>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Verwijderen
-                            </DropdownMenuItem>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Categorie verwijderen</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Weet je zeker dat je "{category.name}" wilt verwijderen? 
-                                Alle topics in deze categorie worden ook verwijderd.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Annuleren</AlertDialogCancel>
-                              <AlertDialogAction
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                onClick={() => deleteCategoryMutation.mutate(category.id)}
-                              >
-                                Verwijderen
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[50px]"></TableHead>
+                  <TableHead>Naam</TableHead>
+                  <TableHead>Beschrijving</TableHead>
+                  <TableHead>Topics</TableHead>
+                  <TableHead>Replies</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="w-[100px]">Acties</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                <SortableContext items={categories?.map(c => c.id) || []} strategy={verticalListSortingStrategy}>
+                  {categories?.map((category) => (
+                    <SortableRow 
+                      key={category.id} 
+                      category={category}
+                      onEdit={setEditingCategory}
+                      onToggleStatus={toggleCategoryStatus}
+                      onDelete={deleteCategoryMutation.mutate}
+                    />
+                  ))}
+                </SortableContext>
+              </TableBody>
+            </Table>
+          </DndContext>
         </div>
 
         {categories?.length === 0 && (
@@ -413,5 +391,122 @@ export function CategoryManagement() {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+// Sortable Row Component
+interface SortableRowProps {
+  category: Category;
+  onEdit: (category: Category) => void;
+  onToggleStatus: (category: Category) => void;
+  onDelete: (id: string) => void;
+}
+
+function SortableRow({ category, onEdit, onToggleStatus, onDelete }: SortableRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: category.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <TableRow ref={setNodeRef} style={style}>
+      <TableCell>
+        <div {...attributes} {...listeners} className="cursor-move">
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center gap-3">
+          <div 
+            className="w-4 h-4 rounded-sm" 
+            style={{ backgroundColor: category.color }}
+          />
+          <div>
+            <div className="font-medium">{category.name}</div>
+            <div className="text-sm text-muted-foreground">/{category.slug}</div>
+          </div>
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="max-w-md truncate">
+          {category.description || '-'}
+        </div>
+      </TableCell>
+      <TableCell>
+        <Badge variant="secondary">{category.topic_count}</Badge>
+      </TableCell>
+      <TableCell>
+        <Badge variant="secondary">{category.reply_count}</Badge>
+      </TableCell>
+      <TableCell>
+        <Badge variant={category.is_active ? "default" : "secondary"}>
+          {category.is_active ? 'Actief' : 'Inactief'}
+        </Badge>
+      </TableCell>
+      <TableCell>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => onEdit(category)}>
+              <Edit className="h-4 w-4 mr-2" />
+              Bewerken
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onToggleStatus(category)}>
+              {category.is_active ? (
+                <>
+                  <EyeOff className="h-4 w-4 mr-2" />
+                  Deactiveren
+                </>
+              ) : (
+                <>
+                  <Eye className="h-4 w-4 mr-2" />
+                  Activeren
+                </>
+              )}
+            </DropdownMenuItem>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Verwijderen
+                </DropdownMenuItem>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Categorie verwijderen</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Weet je zeker dat je "{category.name}" wilt verwijderen? 
+                    Alle topics in deze categorie worden ook verwijderd.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Annuleren</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    onClick={() => onDelete(category.id)}
+                  >
+                    Verwijderen
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </TableCell>
+    </TableRow>
   );
 }

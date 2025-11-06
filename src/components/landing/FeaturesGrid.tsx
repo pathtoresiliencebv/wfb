@@ -103,13 +103,13 @@ const features = [
 
 export function FeaturesGrid() {
   return (
-    <section className="py-20 bg-muted/30">
+    <section className="py-20 bg-muted/50">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12 space-y-4">
-          <h2 className="text-3xl md:text-4xl font-bold">
-            Alles Wat Je Nodig Hebt
+        <div className="text-center mb-16 space-y-4">
+          <h2 className="text-4xl md:text-5xl font-bold font-heading">
+            Alles Wat Je <span className="text-primary">Nodig Hebt</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Ontdek alle features die Wiet Forum België de beste cannabis community van België maken
           </p>
         </div>
@@ -118,13 +118,15 @@ export function FeaturesGrid() {
           {features.map((feature, index) => (
             <Card 
               key={index} 
-              className="hover:shadow-lg transition-all duration-300 hover:scale-105"
+              className="group hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 hover:border-primary/30 bg-gradient-to-br from-card to-card/50"
             >
               <CardContent className="pt-6 space-y-4">
-                <div className={`inline-flex p-3 rounded-lg ${feature.bgColor}`}>
-                  <feature.icon className={`h-6 w-6 ${feature.color}`} />
+                <div 
+                  className={`inline-flex p-4 rounded-2xl ${feature.bgColor} group-hover:scale-110 transition-transform shadow-lg`}
+                >
+                  <feature.icon className={`h-7 w-7 ${feature.color}`} />
                 </div>
-                <h3 className="font-semibold text-lg">{feature.title}</h3>
+                <h3 className="font-bold text-lg group-hover:text-primary transition-colors">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {feature.description}
                 </p>

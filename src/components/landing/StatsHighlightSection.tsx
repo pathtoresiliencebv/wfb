@@ -37,21 +37,26 @@ export function StatsHighlightSection() {
   ];
 
   return (
-    <section className="py-16 bg-background">
+    <section className="py-20">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
           {displayStats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <Card key={index} className="text-center">
-                <CardContent className="p-6 space-y-2">
+              <Card 
+                key={index} 
+                className="text-center border-2 hover:border-primary/50 transition-all duration-300 hover:scale-105 hover:shadow-xl bg-gradient-to-br from-card to-card/50"
+              >
+                <CardContent className="p-6 space-y-3">
                   <div className="flex justify-center">
-                    <Icon className={`h-8 w-8 ${stat.color}`} />
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5">
+                      <Icon className={`h-8 w-8 ${stat.color}`} />
+                    </div>
                   </div>
-                  <div className="text-3xl font-bold">
+                  <div className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                     {isLoading ? '...' : stat.value}{stat.suffix}
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-muted-foreground font-medium">
                     {stat.label}
                   </div>
                 </CardContent>

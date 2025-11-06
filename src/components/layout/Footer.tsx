@@ -39,81 +39,29 @@ export function Footer() {
 
   return (
     <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 mt-auto">
-      <div className="container mx-auto px-4 sm:px-6 py-6 md:py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {/* Top Leveranciers */}
-          <div className="sm:col-span-2 lg:col-span-1">
-            <h3 className="font-semibold text-foreground mb-3 md:mb-4 text-sm md:text-base">Top Leveranciers</h3>
-            <div className="space-y-2">
-              {displaySuppliers.length > 0 ? (
-                displaySuppliers.map((supplier, index) => (
-                  <Link
-                    key={supplier.id}
-                    to={`/aanbod/${supplier.profiles.username}`}
-                    className="block text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] flex items-center truncate"
-                  >
-                    {index + 1}. {supplier.business_name}
-                  </Link>
-                ))
-              ) : (
-                <p className="text-sm text-muted-foreground">Binnenkort beschikbaar</p>
-              )}
-            </div>
-          </div>
-
-          {/* WietForum Info */}
-          <div>
-            <h3 className="font-semibold text-foreground mb-3 md:mb-4 text-sm md:text-base">WietForum Info</h3>
-            <div className="space-y-2">
-              <Link
-                to="/over"
-                className="block text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] flex items-center"
-              >
-                Over
-              </Link>
-              <Link
-                to="/faq"
-                className="block text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] flex items-center"
-              >
-                FAQ
-              </Link>
-              <Link
-                to="/blog"
-                className="block text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] flex items-center"
-              >
-                Blog
-              </Link>
-            </div>
-          </div>
-
-          {/* Extra */}
-          <div>
-            <h3 className="font-semibold text-foreground mb-3 md:mb-4 text-sm md:text-base">Extra</h3>
-            <div className="space-y-2">
-              <Link
-                to="/moonrocks"
-                className="block text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] flex items-center"
-              >
-                Moonrocks kopen
-              </Link>
-              <Link
-                to="/weetgod"
-                className="block text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] flex items-center"
-              >
-                Weetgod menu
-              </Link>
-              <Link
-                to="/suppliers"
-                className="block text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] flex items-center"
-              >
-                Wiet online kopen
-              </Link>
-            </div>
+      <div className="container mx-auto px-4 sm:px-6 py-8 md:py-12">
+        {/* Top Leveranciers - Centered */}
+        <div className="max-w-md mx-auto text-center">
+          <h3 className="font-semibold text-foreground mb-4 md:mb-6 text-base md:text-lg">Top Leveranciers</h3>
+          <div className="space-y-2">
+            {displaySuppliers.length > 0 ? (
+              displaySuppliers.map((supplier, index) => (
+                <Link
+                  key={supplier.id}
+                  to={`/aanbod/${supplier.profiles.username}`}
+                  className="block text-sm text-muted-foreground hover:text-primary transition-colors min-h-[44px] flex items-center justify-center hover:font-medium"
+                >
+                  {index + 1}. {supplier.business_name}
+                </Link>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">Binnenkort beschikbaar</p>
+            )}
           </div>
         </div>
 
         {/* Copyright */}
-        <div className="border-t mt-6 md:mt-8 pt-4 md:pt-6">
+        <div className="border-t mt-8 md:mt-12 pt-6 md:pt-8">
           <p className="text-xs md:text-sm text-muted-foreground text-center">
             © 2024 WietForum. Alle rechten voorbehouden.
           </p>

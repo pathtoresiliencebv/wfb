@@ -44,37 +44,43 @@ export function LandingPage() {
       <HeroSection />
 
       {/* Stats Highlight */}
-      <StatsHighlightSection />
+      <section className="bg-gradient-to-br from-primary/5 via-secondary/5 to-background">
+        <StatsHighlightSection />
+      </section>
 
       {/* Value Proposition */}
-      <ValuePropositionSection />
+      <section className="bg-background">
+        <ValuePropositionSection />
+      </section>
 
       {/* How It Works */}
-      <HowItWorksSection />
+      <section className="bg-muted/30">
+        <HowItWorksSection />
+      </section>
 
       {/* Social Proof Section */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <SocialProofSection />
         </div>
       </section>
 
       {/* Forum Categories Preview */}
-      <section className="py-16">
+      <section className="py-20 bg-gradient-to-br from-primary/5 to-background">
         <div className="container mx-auto px-4">
           <ForumCategoriesPreview />
         </div>
       </section>
 
       {/* Trending Topics */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <TrendingTopics limit={6} showHeader={true} />
         </div>
       </section>
 
       {/* Top Suppliers */}
-      <section className="py-16">
+      <section className="py-16 bg-muted/40">
         <div className="container mx-auto px-4">
           <TopSuppliers />
         </div>
@@ -84,17 +90,19 @@ export function LandingPage() {
       <FeaturesGrid />
 
       {/* Trust & Safety */}
-      <TrustBadgesSection />
+      <section className="bg-background">
+        <TrustBadgesSection />
+      </section>
 
       {/* Testimonials */}
-      <section className="py-16">
+      <section className="py-16 bg-gradient-to-br from-secondary/5 to-background">
         <div className="container mx-auto px-4">
           <TestimonialsSection />
         </div>
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16">
+      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <FAQSection />

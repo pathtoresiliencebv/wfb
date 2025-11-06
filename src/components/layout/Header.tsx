@@ -70,7 +70,7 @@ export function Header() {
                 className="px-2 lg:px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent whitespace-nowrap relative"
               >
                 {item.title}
-                {item.badge && item.badge > 0 && (
+                {item.badge !== undefined && item.badge !== null && item.badge > 0 && (
                   <Badge 
                     variant="destructive" 
                     className="absolute -top-1 -right-1 h-5 min-w-[20px] flex items-center justify-center text-xs px-1"
