@@ -4,7 +4,6 @@ import { ArrowUp, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { VoteType } from '@/hooks/useVoting';
-import { useHapticFeedback } from '@/hooks/useHapticFeedback';
 
 interface VotingButtonsProps {
   itemId: string;
@@ -25,15 +24,9 @@ export function VotingButtons({
   size = 'md',
   orientation = 'vertical'
 }: VotingButtonsProps) {
-  const { triggerHaptic } = useHapticFeedback();
   const totalScore = upvotes - downvotes;
   const sizeClasses = size === 'sm' ? 'h-7 w-7' : 'h-8 w-8';
   const iconSize = size === 'sm' ? 'h-3 w-3' : 'h-4 w-4';
-
-  const handleVote = (voteType: 'up' | 'down') => {
-    triggerHaptic(voteType === 'up' ? 'light' : 'medium');
-    onVote(voteType);
-  };
 
   return (
     <div className={cn(
@@ -45,17 +38,22 @@ export function VotingButtons({
         size="icon"
         className={cn(
           sizeClasses,
-          currentVote === 'up' && 'text-green-600 bg-green-50 hover:bg-green-100'
+          currentVote === 'up' && 'text-success bg-success/10 hover:bg-success/20'
         )}
-        onClick={() => handleVote('up')}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onVote('up');
+        }}
+        aria-label="Upvote"
       >
         <ArrowUp className={iconSize} />
       </Button>
       
       <span className={cn(
         "text-sm font-medium min-w-[2rem] text-center",
-        totalScore > 0 && 'text-green-600',
-        totalScore < 0 && 'text-red-600'
+        totalScore > 0 && 'text-success',
+        totalScore < 0 && 'text-destructive'
       )}>
         {totalScore}
       </span>
@@ -65,9 +63,14 @@ export function VotingButtons({
         size="icon"
         className={cn(
           sizeClasses,
-          currentVote === 'down' && 'text-red-600 bg-red-50 hover:bg-red-100'
+          currentVote === 'down' && 'text-destructive bg-destructive/10 hover:bg-destructive/20'
         )}
-        onClick={() => handleVote('down')}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onVote('down');
+        }}
+        aria-label="Downvote"
       >
         <ArrowDown className={iconSize} />
       </Button>
