@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 
 interface AdminRouteProps {
@@ -14,23 +15,53 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({
 }) => {
   const { user, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
+  const [verifying, setVerifying] = React.useState(true);
+  const [hasAccess, setHasAccess] = React.useState(false);
   const [showTimeout, setShowTimeout] = React.useState(false);
 
   React.useEffect(() => {
-    // Show timeout message after 10 seconds of loading
+    const verifyAdminAccess = async () => {
+      if (!isAuthenticated || !user) {
+        setVerifying(false);
+        return;
+      }
+
+      try {
+        console.log('🔐 [AdminRoute] Verifying admin access server-side...');
+        
+        // Server-side verification using edge function
+        const { data, error } = await supabase.functions.invoke('verify-admin-role');
+        
+        if (error) {
+          console.error('❌ [AdminRoute] Verification error:', error);
+          setHasAccess(false);
+        } else {
+          console.log('✅ [AdminRoute] Verification result:', data);
+          setHasAccess(data?.isAdmin || false);
+        }
+      } catch (error) {
+        console.error('❌ [AdminRoute] Verification failed:', error);
+        setHasAccess(false);
+      } finally {
+        setVerifying(false);
+      }
+    };
+
+    verifyAdminAccess();
+  }, [isAuthenticated, user]);
+
+  React.useEffect(() => {
     const timer = setTimeout(() => {
-      if (isLoading) {
+      if (isLoading || verifying) {
         console.warn('⚠️ [AdminRoute] Loading timeout reached');
         setShowTimeout(true);
       }
     }, 10000);
 
     return () => clearTimeout(timer);
-  }, [isLoading]);
+  }, [isLoading, verifying]);
 
-  console.log('🔐 [AdminRoute] State:', { isLoading, isAuthenticated, userRole: user?.role });
-
-  if (isLoading) {
+  if (isLoading || verifying) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -52,16 +83,7 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 
-  if (!user) {
-    return <Navigate to="/" replace />;
-  }
-
-  // Check if user has required role
-  const hasRequiredRole = requireRole === 'moderator' 
-    ? (user.role === 'admin' || user.role === 'moderator')
-    : user.role === 'admin';
-
-  if (!hasRequiredRole) {
+  if (!user || !hasAccess) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

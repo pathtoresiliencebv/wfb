@@ -12,7 +12,6 @@ import { ForumCategoriesPreview } from '@/components/home/ForumCategoriesPreview
 import { FAQSection } from '@/components/home/FAQSection';
 import { SocialProofSection } from '@/components/home/SocialProofSection';
 import { TrustBadgesSection } from './TrustBadgesSection';
-import { BenefitsComparisonSection } from './BenefitsComparisonSection';
 import { CTASection } from './CTASection';
 import { Separator } from '@/components/ui/separator';
 
@@ -93,9 +92,6 @@ export function LandingPage() {
           <TestimonialsSection />
         </div>
       </section>
-
-      {/* Benefits Comparison */}
-      <BenefitsComparisonSection />
 
       {/* FAQ Section */}
       <section className="py-16">
