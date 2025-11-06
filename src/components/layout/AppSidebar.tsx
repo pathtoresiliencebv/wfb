@@ -43,7 +43,6 @@ const mainNavItems = [
   { title: 'Forums', url: '/forums', icon: MessageSquare },
   { title: 'Leden', url: '/members', icon: Users },
   { title: 'Berichten', url: '/messages', icon: Mail },
-  { title: 'Leaderboard', url: '/leaderboard', icon: Trophy },
 ];
 
 // Icon mapping for database strings to Lucide icons

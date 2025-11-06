@@ -16,7 +16,6 @@ import { QuickActionsPanel } from './QuickActionsPanel';
 import { TopSuppliers } from '@/components/supplier/TopSuppliers';
 import { TrendingTopics } from './TrendingTopics';
 import { SuggestedTopics } from './SuggestedTopics';
-import { LeaderboardPreview } from './LeaderboardPreview';
 import { AchievementsShowcase } from './AchievementsShowcase';
 
 export function AuthenticatedHome() {
@@ -64,8 +63,6 @@ export function AuthenticatedHome() {
 
       {/* Sidebar - Hidden on mobile */}
       <div className={`space-y-6 ${isMobile ? 'hidden' : ''}`}>
-        <LeaderboardPreview />
-        <Separator />
         <RecentActivity />
         <Separator />
         <OnlineMembers />

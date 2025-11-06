@@ -17,7 +17,6 @@ import { useServerSideRateLimit } from '@/hooks/useServerSideRateLimit';
 import { useAuditLog } from '@/hooks/useAuditLog';
 import { validateEmail } from '@/lib/security';
 import { TwoFactorModal } from '@/components/auth/TwoFactorModal';
-import { TestCredentials } from '@/components/auth/TestCredentials';
 import { use2FA } from '@/hooks/use2FA';
 
 const adminLoginSchema = z.object({
@@ -296,19 +295,10 @@ export default function AdminLogin() {
               </form>
             </Form>
 
-            <div className="mt-6 text-center text-sm space-y-2">
-              <div>
-                <span className="text-muted-foreground">Geen admin account? </span>
-                <Link to="/admin/register" className="text-primary hover:underline font-medium">
-                  Admin account aanmaken
-                </Link>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Of ga naar de </span>
-                <Link to="/" className="text-primary hover:underline font-medium">
-                  hoofdpagina
-                </Link>
-              </div>
+            <div className="mt-6 text-center text-sm">
+              <Link to="/" className="text-muted-foreground hover:text-primary">
+                ← Terug naar home
+              </Link>
             </div>
 
             <div className="mt-4 text-center space-y-2">
@@ -330,8 +320,6 @@ export default function AdminLogin() {
           onComplete={handle2FAComplete}
           userEmail={pendingLogin?.email || ''}
         />
-
-        <TestCredentials />
 
         <div className="text-center text-sm text-muted-foreground">
           <p className="flex items-center justify-center gap-1">

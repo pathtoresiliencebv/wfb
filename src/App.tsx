@@ -44,7 +44,6 @@ import Gamification from "./pages/Gamification";
 import { SupplierProfile as SupplierProfilePage } from "./pages/SupplierProfile";
 import SupplierDashboard from "./pages/SupplierDashboard";
 import AdminLogin from "./pages/AdminLogin";
-import AdminRegister from "./pages/AdminRegister";
 import SupplierLogin from "./pages/SupplierLogin";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
@@ -106,14 +105,6 @@ function AppRoutes() {
                   element={
                     <ProtectedRoute requireAuth={false}>
                       <AdminLogin />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/register" 
-                  element={
-                    <ProtectedRoute requireAuth={false}>
-                      <AdminRegister />
                     </ProtectedRoute>
                   } 
                 />
