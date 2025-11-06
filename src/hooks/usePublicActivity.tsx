@@ -1,42 +1,42 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-interface PublicActivity {
+interface RecentTopic {
   id: string;
-  activity_type: string;
-  activity_data: any;
+  title: string;
+  view_count: number;
+  reply_count: number;
   created_at: string;
-  profiles: {
-    username: string;
-    display_name: string;
-    avatar_url: string;
+  categories: {
+    name: string;
+    slug: string;
   };
 }
 
-export function usePublicActivity(limit: number = 6) {
-  const { data: activities, isLoading, error } = useQuery({
-    queryKey: ['public-activity', limit],
+export function useRecentActivity(limit: number = 6) {
+  const { data: topics, isLoading, error } = useQuery({
+    queryKey: ['recent-activity', limit],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('activity_feed')
+        .from('topics')
         .select(`
           id,
-          activity_type,
-          activity_data,
+          title,
+          view_count,
+          reply_count,
           created_at,
-          user_id,
-          profiles(username, display_name, avatar_url)
+          categories!inner(name, slug)
         `)
         .order('created_at', { ascending: false })
         .limit(limit);
       
       if (error) throw error;
-      return data as PublicActivity[];
+      return data as RecentTopic[];
     },
   });
 
   return {
-    activities,
+    topics,
     isLoading,
     error,
   };

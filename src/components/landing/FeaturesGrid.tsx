@@ -1,0 +1,138 @@
+import { Card, CardContent } from '@/components/ui/card';
+import { 
+  MessageSquare, 
+  Users, 
+  Shield, 
+  Award,
+  BookOpen,
+  TrendingUp,
+  Lock,
+  Zap,
+  Heart,
+  Search,
+  Bell,
+  Star
+} from 'lucide-react';
+
+const features = [
+  {
+    icon: MessageSquare,
+    title: 'Actieve Forums',
+    description: 'Dagelijkse discussies over alle aspecten van cannabis - van medicinaal gebruik tot kweektips',
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-500/10',
+  },
+  {
+    icon: Users,
+    title: 'Gepassioneerde Community',
+    description: 'Maak contact met duizenden gelijkgestemde Belgen die hun ervaringen en kennis delen',
+    color: 'text-green-500',
+    bgColor: 'bg-green-500/10',
+  },
+  {
+    icon: Shield,
+    title: 'Expert Moderatie',
+    description: 'Professioneel gemodereerd door ervaren teamleden voor een veilige en respectvolle omgeving',
+    color: 'text-purple-500',
+    bgColor: 'bg-purple-500/10',
+  },
+  {
+    icon: Award,
+    title: 'Geverifieerde Leveranciers',
+    description: 'Ontdek betrouwbare leveranciers met echte reviews en transparante ratings',
+    color: 'text-yellow-500',
+    bgColor: 'bg-yellow-500/10',
+  },
+  {
+    icon: BookOpen,
+    title: 'Kennisbank',
+    description: 'Toegang tot uitgebreide guides over wetgeving, medicinaal gebruik en kweektechnieken',
+    color: 'text-orange-500',
+    bgColor: 'bg-orange-500/10',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Laatste Nieuws',
+    description: 'Blijf op de hoogte van de nieuwste ontwikkelingen in cannabiswetgeving en onderzoek',
+    color: 'text-red-500',
+    bgColor: 'bg-red-500/10',
+  },
+  {
+    icon: Lock,
+    title: 'Privacy & Veiligheid',
+    description: 'Jouw gegevens zijn veilig met geavanceerde encryptie en privacybescherming',
+    color: 'text-indigo-500',
+    bgColor: 'bg-indigo-500/10',
+  },
+  {
+    icon: Zap,
+    title: 'Gamification',
+    description: 'Verdien punten, badges en rewards door actief deel te nemen aan de community',
+    color: 'text-pink-500',
+    bgColor: 'bg-pink-500/10',
+  },
+  {
+    icon: Heart,
+    title: 'Ondersteunende Sfeer',
+    description: 'Een oordeelvrije ruimte waar iedereen welkom is om vragen te stellen en te leren',
+    color: 'text-rose-500',
+    bgColor: 'bg-rose-500/10',
+  },
+  {
+    icon: Search,
+    title: 'Geavanceerde Zoekfunctie',
+    description: 'Vind snel antwoorden met onze krachtige zoekfunctie en uitgebreide tags',
+    color: 'text-cyan-500',
+    bgColor: 'bg-cyan-500/10',
+  },
+  {
+    icon: Bell,
+    title: 'Real-time Notificaties',
+    description: 'Blijf op de hoogte van nieuwe reacties, berichten en updates in topics die je volgt',
+    color: 'text-teal-500',
+    bgColor: 'bg-teal-500/10',
+  },
+  {
+    icon: Star,
+    title: 'Premium Features',
+    description: 'Toegang tot exclusieve content, private messaging en geavanceerde forum features',
+    color: 'text-amber-500',
+    bgColor: 'bg-amber-500/10',
+  },
+];
+
+export function FeaturesGrid() {
+  return (
+    <section className="py-20 bg-muted/30">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12 space-y-4">
+          <h2 className="text-3xl md:text-4xl font-bold">
+            Alles Wat Je Nodig Hebt
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            Ontdek alle features die Wiet Forum België de beste cannabis community van België maken
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {features.map((feature, index) => (
+            <Card 
+              key={index} 
+              className="hover:shadow-lg transition-all duration-300 hover:scale-105"
+            >
+              <CardContent className="pt-6 space-y-4">
+                <div className={`inline-flex p-3 rounded-lg ${feature.bgColor}`}>
+                  <feature.icon className={`h-6 w-6 ${feature.color}`} />
+                </div>
+                <h3 className="font-semibold text-lg">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {feature.description}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
