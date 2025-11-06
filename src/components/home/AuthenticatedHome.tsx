@@ -12,6 +12,12 @@ import { FeedLoadingSkeleton } from '@/components/loading/OptimizedLoadingStates
 import { WelcomeSection } from './WelcomeSection';
 import { StatsOverview } from './StatsOverview';
 import { RecentPosts } from './RecentPosts';
+import { QuickActionsPanel } from './QuickActionsPanel';
+import { TopSuppliers } from '@/components/supplier/TopSuppliers';
+import { TrendingTopics } from './TrendingTopics';
+import { SuggestedTopics } from './SuggestedTopics';
+import { LeaderboardPreview } from './LeaderboardPreview';
+import { AchievementsShowcase } from './AchievementsShowcase';
 
 export function AuthenticatedHome() {
   const navigate = useNavigate();
@@ -28,9 +34,16 @@ export function AuthenticatedHome() {
 
   const mainContent = (
     <div className="lg:col-span-3 space-y-6">
+      <QuickActionsPanel />
       <WelcomeSection />
-      <StatsOverview />
+      <div className="grid md:grid-cols-2 gap-6">
+        <StatsOverview />
+        <AchievementsShowcase />
+      </div>
+      <TopSuppliers />
       <RecentPosts />
+      <TrendingTopics limit={6} showHeader={true} />
+      <SuggestedTopics />
     </div>
   );
 
@@ -51,6 +64,8 @@ export function AuthenticatedHome() {
 
       {/* Sidebar - Hidden on mobile */}
       <div className={`space-y-6 ${isMobile ? 'hidden' : ''}`}>
+        <LeaderboardPreview />
+        <Separator />
         <RecentActivity />
         <Separator />
         <OnlineMembers />
