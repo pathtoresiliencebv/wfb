@@ -43,7 +43,11 @@ export function useTrendingTopics(limit: number = 6) {
         .limit(limit);
       
       if (error) throw error;
-      return data as TrendingTopic[];
+      
+      // Filter out topics without profiles (deleted users)
+      const validTopics = (data || []).filter(topic => topic.profiles !== null);
+      
+      return validTopics as TrendingTopic[];
     },
   });
 

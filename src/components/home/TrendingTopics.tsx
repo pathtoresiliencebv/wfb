@@ -61,17 +61,19 @@ export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsP
               </Badge>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Avatar className="h-6 w-6">
-                  <AvatarImage src={topic.profiles.avatar_url} />
-                  <AvatarFallback>
-                    {(topic.profiles.display_name || topic.profiles.username).charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="truncate">
-                  {topic.profiles.display_name || topic.profiles.username}
-                </span>
-              </div>
+              {topic.profiles && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src={topic.profiles.avatar_url || undefined} />
+                    <AvatarFallback>
+                      {(topic.profiles.display_name || topic.profiles.username || 'U').charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="truncate">
+                    {topic.profiles.display_name || topic.profiles.username}
+                  </span>
+                </div>
+              )}
               
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
