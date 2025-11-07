@@ -4,7 +4,7 @@ import { HeroSection } from './HeroSection';
 import { ValuePropositionSection } from './ValuePropositionSection';
 import { StatsHighlightSection } from './StatsHighlightSection';
 import { HowItWorksSection } from './HowItWorksSection';
-import { FeaturesGrid } from './FeaturesGrid';
+import { ModernFeatures } from './ModernFeatures';
 import { TrendingTopics } from '@/components/home/TrendingTopics';
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { ForumCategoriesPreview } from '@/components/home/ForumCategoriesPreview';
@@ -77,10 +77,8 @@ export function LandingPage() {
       </section>
 
 
-      {/* Features Grid - GROENE TINT */}
-      <section className="bg-gradient-to-br from-green-900/5 to-background py-20">
-        <FeaturesGrid />
-      </section>
+      {/* Modern Features - PREMIUM ERVARING */}
+      <ModernFeatures />
 
       {/* Trust & Safety - NEUTRAAL */}
       <section className="bg-background py-16">
