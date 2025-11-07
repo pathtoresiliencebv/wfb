@@ -181,8 +181,8 @@ export function MessageCenter() {
 
   if (conversationsLoading) {
     return (
-      <Card className="h-[400px] md:h-[600px]">
-        <CardContent className="p-4 md:p-6 flex items-center justify-center">
+      <Card className="h-[calc(100vh-4rem)]">
+        <CardContent className="p-4 md:p-6 flex items-center justify-center h-full">
           <div className="animate-pulse">
             <div className="h-6 md:h-8 bg-muted rounded w-32 md:w-48 mb-4" />
             <div className="space-y-3">
@@ -204,7 +204,7 @@ export function MessageCenter() {
       const otherParticipant = conversation ? getOtherParticipant(conversation) : null;
 
       return (
-        <div className="flex flex-col h-[calc(100vh-8rem)] border rounded-lg overflow-hidden">
+        <div className="flex flex-col h-[calc(100vh-8rem)] border rounded-lg overflow-hidden">{/* Mobile Conversation View */}
           {/* Mobile Header */}
           <div className="p-3 border-b bg-background flex items-center gap-3">
             <Button
@@ -379,8 +379,8 @@ export function MessageCenter() {
 
     // Mobile Conversations List
     return (
-      <div className="border rounded-lg overflow-hidden">
-        <div className="p-4 border-b bg-background">
+      <div className="border rounded-lg overflow-hidden h-[calc(100vh-8rem)] flex flex-col">
+        <div className="p-4 border-b bg-background flex-shrink-0">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-lg">Berichten</h3>
             <Dialog open={isNewConversationOpen} onOpenChange={setIsNewConversationOpen}>
@@ -449,7 +449,8 @@ export function MessageCenter() {
           </div>
         </div>
 
-        <div className="divide-y">
+        <div className="flex-1 overflow-auto">
+          <div className="divide-y">
           {conversations.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -504,6 +505,7 @@ export function MessageCenter() {
               );
             })
           )}
+          </div>
         </div>
       </div>
     );
@@ -511,7 +513,7 @@ export function MessageCenter() {
 
   // Desktop: Original side-by-side layout
   return (
-    <div className="flex h-[600px] border rounded-lg overflow-hidden">
+    <div className="flex h-[calc(100vh-4rem)] border rounded-lg overflow-hidden">
       {/* Conversations List */}
       <div className="w-1/3 border-r bg-muted/20">
         <div className="p-4 border-b">

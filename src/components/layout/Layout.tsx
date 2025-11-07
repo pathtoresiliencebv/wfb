@@ -18,11 +18,16 @@ export function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const { user } = useAuth();
   const isHome = location.pathname === '/';
-  const showAppHeader = !(isHome && !user); // Don't show header on homepage for unauthenticated users
+  const isMessages = location.pathname === '/messages';
+  const showAppHeader = !(isHome && !user);
   const showSidebar = !(isHome && !user);
-  const mainInnerClass = showSidebar 
-    ? `container mx-auto ${isMobile ? 'px-3 sm:px-4 py-4 pb-20' : 'px-6 py-6'}` 
-    : `${isMobile ? 'pb-20' : 'p-0'}`;
+  
+  // Full-screen pages without container padding
+  const mainInnerClass = isMessages
+    ? 'h-full'
+    : showSidebar 
+      ? `container mx-auto ${isMobile ? 'px-3 sm:px-4 py-4 pb-20' : 'px-6 py-6'}` 
+      : `${isMobile ? 'pb-20' : 'p-0'}`;
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>
@@ -33,7 +38,7 @@ export function Layout({ children }: LayoutProps) {
           {showAppHeader && <Header />}
           <EmailVerificationBanner />
           
-          <main className="flex-1 overflow-auto">
+          <main className={`flex-1 ${isMessages ? 'flex flex-col' : 'overflow-auto'}`}>
             <div className={mainInnerClass}>
               {children}
             </div>
