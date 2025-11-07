@@ -46,9 +46,13 @@ export function LandingPage() {
       </section>
 
       {/* Trending Topics */}
-      <section className="py-20 bg-gradient-to-br from-background via-green-950/5 to-background border-b border-green-500/10">
-        <div className="container mx-auto px-4">
-          
+      <section className="relative py-20 bg-gradient-to-br from-green-950/5 via-background to-primary/5 border-y border-primary/10 overflow-hidden">
+        {/* Decorative blobs matching hero style */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
+        
+        <div className="container relative mx-auto px-4">
+          <TrendingTopics />
         </div>
       </section>
 
