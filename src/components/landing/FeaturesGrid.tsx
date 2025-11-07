@@ -114,7 +114,7 @@ export function FeaturesGrid() {
   const MotionCard = prefersReducedMotion ? Card : motion(Card);
 
   return (
-    <section className="py-20 bg-muted/50">
+    <section className="py-24 bg-gradient-to-br from-muted/30 via-background to-muted/30 border-y border-border/50">
       <div className="container mx-auto px-4">
         <MotionDiv 
           className="text-center mb-16 space-y-4"
@@ -144,13 +144,14 @@ export function FeaturesGrid() {
           {features.map((feature, index) => (
             <MotionCard 
               key={index} 
-              className="group transition-all duration-300 border-2 hover:border-primary/30 bg-gradient-to-br from-card to-card/50"
+              className="group transition-all duration-300 border border-border/50 hover:border-primary/40 bg-gradient-to-br from-card via-card to-card/80 shadow-md hover:shadow-xl"
               {...(!prefersReducedMotion && {
                 variants: fadeInUp,
                 transition: { delay: index * 0.05 },
                 whileHover: { 
-                  scale: 1.05,
-                  boxShadow: '0 25px 50px -12px hsl(var(--primary) / 0.25)'
+                  scale: 1.03,
+                  y: -4,
+                  boxShadow: '0 20px 40px -12px hsl(var(--primary) / 0.2)'
                 }
               })}
             >

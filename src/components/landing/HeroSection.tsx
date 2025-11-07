@@ -19,12 +19,14 @@ export function HeroSection() {
   const MotionButton = prefersReducedMotion ? Button : motion(Button);
 
   return (
-    <section className="relative overflow-hidden">
-      {/* Enhanced Background with Gradients */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,hsl(var(--primary)/0.1),transparent)]" />
+    <section className="relative overflow-hidden min-h-[90vh] flex items-center">
+      {/* Enhanced Background with Modern Gradients */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-secondary/10" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_50%)]" />
+      <div className="absolute top-20 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       
-      <div className="container relative z-10 px-4 py-20 sm:py-24 lg:py-32">
+      <div className="container relative z-10 px-4 py-20 sm:py-24 lg:py-32 w-full">
         <MotionDiv 
           className="mx-auto max-w-5xl text-center space-y-8"
           {...(!prefersReducedMotion && {
@@ -35,14 +37,14 @@ export function HeroSection() {
         >
           {/* Premium Badge */}
           <MotionDiv 
-            className="inline-flex items-center rounded-full border border-primary/30 bg-primary/5 px-6 py-2.5 text-sm backdrop-blur-sm shadow-lg"
+            className="inline-flex items-center rounded-full border border-primary/30 bg-gradient-to-r from-primary/10 to-secondary/10 px-6 py-2.5 text-sm backdrop-blur-md shadow-xl"
             {...(!prefersReducedMotion && {
               variants: fadeInUp,
               transition: { delay: 0.1 }
             })}
           >
             <Sparkles className="h-4 w-4 mr-2 text-primary animate-pulse" />
-            <span className="font-semibold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            <span className="font-semibold bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
               België's #1 Cannabis Community
             </span>
           </MotionDiv>
@@ -81,14 +83,14 @@ export function HeroSection() {
               transition: { delay: 0.3 }
             })}
           >
-            <h1 className="font-heading text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight leading-tight">
-              De Grootste{' '}
-              <span className="bg-gradient-to-r from-primary via-primary/80 to-secondary bg-clip-text text-transparent">
+            <h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-tight">
+              <span className="text-foreground">De Grootste </span>
+              <span className="bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
                 Cannabis Community
-              </span>{' '}
-              van België
+              </span>
+              <span className="text-foreground"> van België</span>
             </h1>
-            <p className="mx-auto max-w-2xl text-lg sm:text-xl lg:text-2xl text-muted-foreground leading-relaxed">
+            <p className="mx-auto max-w-3xl text-lg sm:text-xl text-muted-foreground/90 leading-relaxed">
               Ontdek betrouwbare leveranciers, deel kennis met duizenden leden, 
               en blijf op de hoogte van alles rondom cannabis in België.
             </p>
@@ -96,7 +98,7 @@ export function HeroSection() {
 
           {/* Enhanced CTA Buttons */}
           <MotionDiv 
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8"
             {...(!prefersReducedMotion && {
               variants: fadeInUp,
               transition: { delay: 0.4 }
@@ -104,10 +106,10 @@ export function HeroSection() {
           >
             <MotionButton 
               size="lg" 
-              className="group w-full sm:w-auto text-lg px-10 py-7 shadow-lg hover:shadow-xl transition-all"
+              className="group w-full sm:w-auto text-lg px-10 py-7 bg-gradient-to-r from-primary to-secondary hover:shadow-2xl hover:shadow-primary/30 transition-all"
               onClick={() => navigate('/register')}
               {...(!prefersReducedMotion && {
-                whileHover: { scale: 1.05 },
+                whileHover: { scale: 1.05, y: -2 },
                 whileTap: tapScale,
                 transition: springConfig
               })}
@@ -118,10 +120,10 @@ export function HeroSection() {
             <MotionButton 
               size="lg" 
               variant="outline" 
-              className="w-full sm:w-auto text-lg px-10 py-7 backdrop-blur-sm border-2"
+              className="w-full sm:w-auto text-lg px-10 py-7 backdrop-blur-sm border-2 hover:bg-primary/5 hover:border-primary/50"
               onClick={() => navigate('/forums')}
               {...(!prefersReducedMotion && {
-                whileHover: { scale: 1.05 },
+                whileHover: { scale: 1.05, y: -2 },
                 whileTap: tapScale,
                 transition: springConfig
               })}
@@ -133,32 +135,29 @@ export function HeroSection() {
 
           {/* Enhanced Trust Indicators with Stats */}
           <MotionDiv 
-            className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-12 border-t border-border/50"
+            className="flex flex-wrap justify-center items-center gap-6 pt-12"
             {...(!prefersReducedMotion && {
               variants: staggerContainer,
               transition: { delay: 0.5 }
             })}
           >
             {[
-              { icon: Shield, value: '10K+', label: 'Actieve & Veilige Leden', delay: 0.6 },
-              { icon: MessageSquare, value: '50K+', label: 'Posts & Discussies', delay: 0.7 },
-              { icon: Sparkles, value: '24/7', label: 'Expert Moderatie', delay: 0.8 }
+              { icon: Shield, label: '100% Anoniem & Veilig' },
+              { icon: MessageSquare, label: '10.000+ Actieve Leden' },
+              { icon: Sparkles, label: 'Geverifieerde Leveranciers' }
             ].map((stat, index) => (
               <MotionDiv 
                 key={index}
-                className="flex flex-col items-center space-y-2 cursor-default"
+                className="flex items-center gap-3 px-5 py-3 rounded-full bg-card/60 border border-border/50 backdrop-blur-md shadow-lg hover:shadow-xl transition-all cursor-default"
                 {...(!prefersReducedMotion && {
                   variants: fadeInUp,
-                  whileHover: { scale: 1.1 }
+                  whileHover: { scale: 1.05, y: -2 }
                 })}
               >
-                <div className="flex items-center gap-2 text-primary mb-1">
-                  <stat.icon className="h-5 w-5" />
+                <div className="p-2 rounded-full bg-primary/10">
+                  <stat.icon className="h-5 w-5 text-primary" />
                 </div>
-                <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-muted-foreground font-medium">{stat.label}</div>
+                <span className="text-sm font-semibold text-foreground">{stat.label}</span>
               </MotionDiv>
             ))}
           </MotionDiv>

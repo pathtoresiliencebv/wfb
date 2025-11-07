@@ -44,43 +44,43 @@ export function LandingPage() {
       <HeroSection />
 
       {/* Stats Highlight */}
-      <section className="bg-gradient-to-br from-primary/5 via-secondary/5 to-background">
+      <section className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 border-y border-border/50">
         <StatsHighlightSection />
       </section>
 
       {/* Value Proposition */}
-      <section className="bg-background">
+      <section className="bg-background py-20">
         <ValuePropositionSection />
       </section>
 
       {/* How It Works */}
-      <section className="bg-muted/30">
+      <section className="bg-gradient-to-br from-muted/20 via-background to-muted/20 border-y border-border/50">
         <HowItWorksSection />
       </section>
 
       {/* Social Proof Section */}
-      <section className="py-16 bg-background">
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <SocialProofSection />
         </div>
       </section>
 
       {/* Forum Categories Preview */}
-      <section className="py-20 bg-gradient-to-br from-primary/5 to-background">
+      <section className="py-24 bg-gradient-to-br from-primary/5 via-secondary/5 to-background border-y border-border/50">
         <div className="container mx-auto px-4">
           <ForumCategoriesPreview />
         </div>
       </section>
 
       {/* Trending Topics */}
-      <section className="py-16 bg-background">
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <TrendingTopics limit={6} showHeader={true} />
         </div>
       </section>
 
       {/* Top Suppliers */}
-      <section className="py-16 bg-muted/40">
+      <section className="py-20 bg-gradient-to-br from-muted/20 to-background border-y border-border/50">
         <div className="container mx-auto px-4">
           <TopSuppliers />
         </div>

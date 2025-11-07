@@ -46,11 +46,11 @@ export function StatsHighlightSection() {
   const MotionCard = prefersReducedMotion ? Card : motion(Card);
 
   return (
-    <section className="py-20">
+    <section className="py-24">
       <div className="container mx-auto px-4">
         <motion.div 
           ref={ref}
-          className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto"
+          className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-6xl mx-auto"
           {...(!prefersReducedMotion && {
             variants: staggerContainer,
             initial: "hidden",
@@ -62,28 +62,30 @@ export function StatsHighlightSection() {
             return (
               <MotionCard 
                 key={index} 
-                className="text-center border-2 hover:border-primary/50 transition-all duration-300 bg-gradient-to-br from-card to-card/50"
+                className="text-center border border-border/50 hover:border-primary/50 transition-all duration-300 bg-gradient-to-br from-card via-card to-card/80 shadow-lg hover:shadow-xl"
                 {...(!prefersReducedMotion && {
                   variants: fadeInUp,
                   transition: { delay: index * 0.1 },
                   whileHover: { 
-                    scale: 1.08,
-                    boxShadow: '0 20px 40px -12px hsl(var(--primary) / 0.3)'
+                    scale: 1.05,
+                    y: -4,
+                    boxShadow: '0 25px 50px -12px hsl(var(--primary) / 0.25)'
                   }
                 })}
               >
-                <CardContent className="p-6 space-y-3">
+                <CardContent className="p-8 space-y-4">
                   <motion.div 
                     className="flex justify-center"
                     {...(!prefersReducedMotion && {
                       whileHover: { 
                         rotate: [0, -10, 10, 0],
+                        scale: 1.1,
                         transition: { duration: 0.5 }
                       }
                     })}
                   >
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5">
-                      <Icon className={`h-8 w-8 ${stat.color}`} />
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/10 shadow-inner">
+                      <Icon className={`h-10 w-10 ${stat.color}`} />
                     </div>
                   </motion.div>
                   <AnimatedCounter 
