@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Building2, Star, MessageCircle, Users, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { BadgedText } from '@/lib/badgeParser';
 
 interface UserProfile {
   username: string;
@@ -138,7 +139,7 @@ export function EnhancedUserCard({
                 
                 {supplierProfile.description && (
                   <p className="text-sm text-muted-foreground line-clamp-2">
-                    {supplierProfile.description}
+                    <BadgedText text={supplierProfile.description} />
                   </p>
                 )}
 

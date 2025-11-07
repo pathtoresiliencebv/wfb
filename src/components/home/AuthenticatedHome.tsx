@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { WelcomeSection } from './WelcomeSection';
 import { RecentActivity } from '@/components/feed/RecentActivity';
 import { TopSuppliers } from '@/components/supplier/TopSuppliers';
 import { RecentPosts } from './RecentPosts';
@@ -26,8 +27,8 @@ export function AuthenticatedHome() {
   };
 
   const mainContent = (
-    <div className="lg:col-span-3 space-y-4">
-      <RecentActivity />
+    <div className="lg:col-span-3 space-y-3">
+      <WelcomeSection />
       
       <TopSuppliers />
       
@@ -35,7 +36,10 @@ export function AuthenticatedHome() {
       
       <TrendingTopics limit={6} showHeader={true} />
       
-      <SuggestedTopics />
+      {/* Full width Aanbevolen voor jou */}
+      <div className="-mx-4 sm:-mx-0">
+        <SuggestedTopics />
+      </div>
     </div>
   );
 
@@ -44,7 +48,7 @@ export function AuthenticatedHome() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
       {isMobile ? (
         <PullToRefresh onRefresh={handleRefresh}>
           {mainContent}
@@ -53,8 +57,13 @@ export function AuthenticatedHome() {
         mainContent
       )}
 
-      {/* Sidebar - Presentatie Tab */}
-      <div className={`space-y-4 ${isMobile ? 'hidden' : 'lg:sticky lg:top-24'}`}>
+      {/* Sidebar - Recente Activiteit + Presentatie */}
+      <div className={`space-y-3 ${isMobile ? 'hidden' : 'lg:sticky lg:top-24'}`}>
+        {/* Full width Recente Activiteit */}
+        <div className="-mx-4 sm:-mx-0">
+          <RecentActivity />
+        </div>
+        
         <PresentationTab />
       </div>
 

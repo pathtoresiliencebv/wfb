@@ -16,6 +16,7 @@ import { SupplierOrderingProcess } from '@/components/supplier/SupplierOrderingP
 import { SupplierContactSection } from '@/components/supplier/SupplierContactSection';
 import { Loader2, MessageCircle, Send, Star, MapPin, Clock, Package } from 'lucide-react';
 import { SupplierProfile } from '@/types/supplier';
+import { BadgedText } from '@/lib/badgeParser';
 
 export default function SupplierPublic() {
   const { username } = useParams<{ username: string }>();
@@ -122,7 +123,7 @@ export default function SupplierPublic() {
               </div>
               {supplier.description && (
                 <p className="text-muted-foreground text-lg max-w-3xl mx-auto leading-relaxed">
-                  {supplier.description}
+                  <BadgedText text={supplier.description} />
                 </p>
               )}
             </div>

@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Edit, MapPin, Clock, Star } from 'lucide-react';
 import { SupplierProfile } from '@/types/supplier';
+import { BadgedText } from '@/lib/badgeParser';
 
 interface SupplierHeaderProps {
   supplier: SupplierProfile;
@@ -72,7 +73,9 @@ export const SupplierHeader: React.FC<SupplierHeaderProps> = ({
             </div>
             
             {supplier.description && (
-              <p className="text-white/90 mb-3">{supplier.description}</p>
+              <p className="text-white/90 mb-3">
+                <BadgedText text={supplier.description} />
+              </p>
             )}
 
             <div className="flex items-center gap-6 text-sm text-white/80">

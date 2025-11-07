@@ -1,8 +1,5 @@
-
 import React from 'react';
 import { Calendar, MessageSquare, ThumbsUp, UserPlus, Star, FileText } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useActivityFeed } from '@/hooks/useActivityFeed';
 import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
@@ -73,29 +70,23 @@ export function RecentActivity() {
 
   if (error) {
     return (
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            Recente Activiteit
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-xs text-muted-foreground">Er ging iets mis bij het laden van activiteiten.</p>
-        </CardContent>
-      </Card>
+      <div className="pb-3">
+        <h3 className="text-base font-medium flex items-center gap-2 mb-3">
+          <Calendar className="h-4 w-4" />
+          Recente Activiteit
+        </h3>
+        <p className="text-xs text-muted-foreground">Er ging iets mis bij het laden van activiteiten.</p>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Calendar className="h-4 w-4" />
-          Recente Activiteit
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
+    <div className="pb-3">
+      <h3 className="text-base font-medium flex items-center gap-2 mb-3">
+        <Calendar className="h-4 w-4" />
+        Recente Activiteit
+      </h3>
+      <div className="space-y-2">
         {isLoading ? (
           <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
@@ -142,7 +133,7 @@ export function RecentActivity() {
         ) : (
           <p className="text-xs text-muted-foreground">Nog geen recente activiteit.</p>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

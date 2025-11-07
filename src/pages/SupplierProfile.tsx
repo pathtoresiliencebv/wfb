@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Layout } from '@/components/layout/Layout';
+import { BadgedText } from '@/lib/badgeParser';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SupplierMenu } from '@/components/supplier/SupplierMenu';
 
@@ -151,11 +152,11 @@ export const SupplierProfile: React.FC = () => {
               <CardHeader>
                 <CardTitle>Over {supplier.business_name}</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground leading-relaxed">
-                  {supplier.description}
-                </p>
-              </CardContent>
+      <CardContent>
+        <p className="text-muted-foreground leading-relaxed">
+          <BadgedText text={supplier.description} />
+        </p>
+      </CardContent>
             </Card>
           )}
 
@@ -210,12 +211,12 @@ export const SupplierProfile: React.FC = () => {
                 Wie is {supplier.business_name}?
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {supplier.description && (
-                <p className="text-muted-foreground leading-relaxed">
-                  {supplier.description}
-                </p>
-              )}
+      <CardContent className="space-y-4">
+        {supplier.description && (
+          <p className="text-muted-foreground leading-relaxed">
+            <BadgedText text={supplier.description} />
+          </p>
+        )}
               
               {/* Features Section */}
               {supplier.features && supplier.features.length > 0 && (

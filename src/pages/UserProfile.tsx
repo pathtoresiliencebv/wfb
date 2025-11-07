@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { BadgedText } from '@/lib/badgeParser';
 
 export default function UserProfile() {
   const { userId } = useParams<{ userId: string }>();
@@ -173,7 +174,9 @@ export default function UserProfile() {
               </div>
 
               {profile.bio && (
-                <p className="text-muted-foreground mb-4">{profile.bio}</p>
+                <p className="text-muted-foreground mb-4">
+                  <BadgedText text={profile.bio} />
+                </p>
               )}
 
               {/* Stats */}

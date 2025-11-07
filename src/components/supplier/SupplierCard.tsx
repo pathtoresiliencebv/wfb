@@ -6,6 +6,7 @@ import { CrownBadge } from '@/components/ui/crown-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star, Users, Clock, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { BadgedText } from '@/lib/badgeParser';
 
 interface SupplierProfile {
   id: string;
@@ -76,7 +77,7 @@ export const SupplierCard: React.FC<SupplierCardProps> = ({
       <CardContent className="pt-0">
         {supplier.description && (
           <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-            {supplier.description}
+            <BadgedText text={supplier.description} />
           </p>
         )}
         
