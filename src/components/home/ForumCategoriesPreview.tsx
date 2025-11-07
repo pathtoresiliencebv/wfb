@@ -64,10 +64,29 @@ export function ForumCategoriesPreview() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-[280px] rounded-lg bg-muted animate-pulse" />
-        ))}
+      <div className="space-y-8">
+        <div className="text-center space-y-3">
+          <div className="h-10 w-96 max-w-full mx-auto rounded-lg bg-muted animate-pulse" />
+          <div className="h-6 w-[500px] max-w-full mx-auto rounded-lg bg-muted animate-pulse" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="h-[300px] overflow-hidden">
+              <div className="relative h-full p-6 flex flex-col justify-between">
+                <div className="w-16 h-16 rounded-2xl bg-muted animate-pulse" />
+                <div className="space-y-3">
+                  <div className="h-6 w-3/4 rounded bg-muted animate-pulse" />
+                  <div className="h-4 w-full rounded bg-muted animate-pulse" />
+                  <div className="h-4 w-5/6 rounded bg-muted animate-pulse" />
+                  <div className="flex items-center justify-between pt-2">
+                    <div className="h-6 w-20 rounded-full bg-muted animate-pulse" />
+                    <div className="h-5 w-5 rounded bg-muted animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
