@@ -150,3 +150,42 @@
     @apply bg-card border border-border rounded-lg p-4 hover:bg-accent/5 transition-colors;
   }
 }
+
+/* Modern Auth Page Animations */
+@keyframes fadeSlideIn {
+  to {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateY(0px);
+  }
+}
+
+@keyframes slideRightIn {
+  to {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateX(0px);
+  }
+}
+
+@keyframes testimonialIn {
+  to {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateY(0px) scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeSlideIn 0.6s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px);
+  filter: blur(5px);
+}
+
+.animate-slide-right {
+  animation: slideRightIn 0.8s ease-out forwards;
+  opacity: 0;
+  transform: translateX(-20px);
+  filter: blur(5px);
+}
