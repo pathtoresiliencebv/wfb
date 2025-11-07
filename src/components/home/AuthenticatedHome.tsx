@@ -1,22 +1,17 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { PullToRefresh } from '@/components/mobile/PullToRefresh';
-import { FloatingActionButton } from '@/components/mobile/FloatingActionButton';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { RecentActivity } from '@/components/feed/RecentActivity';
-import { OnlineMembers } from '@/components/feed/OnlineMembers';
-import { FeedLoadingSkeleton } from '@/components/loading/OptimizedLoadingStates';
-import { WelcomeSection } from './WelcomeSection';
-import { StatsOverview } from './StatsOverview';
-import { RecentPosts } from './RecentPosts';
-import { QuickActionsPanel } from './QuickActionsPanel';
 import { TopSuppliers } from '@/components/supplier/TopSuppliers';
+import { RecentPosts } from './RecentPosts';
 import { TrendingTopics } from './TrendingTopics';
 import { SuggestedTopics } from './SuggestedTopics';
-import { AchievementsShowcase } from './AchievementsShowcase';
+import { FloatingActionButton } from '@/components/mobile/FloatingActionButton';
+import { PullToRefresh } from '@/components/mobile/PullToRefresh';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { FeedLoadingSkeleton } from '@/components/loading/OptimizedLoadingStates';
+import { PresentationTab } from './PresentationTab';
 
 export function AuthenticatedHome() {
   const navigate = useNavigate();
@@ -26,22 +21,20 @@ export function AuthenticatedHome() {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    // Simulate refresh delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     setIsRefreshing(false);
   };
 
   const mainContent = (
-    <div className="lg:col-span-3 space-y-8">
-      <WelcomeSection />
-      <QuickActionsPanel />
-      <div className="grid md:grid-cols-2 gap-6">
-        <StatsOverview />
-        <AchievementsShowcase />
-      </div>
+    <div className="lg:col-span-3 space-y-4">
+      <RecentActivity />
+      
       <TopSuppliers />
+      
       <RecentPosts />
+      
       <TrendingTopics limit={6} showHeader={true} />
+      
       <SuggestedTopics />
     </div>
   );
@@ -51,8 +44,7 @@ export function AuthenticatedHome() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      {/* Main Content with Pull to Refresh on Mobile */}
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
       {isMobile ? (
         <PullToRefresh onRefresh={handleRefresh}>
           {mainContent}
@@ -61,11 +53,9 @@ export function AuthenticatedHome() {
         mainContent
       )}
 
-      {/* Sidebar - Hidden on mobile */}
-      <div className={`space-y-6 ${isMobile ? 'hidden' : 'lg:sticky lg:top-24'}`}>
-        <RecentActivity />
-        <Separator />
-        <OnlineMembers />
+      {/* Sidebar - Presentatie Tab */}
+      <div className={`space-y-4 ${isMobile ? 'hidden' : 'lg:sticky lg:top-24'}`}>
+        <PresentationTab />
       </div>
 
       {/* Mobile FAB for creating topics */}

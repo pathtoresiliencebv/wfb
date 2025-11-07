@@ -173,6 +173,12 @@
   /* Cannabis theme utilities */
   .cannabis-gradient {
     background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-muted)) 100%);
+    transition: none;
+  }
+  
+  .cannabis-gradient:hover {
+    transform: none;
+    box-shadow: none;
   }
   
   .online-indicator {

@@ -89,13 +89,13 @@ export function RecentActivity() {
 
   return (
     <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium flex items-center gap-2">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base flex items-center gap-2">
           <Calendar className="h-4 w-4" />
           Recente Activiteit
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-2">
         {isLoading ? (
           <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
