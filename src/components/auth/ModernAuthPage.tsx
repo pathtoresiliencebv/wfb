@@ -11,6 +11,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
 
+const heroImage = '/lovable-uploads/a6faafc3-e2bd-47ec-8de8-603497930570.png';
+
 interface ModernAuthPageProps {
   username: string;
   email: string;
@@ -80,7 +82,13 @@ export function ModernAuthPage({
 
   return (
     <main className="relative md:h-screen md:overflow-hidden lg:grid lg:grid-cols-2">
-      <div className="bg-muted/60 relative hidden h-full flex-col border-r p-10 lg:flex">
+      <div className="bg-muted/60 relative hidden h-full flex-col border-r p-10 lg:flex overflow-hidden">
+        {/* Hero Image als achtergrond */}
+        <img 
+          src={heroImage}
+          alt="Wiet Forum België"
+          className="absolute inset-0 w-full h-full object-cover opacity-20"
+        />
         <div className="from-background absolute inset-0 z-10 bg-gradient-to-t to-transparent" />
         <div className="z-10 flex items-center gap-3">
           <img 

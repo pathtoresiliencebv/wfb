@@ -39,14 +39,27 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Trending Topics */}
-      <section className="relative py-20 bg-gradient-to-br from-green-950/5 via-background to-primary/5 border-y border-primary/10 overflow-hidden">
-        {/* Decorative blobs matching hero style */}
+      {/* Trending Topics met verbeterde achtergrond - Wat gebeurt er nu */}
+      <section className="relative py-20 bg-gradient-to-br from-background via-background/50 to-accent/20 border-y border-primary/10 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--primary)/0.08),transparent_70%)]" />
+        {/* Cannabis-themed decorative blobs */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }} />
         
         <div className="container relative mx-auto px-4">
-          <TrendingTopics />
+          {/* Verbeterde sectie header */}
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
+                Wat gebeurt er nu?
+              </span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Bekijk de meest populaire discussies en trending topics in onze community
+            </p>
+          </div>
+          
+          <TrendingTopics showHeader={false} />
         </div>
       </section>
 

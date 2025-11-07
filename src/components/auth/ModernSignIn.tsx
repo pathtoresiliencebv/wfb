@@ -9,6 +9,8 @@ import { motion } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { AuthTestimonials } from './AuthTestimonials';
 
+const heroImage = '/lovable-uploads/a6faafc3-e2bd-47ec-8de8-603497930570.png';
+
 interface ModernSignInProps {
   onSignIn?: (email: string, password: string, rememberMe: boolean) => void;
   onCreateAccount?: () => void;
@@ -172,8 +174,8 @@ export function ModernSignIn({ onSignIn, onCreateAccount }: ModernSignInProps) {
         <div className="hidden lg:flex flex-col p-0 bg-gradient-to-br from-primary/5 via-primary/10 to-transparent relative overflow-hidden">
           <div className="relative h-64 overflow-hidden">
             <motion.img
-              src="https://images.unsplash.com/photo-1530429173145-dbb0eb302e5c?w=1200&q=80"
-              alt="Cannabis Community"
+              src={heroImage}
+              alt="Wiet Forum België - Cannabis Community"
               className="w-full h-full object-cover"
               initial={{ scale: 1 }}
               animate={{ scale: 1.1 }}
