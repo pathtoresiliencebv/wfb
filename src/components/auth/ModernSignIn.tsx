@@ -228,6 +228,7 @@ export function ModernSignIn({ onSignIn, onCreateAccount }: ModernSignInProps) {
           <p>© 2024 Wiet Forum België | <Link to="/terms" className="ml-2 hover:text-primary transition-colors">Voorwaarden</Link> | <Link to="/privacy" className="ml-2 hover:text-primary transition-colors">Privacy</Link></p>
         </div>
       </footer>
+      </div>
     </div>
   );
 }
