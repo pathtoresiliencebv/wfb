@@ -41,7 +41,15 @@ export function LandingPage() {
       {/* Hero Section */}
       <HeroSection />
 
-      {/* Trending Topics - Direct onder Hero */}
+      {/* Forum Categories - Direct onder Hero */}
+      <section className="relative py-24 bg-gradient-to-br from-green-500/15 via-primary/15 to-green-700/10 border-y border-primary/30 overflow-hidden">
+        <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] bg-green-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+        <div className="relative container mx-auto px-4">
+          <ForumCategoriesPreview />
+        </div>
+      </section>
+
+      {/* Trending Topics */}
       <section className="py-20 bg-gradient-to-br from-background via-green-950/5 to-background border-b border-green-500/10">
         <div className="container mx-auto px-4">
           <TrendingTopics limit={6} showHeader={true} />
@@ -74,13 +82,6 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Forum Categories Preview - GROENE HIGHLIGHT SECTIE */}
-      <section className="relative py-24 bg-gradient-to-br from-green-500/15 via-primary/15 to-green-700/10 border-y border-primary/30 overflow-hidden">
-        <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] bg-green-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }} />
-        <div className="relative container mx-auto px-4">
-          <ForumCategoriesPreview />
-        </div>
-      </section>
 
       {/* Features Grid - GROENE TINT */}
       <section className="bg-gradient-to-br from-green-900/5 to-background py-20">
