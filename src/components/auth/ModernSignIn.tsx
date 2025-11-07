@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Leaf } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import logoLight from '@/assets/wietforum-logo-light.png';
+import logoDark from '@/assets/wietforum-logo-dark.png';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface ModernSignInProps {
   onSignIn?: (email: string, password: string, rememberMe: boolean) => void;
@@ -21,6 +24,7 @@ export const ModernSignIn: React.FC<ModernSignInProps> = ({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const { theme } = useTheme();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,8 +38,12 @@ export const ModernSignIn: React.FC<ModernSignInProps> = ({
         <div className="w-full max-w-md">
           <div className="flex flex-col gap-6">
             <div className="flex items-center gap-3 mb-4">
-              <Leaf className="size-10 text-primary" />
-              <span className="text-2xl font-bold">Wiet Forum</span>
+              <img 
+                src={theme === 'dark' ? logoDark : logoLight}
+                alt="Wiet Forum België Logo"
+                className="h-10 w-auto"
+              />
+              <span className="text-2xl font-bold">Wiet Forum België</span>
             </div>
             
             <h1 className="animate-fade-in text-4xl md:text-5xl font-semibold leading-tight">
@@ -130,7 +138,11 @@ export const ModernSignIn: React.FC<ModernSignInProps> = ({
       <section className="hidden md:block flex-1 relative p-4 bg-gradient-to-br from-primary/20 via-secondary/10 to-background">
         <div className="absolute inset-4 rounded-3xl bg-gradient-to-br from-primary/30 to-secondary/20 flex items-center justify-center">
           <div className="text-center space-y-6 p-12">
-            <Leaf className="size-24 text-primary mx-auto" />
+            <img 
+              src={theme === 'dark' ? logoDark : logoLight}
+              alt="Wiet Forum België Logo"
+              className="h-32 w-auto mx-auto"
+            />
             <h2 className="text-4xl font-bold text-foreground">
               Wiet Forum België
             </h2>
