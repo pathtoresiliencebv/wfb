@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { HeroSection } from './HeroSection';
+import { FloatingCannabisLeaf } from '@/components/animations/FloatingCannabisLeaf';
+import logoMain from '@/assets/wietforum-logo-main.png';
 import { ValuePropositionSection } from './ValuePropositionSection';
 import { StatsHighlightSection } from './StatsHighlightSection';
 import { HowItWorksSection } from './HowItWorksSection';
@@ -14,12 +16,20 @@ import { TrustBadgesSection } from './TrustBadgesSection';
 import { CTASection } from './CTASection';
 import { Separator } from '@/components/ui/separator';
 export function LandingPage() {
-  return <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background relative overflow-x-hidden">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <FloatingCannabisLeaf size="large" delay={0} />
+        <FloatingCannabisLeaf size="medium" delay={5} />
+        <FloatingCannabisLeaf size="small" delay={10} />
+        <FloatingCannabisLeaf size="medium" delay={15} />
+        <FloatingCannabisLeaf size="large" delay={20} />
+        <FloatingCannabisLeaf size="small" delay={25} />
+      </div>
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-3">
-            <img src="/lovable-uploads/8721330a-f235-4c3b-9c21-85436a192135.png" alt="Wiet Forum België" className="h-12 w-auto" />
+            <img src={logoMain} alt="Wiet Forum België" className="h-12 w-auto" />
           </div>
           <div className="flex items-center gap-3">
             <Link to="/login">

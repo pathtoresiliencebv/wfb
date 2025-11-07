@@ -151,6 +151,47 @@
   }
 }
 
+/* Custom Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--primary)) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+  border-left: 1px solid hsl(var(--border));
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.7) 100%);
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: all 0.3s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.9) 100%);
+  box-shadow: 0 0 10px hsl(var(--primary) / 0.3);
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: hsl(var(--primary));
+  box-shadow: 0 0 15px hsl(var(--primary) / 0.5);
+}
+
+@media (max-width: 768px) {
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+}
+
 /* Modern Auth Page Animations */
 @keyframes fadeSlideIn {
   to {
@@ -176,6 +217,34 @@
   }
 }
 
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+@keyframes bounceIn {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.3) translateY(-20px); 
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1.05); 
+  }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+@keyframes pulse-green {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.7); 
+  }
+  50% { 
+    box-shadow: 0 0 0 8px hsl(var(--primary) / 0); 
+  }
+}
+
 .animate-fade-in {
   animation: fadeSlideIn 0.6s ease-out forwards;
   opacity: 0;
@@ -188,4 +257,16 @@
   opacity: 0;
   transform: translateX(-20px);
   filter: blur(5px);
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.6s ease-out;
+}
+
+.animate-pulse-green {
+  animation: pulse-green 2s ease-in-out infinite;
 }
