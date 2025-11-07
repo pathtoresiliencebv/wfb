@@ -127,7 +127,7 @@ export function ForumCategoriesPreview() {
                     transition: { duration: 0.3 }
                   })}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background/20" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-background/40 backdrop-blur-[2px]" />
                 </motion.div>
 
                 {/* Content */}

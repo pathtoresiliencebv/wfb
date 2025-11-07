@@ -7,7 +7,6 @@ import { HowItWorksSection } from './HowItWorksSection';
 import { FeaturesGrid } from './FeaturesGrid';
 import { TrendingTopics } from '@/components/home/TrendingTopics';
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
-import { TopSuppliers } from '@/components/supplier/TopSuppliers';
 import { ForumCategoriesPreview } from '@/components/home/ForumCategoriesPreview';
 import { FAQSection } from '@/components/home/FAQSection';
 import { SocialProofSection } from '@/components/home/SocialProofSection';
@@ -42,6 +41,13 @@ export function LandingPage() {
       {/* Hero Section */}
       <HeroSection />
 
+      {/* Trending Topics - Direct onder Hero */}
+      <section className="py-20 bg-gradient-to-br from-background via-green-950/5 to-background border-b border-green-500/10">
+        <div className="container mx-auto px-4">
+          <TrendingTopics limit={6} showHeader={true} />
+        </div>
+      </section>
+
       {/* Stats Highlight - GROENE SECTIE */}
       <section className="relative bg-gradient-to-br from-green-600/10 via-primary/10 to-green-800/10 border-y border-green-500/20 py-24 overflow-hidden">
         <div className="absolute top-20 right-1/4 w-96 h-96 bg-green-500/10 rounded-full blur-3xl animate-pulse" />
@@ -73,20 +79,6 @@ export function LandingPage() {
         <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] bg-green-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }} />
         <div className="relative container mx-auto px-4">
           <ForumCategoriesPreview />
-        </div>
-      </section>
-
-      {/* Trending Topics - SUBTIEL GROEN */}
-      <section className="py-20 bg-gradient-to-br from-background via-green-950/5 to-background">
-        <div className="container mx-auto px-4">
-          <TrendingTopics limit={6} showHeader={true} />
-        </div>
-      </section>
-
-      {/* Top Suppliers - WARM ACCENT */}
-      <section className="py-20 bg-gradient-to-br from-amber-950/5 via-background to-green-950/5 border-y border-border/30">
-        <div className="container mx-auto px-4">
-          <TopSuppliers />
         </div>
       </section>
 
