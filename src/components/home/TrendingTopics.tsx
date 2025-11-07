@@ -24,7 +24,6 @@ export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsP
   const prefersReducedMotion = useReducedMotion();
 
   const MotionDiv = prefersReducedMotion ? 'div' : motion.div;
-  const MotionCard = prefersReducedMotion ? Card : motion(Card);
 
   if (isLoading) {
     return (
@@ -83,9 +82,8 @@ export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsP
         })}
       >
         {topics.map((topic, index) => (
-          <MotionCard 
-            key={topic.id} 
-            className="transition-shadow"
+          <MotionDiv
+            key={topic.id}
             {...(!prefersReducedMotion && {
               variants: fadeInUp,
               transition: { delay: index * 0.08 },
@@ -95,6 +93,7 @@ export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsP
               }
             })}
           >
+            <Card className="transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-2">
                 <CardTitle className="text-base line-clamp-2">
@@ -163,7 +162,8 @@ export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsP
                 </span>
               </div>
             </CardContent>
-          </MotionCard>
+          </Card>
+          </MotionDiv>
         ))}
       </motion.div>
       

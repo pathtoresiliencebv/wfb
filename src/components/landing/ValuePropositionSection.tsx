@@ -71,7 +71,6 @@ export function ValuePropositionSection() {
   const prefersReducedMotion = useReducedMotion();
 
   const MotionDiv = prefersReducedMotion ? 'div' : motion.div;
-  const MotionCard = prefersReducedMotion ? Card : motion(Card);
 
   return (
     <section className="py-20 bg-muted/30">
@@ -104,9 +103,8 @@ export function ValuePropositionSection() {
           {benefits.map((benefit, index) => {
             const Icon = benefit.icon;
             return (
-              <MotionCard 
+              <MotionDiv
                 key={index}
-                className="group transition-all duration-300"
                 {...(!prefersReducedMotion && {
                   variants: fadeInUp,
                   transition: { delay: index * 0.08 },
@@ -117,6 +115,7 @@ export function ValuePropositionSection() {
                   }
                 })}
               >
+                <Card className="group transition-all duration-300">
                 <CardContent className="p-6 space-y-4">
                   <motion.div 
                     className={`${benefit.color} bg-background rounded-full w-14 h-14 flex items-center justify-center`}
@@ -137,7 +136,8 @@ export function ValuePropositionSection() {
                     </p>
                   </div>
                 </CardContent>
-              </MotionCard>
+              </Card>
+              </MotionDiv>
             );
           })}
         </motion.div>

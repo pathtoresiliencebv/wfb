@@ -38,8 +38,6 @@ export function HowItWorksSection() {
   const prefersReducedMotion = useReducedMotion();
 
   const MotionDiv = prefersReducedMotion ? 'div' : motion.div;
-  const MotionCard = prefersReducedMotion ? Card : motion(Card);
-  const MotionButton = prefersReducedMotion ? Button : motion(Button);
 
   return (
     <section className="py-20">
@@ -74,8 +72,7 @@ export function HowItWorksSection() {
                   transition: { delay: index * 0.2 }
                 })}
               >
-                <MotionCard 
-                  className="h-full"
+                <MotionDiv
                   {...(!prefersReducedMotion && {
                     whileHover: { 
                       scale: 1.05,
@@ -83,6 +80,7 @@ export function HowItWorksSection() {
                     }
                   })}
                 >
+                  <Card className="h-full">
                   <CardContent className="p-8 text-center space-y-4">
                     {/* Step Number Badge */}
                     <motion.div 
@@ -122,7 +120,8 @@ export function HowItWorksSection() {
                       </p>
                     </div>
                   </CardContent>
-                </MotionCard>
+                </Card>
+                </MotionDiv>
 
                 {/* Arrow between steps */}
                 {index < steps.length - 1 && (
@@ -156,18 +155,22 @@ export function HowItWorksSection() {
             transition: { delay: 0.8 }
           })}
         >
-          <MotionButton 
-            size="lg"
-            onClick={() => navigate('/register')}
-            className="text-lg px-10 h-14"
+          <MotionDiv
+            className="inline-block"
             {...(!prefersReducedMotion && {
               whileHover: { scale: 1.05 },
               whileTap: { scale: 0.95 }
             })}
           >
-            Start Nu - Het is Gratis
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </MotionButton>
+            <Button 
+              size="lg"
+              onClick={() => navigate('/register')}
+              className="text-lg px-10 h-14"
+            >
+              Start Nu - Het is Gratis
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </MotionDiv>
           <p className="text-sm text-muted-foreground mt-4">
             Geen credit card nodig • Direct toegang • 100% gratis
           </p>

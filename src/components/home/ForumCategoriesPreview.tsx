@@ -42,8 +42,6 @@ export function ForumCategoriesPreview() {
   });
 
   const MotionDiv = prefersReducedMotion ? 'div' : motion.div;
-  const MotionCard = prefersReducedMotion ? Card : motion(Card);
-  const MotionButton = prefersReducedMotion ? Button : motion(Button);
 
   if (isLoading) {
     return (
@@ -86,8 +84,7 @@ export function ForumCategoriesPreview() {
       >
         {categories.map((category, index) => (
           <Link key={category.id} to={`/forums/${category.slug}`}>
-            <MotionCard 
-              className="group relative h-[300px] overflow-hidden transition-all duration-300 border-2 hover:border-primary/50"
+            <MotionDiv
               {...(!prefersReducedMotion && {
                 variants: fadeInUp,
                 transition: { delay: index * 0.1 },
@@ -97,6 +94,7 @@ export function ForumCategoriesPreview() {
                 }
               })}
             >
+              <Card className="group relative h-[300px] overflow-hidden transition-all duration-300 border-2 hover:border-primary/50">
               {/* Enhanced Background with Better Gradient */}
               <motion.div 
                 className="absolute inset-0 bg-cover bg-center"
@@ -174,7 +172,8 @@ export function ForumCategoriesPreview() {
                   </div>
                 </div>
               </div>
-            </MotionCard>
+              </Card>
+            </MotionDiv>
           </Link>
         ))}
       </motion.div>
@@ -188,28 +187,32 @@ export function ForumCategoriesPreview() {
         })}
       >
         <Link to="/forums">
-          <MotionButton 
-            size="lg" 
-            variant="outline" 
-            className="group"
+          <MotionDiv 
+            className="inline-block"
             {...(!prefersReducedMotion && {
               whileHover: { scale: 1.05 },
               whileTap: { scale: 0.95 }
             })}
           >
-            Bekijk Alle Categorieën
-            <motion.div
-              {...(!prefersReducedMotion && {
-                animate: { x: [0, 5, 0] },
-                transition: { 
-                  duration: 1.5,
-                  repeat: Infinity
-                }
-              })}
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="group"
             >
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </motion.div>
-          </MotionButton>
+              Bekijk Alle Categorieën
+              <motion.div
+                {...(!prefersReducedMotion && {
+                  animate: { x: [0, 5, 0] },
+                  transition: { 
+                    duration: 1.5,
+                    repeat: Infinity
+                  }
+                })}
+              >
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </motion.div>
+            </Button>
+          </MotionDiv>
         </Link>
       </MotionDiv>
     </div>

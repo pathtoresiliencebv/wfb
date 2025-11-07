@@ -111,7 +111,6 @@ export function FeaturesGrid() {
   const prefersReducedMotion = useReducedMotion();
 
   const MotionDiv = prefersReducedMotion ? 'div' : motion.div;
-  const MotionCard = prefersReducedMotion ? Card : motion(Card);
 
   return (
     <section className="py-24 bg-gradient-to-br from-muted/30 via-background to-muted/30 border-y border-border/50">
@@ -142,9 +141,8 @@ export function FeaturesGrid() {
           })}
         >
           {features.map((feature, index) => (
-            <MotionCard 
-              key={index} 
-              className="group transition-all duration-300 border border-border/50 hover:border-primary/40 bg-gradient-to-br from-card via-card to-card/80 shadow-md hover:shadow-xl"
+            <MotionDiv
+              key={index}
               {...(!prefersReducedMotion && {
                 variants: fadeInUp,
                 transition: { delay: index * 0.05 },
@@ -155,6 +153,7 @@ export function FeaturesGrid() {
                 }
               })}
             >
+              <Card className="group transition-all duration-300 border border-border/50 hover:border-primary/40 bg-gradient-to-br from-card via-card to-card/80 shadow-md hover:shadow-xl">
               <CardContent className="pt-6 space-y-4">
                 <MotionDiv 
                   className={`inline-flex p-4 rounded-2xl ${feature.bgColor} shadow-lg`}
@@ -172,7 +171,8 @@ export function FeaturesGrid() {
                   {feature.description}
                 </p>
               </CardContent>
-            </MotionCard>
+            </Card>
+            </MotionDiv>
           ))}
         </motion.div>
       </div>

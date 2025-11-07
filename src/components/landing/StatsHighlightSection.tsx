@@ -43,7 +43,7 @@ export function StatsHighlightSection() {
     }
   ];
 
-  const MotionCard = prefersReducedMotion ? Card : motion(Card);
+  const MotionDiv = prefersReducedMotion ? 'div' : motion.div;
 
   return (
     <section className="py-24">
@@ -60,9 +60,8 @@ export function StatsHighlightSection() {
           {displayStats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <MotionCard 
-                key={index} 
-                className="text-center border border-border/50 hover:border-primary/50 transition-all duration-300 bg-gradient-to-br from-card via-card to-card/80 shadow-lg hover:shadow-xl"
+              <MotionDiv
+                key={index}
                 {...(!prefersReducedMotion && {
                   variants: fadeInUp,
                   transition: { delay: index * 0.1 },
@@ -73,6 +72,7 @@ export function StatsHighlightSection() {
                   }
                 })}
               >
+                <Card className="text-center border border-border/50 hover:border-primary/50 transition-all duration-300 bg-gradient-to-br from-card via-card to-card/80 shadow-lg hover:shadow-xl">
                 <CardContent className="p-8 space-y-4">
                   <motion.div 
                     className="flex justify-center"
@@ -99,7 +99,8 @@ export function StatsHighlightSection() {
                     {stat.label}
                   </div>
                 </CardContent>
-              </MotionCard>
+              </Card>
+              </MotionDiv>
             );
           })}
         </motion.div>

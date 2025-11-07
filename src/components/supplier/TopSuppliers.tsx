@@ -51,9 +51,7 @@ export const TopSuppliers: React.FC = () => {
     }
   };
 
-  const MotionCard = prefersReducedMotion ? Card : motion(Card);
   const MotionDiv = prefersReducedMotion ? 'div' : motion.div;
-  const MotionButton = prefersReducedMotion ? Button : motion(Button);
 
   if (isLoading) {
     return (
@@ -90,7 +88,7 @@ export const TopSuppliers: React.FC = () => {
   }
 
   return (
-    <MotionCard
+    <MotionDiv
       ref={ref}
       {...(!prefersReducedMotion && {
         initial: { opacity: 0, y: 30 },
@@ -98,6 +96,7 @@ export const TopSuppliers: React.FC = () => {
         transition: { duration: 0.5 }
       })}
     >
+      <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <motion.div
@@ -193,20 +192,25 @@ export const TopSuppliers: React.FC = () => {
               </div>
             </div>
             
-            <MotionButton
-              size="sm"
-              variant="outline"
-              onClick={() => navigate(`/aanbod/${supplier.profiles.username}`)}
+            <MotionDiv
+              className="inline-block"
               {...(!prefersReducedMotion && {
                 whileHover: { scale: 1.05 },
                 whileTap: { scale: 0.95 }
               })}
             >
-              Bekijk
-            </MotionButton>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => navigate(`/aanbod/${supplier.profiles.username}`)}
+              >
+                Bekijk
+              </Button>
+            </MotionDiv>
           </MotionDiv>
         ))}
       </CardContent>
-    </MotionCard>
+    </Card>
+    </MotionDiv>
   );
 };

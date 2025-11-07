@@ -47,7 +47,6 @@ export function TestimonialsSection() {
   const prefersReducedMotion = useReducedMotion();
 
   const MotionDiv = prefersReducedMotion ? 'div' : motion.div;
-  const MotionCard = prefersReducedMotion ? Card : motion(Card);
 
   return (
     <div className="space-y-6">
@@ -75,9 +74,8 @@ export function TestimonialsSection() {
         })}
       >
         {testimonials.map((testimonial, index) => (
-          <MotionCard 
-            key={testimonial.id} 
-            className="relative"
+          <MotionDiv
+            key={testimonial.id}
             {...(!prefersReducedMotion && {
               variants: fadeInUp,
               transition: { delay: index * 0.1 },
@@ -87,6 +85,7 @@ export function TestimonialsSection() {
               }
             })}
           >
+            <Card className="relative">
             <CardContent className="pt-6">
               <motion.div
                 {...(!prefersReducedMotion && {
@@ -151,7 +150,8 @@ export function TestimonialsSection() {
                 "{testimonial.text}"
               </p>
             </CardContent>
-          </MotionCard>
+          </Card>
+          </MotionDiv>
         ))}
       </motion.div>
     </div>

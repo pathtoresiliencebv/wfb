@@ -16,7 +16,6 @@ export function HeroSection() {
   const prefersReducedMotion = useReducedMotion();
 
   const MotionDiv = prefersReducedMotion ? 'div' : motion.div;
-  const MotionButton = prefersReducedMotion ? Button : motion(Button);
 
   return (
     <section className="relative overflow-hidden min-h-[90vh] flex items-center">
@@ -104,33 +103,41 @@ export function HeroSection() {
               transition: { delay: 0.4 }
             })}
           >
-            <MotionButton 
-              size="lg" 
-              className="group w-full sm:w-auto text-lg px-10 py-7 bg-gradient-to-r from-primary to-secondary hover:shadow-2xl hover:shadow-primary/30 transition-all"
-              onClick={() => navigate('/register')}
+            <MotionDiv 
+              className="inline-block"
               {...(!prefersReducedMotion && {
                 whileHover: { scale: 1.05, y: -2 },
                 whileTap: tapScale,
                 transition: springConfig
               })}
             >
-              <UserPlus className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-              Word Nu Lid - 100% Gratis
-            </MotionButton>
-            <MotionButton 
-              size="lg" 
-              variant="outline" 
-              className="w-full sm:w-auto text-lg px-10 py-7 backdrop-blur-sm border-2 hover:bg-primary/5 hover:border-primary/50"
-              onClick={() => navigate('/forums')}
+              <Button 
+                size="lg" 
+                className="group w-full sm:w-auto text-lg px-10 py-7 bg-gradient-to-r from-primary to-secondary hover:shadow-2xl hover:shadow-primary/30 transition-all"
+                onClick={() => navigate('/register')}
+              >
+                <UserPlus className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+                Word Nu Lid - 100% Gratis
+              </Button>
+            </MotionDiv>
+            <MotionDiv 
+              className="inline-block"
               {...(!prefersReducedMotion && {
                 whileHover: { scale: 1.05, y: -2 },
                 whileTap: tapScale,
                 transition: springConfig
               })}
             >
-              <MessageSquare className="mr-2 h-5 w-5" />
-              Verken de Forums
-            </MotionButton>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="w-full sm:w-auto text-lg px-10 py-7 backdrop-blur-sm border-2 hover:bg-primary/5 hover:border-primary/50"
+                onClick={() => navigate('/forums')}
+              >
+                <MessageSquare className="mr-2 h-5 w-5" />
+                Verken de Forums
+              </Button>
+            </MotionDiv>
           </MotionDiv>
 
           {/* Enhanced Trust Indicators with Stats */}
