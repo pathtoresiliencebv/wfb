@@ -304,116 +304,122 @@ export default function TopicDetail() {
   const topicVoteData = getVoteData(topic.id);
 
   return (
-    <div className="space-y-4 md:space-y-6 px-2 sm:px-0">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-        <Button variant="ghost" size="sm" onClick={() => navigate(`/forums/${categoryId}`)} className="self-start">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          <span className="hidden sm:inline">Terug naar {topic.categories?.name}</span>
-          <span className="sm:hidden">Terug</span>
-        </Button>
-        
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2 text-xs sm:text-sm">
-            <Link to={`/forums/${categoryId}`} className="text-muted-foreground hover:text-primary truncate">
-              {topic.categories?.name}
-            </Link>
-            <span className="text-muted-foreground">•</span>
-            <span className="text-muted-foreground">Topic</span>
-          </div>
-          <h1 className="font-heading text-lg sm:text-xl md:text-2xl font-bold line-clamp-2">
-            <BadgedText text={topic.title} />
-          </h1>
-        </div>
-        
-        <div className="flex items-center gap-2 self-end sm:self-center">
-          <Button 
-            variant={isSubscribed ? "default" : "outline"} 
-            size="sm"
-            onClick={() => toggleSubscription(topic.id)}
-            disabled={isToggling}
-            className="text-xs min-h-[44px] px-3"
-          >
-            {isSubscribed ? (
-              <>
-                <BellOff className="h-3 w-3 mr-1" />
-                <span className="hidden sm:inline">Uitschrijven</span>
-              </>
-            ) : (
-              <>
-                <Bell className="h-3 w-3 mr-1" />
-                <span className="hidden sm:inline">Volgen</span>
-              </>
-            )}
-          </Button>
-          <Button 
-            variant={isBookmarked(topic.id) ? "default" : "outline"} 
-            size="sm"
-            onClick={() => toggleBookmark(topic.id, 'topic')}
-            className="min-h-[44px] px-3"
-          >
-            <Bookmark className={`h-3 w-3 ${isBookmarked(topic.id) ? 'fill-current' : ''}`} />
-          </Button>
-          <PostActions
-            itemId={topic.id}
-            itemType="topic"
-            isBookmarked={isBookmarked(topic.id)}
-            onBookmark={() => toggleBookmark(topic.id, 'topic')}
-          />
-        </div>
+    <div className="space-y-3 px-2 sm:px-0">
+      {/* Back Button - Altijd bovenaan */}
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={() => navigate(`/forums/${categoryId}`)} 
+        className="self-start min-h-[44px]"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        <span className="hidden sm:inline">Terug naar {topic.categories?.name}</span>
+        <span className="sm:hidden">Terug</span>
+      </Button>
+
+      {/* Breadcrumb BOVEN titel */}
+      <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+        <Link 
+          to={`/forums/${categoryId}`} 
+          className="hover:text-primary"
+        >
+          {topic.categories?.name}
+        </Link>
+        <span>•</span>
+        <span>Topic</span>
       </div>
 
-      {/* Topic Stats & Tags */}
-      <div className="space-y-3 md:space-y-4">
-        <div className="flex items-center gap-3 md:gap-6 text-xs md:text-sm text-muted-foreground flex-wrap">
+      {/* Titel - VOLLEDIG zichtbaar (geen line-clamp) */}
+      <h1 className="font-heading text-xl sm:text-2xl md:text-3xl font-bold break-words">
+        <BadgedText text={topic.title} />
+      </h1>
+
+      {/* Action buttons - Subscribe en Bookmark */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <Button 
+          variant={isSubscribed ? "default" : "outline"} 
+          size="sm"
+          onClick={() => toggleSubscription(topic.id)}
+          disabled={isToggling}
+          className="min-h-[44px]"
+        >
+          {isSubscribed ? (
+            <>
+              <BellOff className="h-4 w-4 mr-2" />
+              Uitschrijven
+            </>
+          ) : (
+            <>
+              <Bell className="h-4 w-4 mr-2" />
+              Volgen
+            </>
+          )}
+        </Button>
+        <Button 
+          variant={isBookmarked(topic.id) ? "default" : "outline"} 
+          size="sm"
+          onClick={() => toggleBookmark(topic.id, 'topic')}
+          className="min-h-[44px]"
+        >
+          <Bookmark className={`h-4 w-4 ${isBookmarked(topic.id) ? 'fill-current' : ''}`} />
+        </Button>
+        <PostActions
+          itemId={topic.id}
+          itemType="topic"
+          isBookmarked={isBookmarked(topic.id)}
+          onBookmark={() => toggleBookmark(topic.id, 'topic')}
+        />
+      </div>
+
+      {/* Topic Stats & Tags - Compacter */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
           <div className="flex items-center gap-1">
-            <Eye className="h-3 w-3 md:h-4 md:w-4" />
-            <span>{topic.view_count} views</span>
+            <Eye className="h-3 w-3" />
+            <span>{topic.view_count}</span>
           </div>
           <div className="flex items-center gap-1">
-            <MessageSquare className="h-3 w-3 md:h-4 md:w-4" />
-            <span>{topic.reply_count} reacties</span>
+            <MessageSquare className="h-3 w-3" />
+            <span>{topic.reply_count}</span>
           </div>
           <div className="flex items-center gap-1">
-            <Clock className="h-3 w-3 md:h-4 md:w-4" />
+            <Clock className="h-3 w-3" />
             <span className="hidden sm:inline">{formatDate(topic.created_at)}</span>
-            <span className="sm:hidden">{new Date(topic.created_at).toLocaleDateString('nl-BE')}</span>
+            <span className="sm:hidden">{new Date(topic.created_at).toLocaleDateString('nl-BE', { day: 'numeric', month: 'numeric' })}</span>
           </div>
         </div>
 
-        {/* Tags */}
+        {/* Tags - Compacter */}
         {topic.topic_tags && topic.topic_tags.length > 0 && (
-          <div className="flex items-start gap-2 flex-wrap">
-            <Tag className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground mt-1" />
-            <div className="flex flex-wrap gap-1 md:gap-2">
-              {topic.topic_tags.map(({ tags }) => (
-                <Badge 
-                  key={tags.id} 
-                  variant="outline" 
-                  className="text-xs"
-                  style={{ borderColor: tags.color, color: tags.color }}
-                >
-                  {tags.name}
-                </Badge>
-              ))}
-            </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            {topic.topic_tags.map(({ tags }) => (
+              <Badge 
+                key={tags.id} 
+                variant="outline" 
+                className="text-xs"
+                style={{ borderColor: tags.color, color: tags.color }}
+              >
+                {tags.name}
+              </Badge>
+            ))}
           </div>
         )}
       </div>
 
       {/* Original Post */}
-      <Card>
-        <CardHeader className="border-b p-3 md:p-6">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
-              <Avatar className="h-8 w-8 md:h-10 md:w-10 flex-shrink-0">
+      <Card className="mx-0">
+        <CardHeader className="p-4 border-b">
+          {/* Author info BOVEN content */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <Avatar className="h-10 w-10 flex-shrink-0">
                 <AvatarFallback className={getRoleColor(topic.profiles?.role || 'user')}>
                   {getUserInitials(topic.profiles?.username || 'Anonymous')}
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1 md:gap-2 flex-wrap">
-                  <span className="font-medium text-sm md:text-base truncate">{topic.profiles?.username}</span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-medium text-sm">{topic.profiles?.username}</span>
                   {topic.profiles?.role === 'moderator' && (
                     <Badge variant="secondary" className="text-xs">MOD</Badge>
                   )}
@@ -424,51 +430,50 @@ export default function TopicDetail() {
                     <Badge variant="outline" className="text-xs border-purple-500 text-purple-500">LEVERANCIER</Badge>
                   )}
                 </div>
-                <div className="text-xs md:text-sm text-muted-foreground">
-                  <span className="hidden sm:inline">{topic.profiles?.reputation || 0} reputatie • Lid sinds {new Date(topic.profiles?.created_at || topic.created_at).getFullYear()}</span>
-                  <span className="sm:hidden">Lid sinds {new Date(topic.profiles?.created_at || topic.created_at).getFullYear()}</span>
+                <div className="text-xs text-muted-foreground">
+                  {topic.profiles?.reputation || 0} rep
                 </div>
               </div>
             </div>
             <ReportModal itemId={topic.id} itemType="topic">
-              <Button variant="ghost" size="sm" className="min-h-[44px] px-2">
-                <Flag className="h-3 w-3 md:h-4 md:w-4" />
+              <Button variant="ghost" size="sm" className="min-h-[44px] p-2">
+                <Flag className="h-4 w-4" />
               </Button>
             </ReportModal>
           </div>
         </CardHeader>
-        <CardContent className="p-3 md:p-6">
-          <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-            {/* Vote Section */}
-            <div className="flex flex-row sm:flex-col items-center justify-center sm:min-w-[4rem] order-2 sm:order-1">
-              {topicVoteData && (
-                <VotingButtons
-                  itemId={topic.id}
-                  upvotes={topicVoteData.upvotes}
-                  downvotes={topicVoteData.downvotes}
-                  currentVote={topicVoteData.currentVote}
-                  onVote={(voteType) => handleVote(topic.id, voteType, 'topic')}
-                />
-              )}
-            </div>
-
+        
+        <CardContent className="p-4">
+          {/* Content met inline voting voor mobiel */}
+          <div className="flex flex-col gap-4">
             {/* Content */}
-            <div className="flex-1 order-1 sm:order-2">
-              <div 
-                className="prose prose-sm max-w-none mb-4 md:mb-6 text-foreground text-sm md:text-base"
-                dangerouslySetInnerHTML={{ 
-                  __html: parseBadges(topic.content.replace(/\n/g, '<br>')) 
-                }}
-              />
-              
-              <div className="flex items-center justify-end">
-                <PostActions
-                  itemId={topic.id}
-                  itemType="topic"
-                  isBookmarked={isBookmarked(topic.id)}
-                  onBookmark={() => toggleBookmark(topic.id, 'topic')}
-                />
+            <div 
+              className="prose prose-sm max-w-none text-sm"
+              dangerouslySetInnerHTML={{ 
+                __html: parseBadges(topic.content.replace(/\n/g, '<br>')) 
+              }}
+            />
+            
+            {/* Voting en actions ONDER content op mobiel */}
+            <div className="flex items-center justify-between border-t pt-4">
+              <div className="flex items-center">
+                {topicVoteData && (
+                  <VotingButtons
+                    itemId={topic.id}
+                    upvotes={topicVoteData.upvotes}
+                    downvotes={topicVoteData.downvotes}
+                    currentVote={topicVoteData.currentVote}
+                    onVote={(voteType) => handleVote(topic.id, voteType, 'topic')}
+                    size="sm"
+                  />
+                )}
               </div>
+              <PostActions
+                itemId={topic.id}
+                itemType="topic"
+                isBookmarked={isBookmarked(topic.id)}
+                onBookmark={() => toggleBookmark(topic.id, 'topic')}
+              />
             </div>
           </div>
         </CardContent>
@@ -482,16 +487,16 @@ export default function TopicDetail() {
         
         {replies.map((reply) => (
           <Card key={reply.id}>
-            <CardHeader className="border-b pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-8 w-8">
+            <CardHeader className="p-4 border-b">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <Avatar className="h-10 w-10 flex-shrink-0">
                     <AvatarFallback className={getRoleColor(reply.profiles?.role || 'user')}>
                       {getUserInitials(reply.profiles?.username || 'Anonymous')}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <div className="flex items-center gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-medium text-sm">{reply.profiles?.username}</span>
                       {reply.profiles?.role === 'expert' && (
                         <Badge variant="default" className="text-xs">EXPERT</Badge>
@@ -506,36 +511,36 @@ export default function TopicDetail() {
                   </div>
                 </div>
                 <ReportModal itemId={reply.id} itemType="reply">
-                  <Button variant="ghost" size="sm">
-                    <Flag className="h-3 w-3" />
+                  <Button variant="ghost" size="sm" className="min-h-[44px] p-2">
+                    <Flag className="h-4 w-4" />
                   </Button>
                 </ReportModal>
               </div>
             </CardHeader>
-            <CardContent className="pt-4">
-              <div className="flex gap-4">
-                {/* Vote Section for Reply */}
-                <div className="flex flex-col items-center min-w-[3rem]">
-                  {getVoteData(reply.id) && (
-                    <VotingButtons
-                      itemId={reply.id}
-                      upvotes={getVoteData(reply.id)?.upvotes || 0}
-                      downvotes={getVoteData(reply.id)?.downvotes || 0}
-                      currentVote={getVoteData(reply.id)?.currentVote || null}
-                      onVote={(voteType) => handleVote(reply.id, voteType, 'reply')}
-                      size="sm"
-                    />
-                  )}
-                </div>
-                
+            <CardContent className="p-4">
+              <div className="flex flex-col gap-4">
                 {/* Reply Content */}
-                <div className="flex-1">
-                  <div 
-                    className="text-sm prose prose-sm max-w-none text-foreground"
-                    dangerouslySetInnerHTML={{ 
-                      __html: parseBadges(reply.content.replace(/\n/g, '<br>'))
-                    }}
-                  />
+                <div 
+                  className="text-sm prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ 
+                    __html: parseBadges(reply.content.replace(/\n/g, '<br>'))
+                  }}
+                />
+                
+                {/* Voting ONDER content op mobiel */}
+                <div className="flex items-center justify-between border-t pt-4">
+                  <div className="flex items-center">
+                    {getVoteData(reply.id) && (
+                      <VotingButtons
+                        itemId={reply.id}
+                        upvotes={getVoteData(reply.id)?.upvotes || 0}
+                        downvotes={getVoteData(reply.id)?.downvotes || 0}
+                        currentVote={getVoteData(reply.id)?.currentVote || null}
+                        onVote={(voteType) => handleVote(reply.id, voteType, 'reply')}
+                        size="sm"
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -545,22 +550,31 @@ export default function TopicDetail() {
 
       {/* Reply Form - Always allow replies unless topic is deleted */}
       {isAuthenticated ? (
-        <Card>
-          <CardHeader>
-            <h4 className="font-medium">Reageer op dit topic</h4>
+        <Card className="mx-0">
+          <CardHeader className="p-4">
+            <h4 className="font-medium text-base">Reageer op dit topic</h4>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="p-4 space-y-4">
             <RichTextEditor
               value={replyContent}
               onChange={setReplyContent}
               placeholder="Deel je gedachten over dit topic..."
-              minHeight={120}
+              minHeight={150}
+              showLivePreview={true}
             />
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setReplyContent('')}>
+              <Button 
+                variant="outline" 
+                onClick={() => setReplyContent('')}
+                className="min-h-[44px]"
+              >
                 Annuleren
               </Button>
-              <Button onClick={handleReply} disabled={isReplying}>
+              <Button 
+                onClick={handleReply} 
+                disabled={isReplying}
+                className="min-h-[44px]"
+              >
                 {isReplying ? 'Bezig...' : 'Reageren'}
               </Button>
             </div>

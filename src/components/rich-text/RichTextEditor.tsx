@@ -4,6 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ImageUpload } from '@/components/ui/image-upload';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   Bold, 
   Italic, 
@@ -13,8 +14,6 @@ import {
   ListOrdered, 
   Quote, 
   Image,
-  Eye,
-  Edit3
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import DOMPurify from 'dompurify';
@@ -26,6 +25,7 @@ interface RichTextEditorProps {
   minHeight?: number;
   maxHeight?: number;
   className?: string;
+  showLivePreview?: boolean;
 }
 
 export function RichTextEditor({
@@ -34,12 +34,13 @@ export function RichTextEditor({
   placeholder = "Schrijf je bericht...",
   minHeight = 200,
   maxHeight = 500,
-  className
+  className,
+  showLivePreview = false,
 }: RichTextEditorProps) {
-  const [isPreview, setIsPreview] = useState(false);
   const [selectionStart, setSelectionStart] = useState(0);
   const [selectionEnd, setSelectionEnd] = useState(0);
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const isMobile = useIsMobile();
 
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
@@ -108,9 +109,9 @@ export function RichTextEditor({
 
   return (
     <div className={cn('space-y-3', className)}>
-      {/* Toolbar */}
-      <div className="flex items-center justify-between border-b pb-3">
-        <div className="flex items-center gap-1">
+      {/* Toolbar - Compacter op mobiel */}
+      <div className="flex items-center gap-2 border-b pb-2 overflow-x-auto">
+        <div className="flex items-center gap-1 flex-shrink-0">
           {toolbarButtons.map((button, index) => (
             <Button
               key={index}
@@ -118,38 +119,17 @@ export function RichTextEditor({
               size="sm"
               onClick={button.action}
               title={button.title}
-              className="h-8 w-8 p-0"
+              className="min-h-[44px] min-w-[44px] p-0 flex-shrink-0"
             >
               <button.icon className="h-4 w-4" />
             </Button>
           ))}
         </div>
-        
-        <div className="flex items-center gap-2">
-          <Button
-            variant={isPreview ? "ghost" : "default"}
-            size="sm"
-            onClick={() => setIsPreview(false)}
-            className="flex items-center gap-2"
-          >
-            <Edit3 className="h-4 w-4" />
-            Bewerken
-          </Button>
-          <Button
-            variant={isPreview ? "default" : "ghost"}
-            size="sm"
-            onClick={() => setIsPreview(true)}
-            className="flex items-center gap-2"
-          >
-            <Eye className="h-4 w-4" />
-            Preview
-          </Button>
-        </div>
       </div>
 
-      {/* Image Upload Section */}
+      {/* Image Upload */}
       {showImageUpload && (
-        <div className="border-t pt-4">
+        <div className="border-t pt-3">
           <ImageUpload
             onImageUploaded={handleImageUploaded}
             onImageRemoved={() => setShowImageUpload(false)}
@@ -160,6 +140,7 @@ export function RichTextEditor({
               variant="outline" 
               size="sm"
               onClick={() => setShowImageUpload(false)}
+              className="min-h-[44px]"
             >
               Annuleren
             </Button>
@@ -167,37 +148,61 @@ export function RichTextEditor({
         </div>
       )}
 
-      {/* Editor/Preview Area */}
-      <div style={{ minHeight, maxHeight }}>
-        {isPreview ? (
-          <Card>
-            <CardContent className="p-4">
-              <div 
-                className="prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: renderPreview(value) }}
-              />
-              {!value && (
-                <p className="text-muted-foreground italic">Geen inhoud om te previewen...</p>
-              )}
-            </CardContent>
-          </Card>
-        ) : (
-          <Textarea
-            ref={textareaRef}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            onSelect={handleSelectionChange}
-            placeholder={placeholder}
-            className="resize-none"
-            style={{ minHeight, maxHeight }}
-          />
-        )}
-      </div>
+      {/* Editor + Live Preview */}
+      {showLivePreview ? (
+        <div className={cn(
+          "grid gap-3",
+          isMobile ? "grid-cols-1" : "grid-cols-2"
+        )}>
+          {/* Editor */}
+          <div>
+            <label className="text-xs font-medium mb-1 block">Bewerken</label>
+            <Textarea
+              ref={textareaRef}
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              onSelect={handleSelectionChange}
+              placeholder={placeholder}
+              className="resize-none font-mono text-sm"
+              style={{ minHeight: isMobile ? 150 : minHeight, maxHeight }}
+            />
+          </div>
 
-      {/* Help text */}
+          {/* Live Preview */}
+          <div>
+            <label className="text-xs font-medium mb-1 block">Live Preview</label>
+            <Card style={{ minHeight: isMobile ? 150 : minHeight, maxHeight }}>
+              <CardContent className="p-3 overflow-auto h-full">
+                {value ? (
+                  <div 
+                    className="prose prose-sm max-w-none text-sm"
+                    dangerouslySetInnerHTML={{ __html: renderPreview(value) }}
+                  />
+                ) : (
+                  <p className="text-muted-foreground italic text-sm">
+                    {placeholder}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      ) : (
+        <Textarea
+          ref={textareaRef}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onSelect={handleSelectionChange}
+          placeholder={placeholder}
+          className="resize-none"
+          style={{ minHeight, maxHeight }}
+        />
+      )}
+
+      {/* Help text - Compacter */}
       <div className="text-xs text-muted-foreground">
         <p>
-          Ondersteunt Markdown: **vet**, *cursief*, [link](url), &gt; citaat, - lijst, ![afbeelding](url)
+          **vet** *cursief* [link](url) &gt; citaat
         </p>
       </div>
     </div>
