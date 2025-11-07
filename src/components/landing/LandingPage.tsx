@@ -13,19 +13,13 @@ import { SocialProofSection } from '@/components/home/SocialProofSection';
 import { TrustBadgesSection } from './TrustBadgesSection';
 import { CTASection } from './CTASection';
 import { Separator } from '@/components/ui/separator';
-
 export function LandingPage() {
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-3">
-            <img 
-              src="/lovable-uploads/8721330a-f235-4c3b-9c21-85436a192135.png" 
-              alt="Wiet Forum België" 
-              className="h-12 w-auto" 
-            />
+            <img src="/lovable-uploads/8721330a-f235-4c3b-9c21-85436a192135.png" alt="Wiet Forum België" className="h-12 w-auto" />
           </div>
           <div className="flex items-center gap-3">
             <Link to="/login">
@@ -43,7 +37,9 @@ export function LandingPage() {
 
       {/* Forum Categories - Direct onder Hero */}
       <section className="relative py-24 bg-gradient-to-br from-green-500/15 via-primary/15 to-green-700/10 border-y border-primary/30 overflow-hidden">
-        <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] bg-green-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+        <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] bg-green-500/15 rounded-full blur-3xl animate-pulse" style={{
+        animationDelay: '0.5s'
+      }} />
         <div className="relative container mx-auto px-4">
           <ForumCategoriesPreview />
         </div>
@@ -52,18 +48,12 @@ export function LandingPage() {
       {/* Trending Topics */}
       <section className="py-20 bg-gradient-to-br from-background via-green-950/5 to-background border-b border-green-500/10">
         <div className="container mx-auto px-4">
-          <TrendingTopics limit={6} showHeader={true} />
+          
         </div>
       </section>
 
       {/* Stats Highlight - GROENE SECTIE */}
-      <section className="relative bg-gradient-to-br from-green-600/10 via-primary/10 to-green-800/10 border-y border-green-500/20 py-24 overflow-hidden">
-        <div className="absolute top-20 right-1/4 w-96 h-96 bg-green-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 left-1/4 w-96 h-96 bg-primary/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="relative container mx-auto px-4">
-          <StatsHighlightSection />
-        </div>
-      </section>
+      
 
       {/* Value Proposition - LICHTE SECTIE */}
       <section className="bg-gradient-to-br from-background via-muted/10 to-background py-20">
@@ -155,6 +145,5 @@ export function LandingPage() {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 }
