@@ -19,8 +19,8 @@ export function AnimatedCounter({
   const ref = useRef<HTMLSpanElement>(null);
   const motionValue = useMotionValue(0);
   const springValue = useSpring(motionValue, { 
-    damping: 60, 
-    stiffness: 100 
+    damping: 40, 
+    stiffness: 200 
   });
   const isInView = useInView(ref, { once: true, amount: 0.5 });
 

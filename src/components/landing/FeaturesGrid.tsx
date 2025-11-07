@@ -145,11 +145,10 @@ export function FeaturesGrid() {
               key={index}
               {...(!prefersReducedMotion && {
                 variants: fadeInUp,
-                transition: { delay: index * 0.05 },
+                transition: { delay: index * 0.01 },
                 whileHover: { 
-                  scale: 1.03,
-                  y: -4,
-                  boxShadow: '0 20px 40px -12px hsl(var(--primary) / 0.2)'
+                  scale: 1.02,
+                  y: -2
                 }
               })}
             >
@@ -159,8 +158,8 @@ export function FeaturesGrid() {
                   className={`inline-flex p-4 rounded-2xl ${feature.bgColor} shadow-lg`}
                   {...(!prefersReducedMotion && {
                     whileHover: { 
-                      rotate: 5, 
-                      scale: 1.15 
+                      rotate: 3, 
+                      scale: 1.1 
                     }
                   })}
                 >

@@ -25,14 +25,14 @@ export const slideInRight = {
   visible: { opacity: 1, x: 0 }
 };
 
-// Container for staggered children animations
+// Container for staggered children animations - OPTIMIZED
 export const staggerContainer = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1
+      staggerChildren: 0.03,
+      delayChildren: 0.02
     }
   }
 };
@@ -42,8 +42,8 @@ export const staggerContainerFast = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.05,
-      delayChildren: 0.05
+      staggerChildren: 0.02,
+      delayChildren: 0.01
     }
   }
 };
@@ -67,19 +67,19 @@ export const smoothSpring = {
   damping: 25
 };
 
-// Transition presets
+// Transition presets - OPTIMIZED
 export const fastTransition = {
-  duration: 0.2,
+  duration: 0.15,
   ease: 'easeOut'
 };
 
 export const normalTransition = {
-  duration: 0.3,
+  duration: 0.2,
   ease: 'easeOut'
 };
 
 export const slowTransition = {
-  duration: 0.5,
+  duration: 0.3,
   ease: 'easeOut'
 };
 

@@ -16,14 +16,10 @@ import { Separator } from '@/components/ui/separator';
 export function LandingPage() {
   return <div className="min-h-screen bg-background relative overflow-x-hidden">
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <FloatingCannabisLeaf size="large" delay={0} />
-        <FloatingCannabisLeaf size="medium" delay={3} />
-        <FloatingCannabisLeaf size="small" delay={7} />
-        <FloatingCannabisLeaf size="medium" delay={12} />
-        <FloatingCannabisLeaf size="large" delay={16} />
-        <FloatingCannabisLeaf size="small" delay={20} />
-        <FloatingCannabisLeaf size="medium" delay={25} />
-        <FloatingCannabisLeaf size="large" delay={30} />
+        <FloatingCannabisLeaf size="small" delay={0} />
+        <FloatingCannabisLeaf size="small" delay={3} />
+        <FloatingCannabisLeaf size="medium" delay={6} />
+        <FloatingCannabisLeaf size="small" delay={9} />
       </div>
       {/* Modern Header */}
       <ModernHeader />
@@ -34,7 +30,7 @@ export function LandingPage() {
       {/* Forum Categories - Direct onder Hero */}
       <section className="relative py-24 bg-gradient-to-br from-green-500/15 via-primary/15 to-green-700/10 border-y border-primary/30 overflow-hidden">
         <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] bg-green-500/15 rounded-full blur-3xl animate-pulse" style={{
-        animationDelay: '0.5s'
+        animationDelay: '0.25s'
       }} />
         <div className="relative container mx-auto px-4">
           <ForumCategoriesPreview />
@@ -53,7 +49,7 @@ export function LandingPage() {
 
       {/* How It Works - GROENE SECTIE */}
       <section className="relative py-20 bg-gradient-to-br from-green-500/15 via-primary/15 to-green-700/10 border-y border-primary/30 overflow-hidden">
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-green-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-green-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }} />
         <HowItWorksSection />
       </section>
 
@@ -67,7 +63,7 @@ export function LandingPage() {
 
       {/* Modern Features - GROENE SECTIE */}
       <section className="relative bg-gradient-to-br from-green-950/5 via-background to-green-950/10 border-y border-green-500/10 overflow-hidden">
-        <div className="absolute top-1/3 left-1/2 w-[500px] h-[500px] bg-green-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+        <div className="absolute top-1/3 left-1/2 w-[500px] h-[500px] bg-green-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.25s' }} />
         <ModernFeatures />
       </section>
 

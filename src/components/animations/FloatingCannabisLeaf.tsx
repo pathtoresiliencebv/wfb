@@ -45,7 +45,7 @@ export function FloatingCannabisLeaf({
         opacity: [0, 0.08, 0.08, 0],
       }}
       transition={{
-        duration: 20 + Math.random() * 10,
+        duration: 8 + Math.random() * 4,
         delay,
         repeat: Infinity,
         ease: 'linear',

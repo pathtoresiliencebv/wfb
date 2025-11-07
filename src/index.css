@@ -289,7 +289,8 @@
 .masonry-item {
   grid-row-end: span var(--row-span, 20);
   break-inside: avoid;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  will-change: transform;
 }
 
 @media (max-width: 768px) {
@@ -343,10 +344,12 @@
 @keyframes pulse-green {
   0%, 100% {
     opacity: 1;
+    transform: scale(1);
     box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
   }
   50% {
     opacity: 0.9;
+    transform: scale(1.05);
     box-shadow: 0 0 0 4px hsl(var(--primary) / 0);
   }
 }

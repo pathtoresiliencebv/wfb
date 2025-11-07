@@ -131,10 +131,9 @@ export function ForumCategoriesPreview() {
               <MotionDiv
                 {...(!prefersReducedMotion && {
                   variants: fadeInUp,
-                  transition: { delay: index * 0.1 },
+                  transition: { delay: index * 0.02 },
                   whileHover: { 
-                    scale: 1.03,
-                    boxShadow: '0 0 40px rgba(34, 197, 94, 0.2)'
+                    scale: 1.02
                   }
                 })}
               >
