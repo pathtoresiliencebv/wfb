@@ -25,9 +25,8 @@ export function LandingPage() {
             <img 
               src="/lovable-uploads/8721330a-f235-4c3b-9c21-85436a192135.png" 
               alt="Wiet Forum België" 
-              className="h-10 w-auto" 
+              className="h-12 w-auto" 
             />
-            <span className="font-semibold hidden sm:inline">Wiet Forum België</span>
           </div>
           <div className="flex items-center gap-3">
             <Link to="/login">
@@ -43,65 +42,72 @@ export function LandingPage() {
       {/* Hero Section */}
       <HeroSection />
 
-      {/* Stats Highlight */}
-      <section className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 border-y border-border/50">
-        <StatsHighlightSection />
+      {/* Stats Highlight - GROENE SECTIE */}
+      <section className="relative bg-gradient-to-br from-green-600/10 via-primary/10 to-green-800/10 border-y border-green-500/20 py-24 overflow-hidden">
+        <div className="absolute top-20 right-1/4 w-96 h-96 bg-green-500/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 left-1/4 w-96 h-96 bg-primary/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="relative container mx-auto px-4">
+          <StatsHighlightSection />
+        </div>
       </section>
 
-      {/* Value Proposition */}
-      <section className="bg-background py-20">
+      {/* Value Proposition - LICHTE SECTIE */}
+      <section className="bg-gradient-to-br from-background via-muted/10 to-background py-20">
         <ValuePropositionSection />
       </section>
 
-      {/* How It Works */}
-      <section className="bg-gradient-to-br from-muted/20 via-background to-muted/20 border-y border-border/50">
+      {/* How It Works - DONKERGROENE ACCENT */}
+      <section className="bg-gradient-to-br from-green-950/5 via-background to-green-950/10 border-y border-green-500/10 py-20">
         <HowItWorksSection />
       </section>
 
-      {/* Social Proof Section */}
+      {/* Social Proof Section - LICHT */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <SocialProofSection />
         </div>
       </section>
 
-      {/* Forum Categories Preview */}
-      <section className="py-24 bg-gradient-to-br from-primary/5 via-secondary/5 to-background border-y border-border/50">
-        <div className="container mx-auto px-4">
+      {/* Forum Categories Preview - GROENE HIGHLIGHT SECTIE */}
+      <section className="relative py-24 bg-gradient-to-br from-green-500/15 via-primary/15 to-green-700/10 border-y border-primary/30 overflow-hidden">
+        <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] bg-green-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }} />
+        <div className="relative container mx-auto px-4">
           <ForumCategoriesPreview />
         </div>
       </section>
 
-      {/* Trending Topics */}
-      <section className="py-20 bg-background">
+      {/* Trending Topics - SUBTIEL GROEN */}
+      <section className="py-20 bg-gradient-to-br from-background via-green-950/5 to-background">
         <div className="container mx-auto px-4">
           <TrendingTopics limit={6} showHeader={true} />
         </div>
       </section>
 
-      {/* Top Suppliers */}
-      <section className="py-20 bg-gradient-to-br from-muted/20 to-background border-y border-border/50">
+      {/* Top Suppliers - WARM ACCENT */}
+      <section className="py-20 bg-gradient-to-br from-amber-950/5 via-background to-green-950/5 border-y border-border/30">
         <div className="container mx-auto px-4">
           <TopSuppliers />
         </div>
       </section>
 
-      {/* Features Grid */}
-      <FeaturesGrid />
+      {/* Features Grid - GROENE TINT */}
+      <section className="bg-gradient-to-br from-green-900/5 to-background py-20">
+        <FeaturesGrid />
+      </section>
 
-      {/* Trust & Safety */}
-      <section className="bg-background">
+      {/* Trust & Safety - NEUTRAAL */}
+      <section className="bg-background py-16">
         <TrustBadgesSection />
       </section>
 
-      {/* Testimonials */}
-      <section className="py-16 bg-gradient-to-br from-secondary/5 to-background">
+      {/* Testimonials - SUBTIEL GROEN */}
+      <section className="py-16 bg-gradient-to-br from-green-500/5 via-background to-primary/5 border-y border-green-500/10">
         <div className="container mx-auto px-4">
           <TestimonialsSection />
         </div>
       </section>
 
-      {/* FAQ Section */}
+      {/* FAQ Section - LICHT */}
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
@@ -110,8 +116,13 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Final CTA */}
-      <CTASection />
+      {/* Final CTA - INTENSE GROENE SECTIE */}
+      <section className="relative bg-gradient-to-br from-green-600/20 via-primary/20 to-green-800/15 border-y border-primary/40 py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,hsl(var(--primary)/0.15),transparent_70%)]" />
+        <div className="relative">
+          <CTASection />
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="border-t bg-muted/30">

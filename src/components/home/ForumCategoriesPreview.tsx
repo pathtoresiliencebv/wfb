@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, MessageSquare, Sprout, Stethoscope, Scale, Leaf, Coffee, Newspaper, MessageCircle, Folder, type LucideIcon } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
@@ -21,10 +21,27 @@ interface Category {
   topic_count: number;
 }
 
+// Icon mapping voor categorieën
+const categoryIcons: Record<string, LucideIcon> = {
+  'algemeen': MessageSquare,
+  'groei': Sprout,
+  'medical': Stethoscope,
+  'wetgeving': Scale,
+  'strains': Leaf,
+  'consumptie': Coffee,
+  'nieuws': Newspaper,
+  'offtopic': MessageCircle,
+};
+
 export function ForumCategoriesPreview() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
   const prefersReducedMotion = useReducedMotion();
+
+  // Helper functie om het juiste icoon te krijgen
+  const getCategoryIcon = (slug: string): LucideIcon => {
+    return categoryIcons[slug] || Folder;
+  };
 
   const { data: categories, isLoading } = useQuery({
     queryKey: ['categories-preview'],
@@ -82,54 +99,59 @@ export function ForumCategoriesPreview() {
           animate: isInView ? "visible" : "hidden"
         })}
       >
-        {categories.map((category, index) => (
-          <Link key={category.id} to={`/forums/${category.slug}`}>
-            <MotionDiv
-              {...(!prefersReducedMotion && {
-                variants: fadeInUp,
-                transition: { delay: index * 0.1 },
-                whileHover: { 
-                  scale: 1.03,
-                  boxShadow: '0 25px 50px -12px hsl(var(--primary) / 0.3)'
-                }
-              })}
-            >
-              <Card className="group relative h-[300px] overflow-hidden transition-all duration-300 border-2 hover:border-primary/50">
-              {/* Enhanced Background with Better Gradient */}
-              <motion.div 
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ 
-                  backgroundImage: category.image_url ? `url(${category.image_url})` : 'none',
-                  backgroundColor: category.color || 'hsl(var(--muted))'
-                }}
+        {categories.map((category, index) => {
+          const CategoryIcon = getCategoryIcon(category.slug);
+          
+          return (
+            <Link key={category.id} to={`/forums/${category.slug}`}>
+              <MotionDiv
                 {...(!prefersReducedMotion && {
-                  whileHover: { scale: 1.1 },
-                  transition: { duration: 0.3 }
+                  variants: fadeInUp,
+                  transition: { delay: index * 0.1 },
+                  whileHover: { 
+                    scale: 1.03,
+                    boxShadow: '0 0 40px rgba(34, 197, 94, 0.2)'
+                  }
                 })}
               >
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background/20" />
-              </motion.div>
-
-              {/* Content */}
-              <div className="relative h-full flex flex-col justify-between p-6">
-                {/* Enhanced Icon with Glow Effect */}
+                <Card className="group relative h-[300px] overflow-hidden transition-all duration-300 border-2 hover:border-primary/50 hover:shadow-[0_0_40px_rgba(34,197,94,0.2)]">
+                {/* Enhanced Background with Better Gradient */}
                 <motion.div 
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-lg"
+                  className="absolute inset-0 bg-cover bg-center"
                   style={{ 
-                    backgroundColor: `${category.color}30`,
-                    color: category.color,
-                    boxShadow: `0 4px 14px ${category.color}40`
+                    backgroundImage: category.image_url ? `url(${category.image_url})` : 'none',
+                    backgroundColor: category.color || 'hsl(var(--muted))'
                   }}
                   {...(!prefersReducedMotion && {
-                    whileHover: { 
-                      rotate: [0, -10, 10, 0],
-                      scale: 1.1,
-                      transition: { duration: 0.5 }
-                    }
+                    whileHover: { scale: 1.1 },
+                    transition: { duration: 0.3 }
                   })}
                 >
-                  {category.icon || '📁'}
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background/20" />
                 </motion.div>
+
+                {/* Content */}
+                <div className="relative h-full flex flex-col justify-between p-6">
+                  {/* Enhanced Icon with Lucide Icon & Glow Effect */}
+                  <motion.div 
+                    className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg backdrop-blur-sm"
+                    style={{ 
+                      backgroundColor: `${category.color}20`,
+                      borderWidth: '2px',
+                      borderStyle: 'solid',
+                      borderColor: `${category.color}40`,
+                      boxShadow: `0 8px 20px ${category.color}30`
+                    }}
+                    {...(!prefersReducedMotion && {
+                      whileHover: { 
+                        rotate: [0, -10, 10, 0],
+                        scale: 1.1,
+                        transition: { duration: 0.5 }
+                      }
+                    })}
+                  >
+                    <CategoryIcon className="w-8 h-8" style={{ color: category.color }} />
+                  </motion.div>
 
                 {/* Enhanced Text Content */}
                 <div className="space-y-3">
@@ -175,7 +197,8 @@ export function ForumCategoriesPreview() {
               </Card>
             </MotionDiv>
           </Link>
-        ))}
+        );
+        })}
       </motion.div>
 
       <MotionDiv 
