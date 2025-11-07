@@ -69,8 +69,8 @@ export function ModernHeader() {
   const [isOpen, setOpen] = useState(false);
 
   return (
-    <header className="w-full z-40 fixed top-0 left-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/50">
-      <div className="container relative mx-auto min-h-20 flex gap-4 flex-row lg:grid lg:grid-cols-3 items-center px-4">
+    <header className="w-full z-40 fixed top-0 left-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/50 safe-area-inset-top">
+      <div className="container relative mx-auto min-h-20 flex gap-4 flex-row lg:grid lg:grid-cols-3 items-center px-3 sm:px-4 md:px-6"  style={{ touchAction: 'manipulation' }}>
         {/* Desktop Navigation - Left */}
         <div className="justify-start items-center gap-4 lg:flex hidden flex-row">
           <NavigationMenu className="flex justify-start items-start">
@@ -156,6 +156,7 @@ export function ModernHeader() {
           <div className="border-r hidden md:inline"></div>
           <Button 
             variant="outline"
+            className="min-h-[44px]"
             asChild
           >
             <Link to="/login">
@@ -163,7 +164,7 @@ export function ModernHeader() {
             </Link>
           </Button>
           <Button 
-            className="modern-header-cta"
+            className="modern-header-cta min-h-[44px]"
             asChild
           >
             <Link to="/register">
@@ -174,11 +175,11 @@ export function ModernHeader() {
 
         {/* Mobile Menu Toggle */}
         <div className="flex w-12 shrink lg:hidden items-end justify-end">
-          <Button variant="ghost" onClick={() => setOpen(!isOpen)}>
+          <Button variant="ghost" className="min-h-[44px] min-w-[44px]" onClick={() => setOpen(!isOpen)}>
             {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
           {isOpen && (
-            <div className="absolute top-20 border-t flex flex-col w-full right-0 bg-background shadow-lg py-4 container gap-8">
+            <div className="absolute top-20 border-t flex flex-col w-full right-0 bg-background shadow-lg py-6 container gap-6 max-h-[calc(100vh-5rem)] overflow-y-auto">
               {navigationItems.map((item) => (
                 <div key={item.title}>
                   <div className="flex flex-col gap-2">

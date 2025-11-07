@@ -94,26 +94,26 @@ export function ForumCategoriesPreview() {
   if (!categories?.length) return null;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8 pb-safe">
       <MotionDiv 
-        className="text-center space-y-3"
+        className="text-center space-y-3 sm:space-y-4 px-4"
         {...(!prefersReducedMotion && {
           initial: { opacity: 0, y: 30 },
           animate: isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 },
           transition: { duration: 0.5 }
         })}
       >
-        <h2 className="text-3xl sm:text-4xl font-bold font-heading">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-heading">
           Verken Onze <span className="text-primary">Forum Categorieën</span>
         </h2>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
           Van kweektips tot wetgeving - vind antwoorden op al je vragen
         </p>
       </MotionDiv>
 
       <motion.div 
         ref={ref}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
         {...(!prefersReducedMotion && {
           variants: staggerContainer,
           initial: "hidden",
@@ -137,7 +137,7 @@ export function ForumCategoriesPreview() {
                   }
                 })}
               >
-                <Card className="group relative h-[300px] overflow-hidden transition-all duration-300 border-2 hover:border-primary/50 hover:shadow-[0_0_40px_rgba(34,197,94,0.2)]">
+                <Card className="group relative min-h-[280px] md:h-[300px] overflow-hidden transition-all duration-300 border-2 hover:border-primary/50 hover:shadow-[0_0_40px_rgba(34,197,94,0.2)]">
                 {/* Enhanced Background with Better Gradient */}
                 <motion.div 
                   className="absolute inset-0 bg-cover bg-center"
@@ -164,7 +164,7 @@ export function ForumCategoriesPreview() {
                 </motion.div>
 
                 {/* Content */}
-                <div className="relative h-full flex flex-col justify-between p-6">
+                <div className="relative h-full flex flex-col justify-between p-4 sm:p-6">
                   {/* Enhanced Icon with Lucide Icon & Glow Effect */}
                   <motion.div 
                     className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg backdrop-blur-sm"

@@ -3,26 +3,26 @@ import { Shield, Users, Leaf, MessageSquare, TrendingUp, Award } from 'lucide-re
 
 export function ModernFeatures() {
   return (
-    <section className="bg-muted/30 py-16 md:py-32 dark:bg-transparent">
-      <div className="mx-auto max-w-3xl lg:max-w-5xl px-6">
+    <section className="bg-muted/30 py-12 sm:py-16 md:py-24 lg:py-32 dark:bg-transparent">
+      <div className="mx-auto max-w-3xl lg:max-w-5xl px-3 sm:px-4 md:px-6">
         {/* Titel sectie */}
-        <div className="text-center mb-12 space-y-4">
-          <h2 className="text-4xl md:text-5xl font-bold">
+        <div className="text-center mb-8 sm:mb-12 space-y-3 sm:space-y-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold">
             <span className="bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
               Premium
             </span>
             <span className="text-foreground"> Forum Ervaring</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
             Ontdek waarom duizenden Belgen kiezen voor Wiet Forum België
           </p>
         </div>
 
         <div className="relative">
-          <div className="relative z-10 grid grid-cols-6 gap-3">
+          <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {/* Card 1: 100% Gratis */}
-            <Card className="relative col-span-full flex overflow-hidden lg:col-span-2 border-2 hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-primary/20">
-              <CardContent className="relative m-auto size-fit pt-6">
+            <Card className="relative col-span-1 flex overflow-hidden border-2 hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-primary/20">
+              <CardContent className="relative m-auto size-fit p-4 sm:p-6">
                 <div className="relative flex h-24 w-56 items-center">
                   <svg className="text-muted absolute inset-0 size-full" viewBox="0 0 254 104" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -39,8 +39,8 @@ export function ModernFeatures() {
             </Card>
 
             {/* Card 2: Veilig & Privé */}
-            <Card className="relative col-span-full overflow-hidden sm:col-span-3 lg:col-span-2 border-2 hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-primary/20">
-              <CardContent className="pt-6">
+            <Card className="relative col-span-1 overflow-hidden border-2 hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-primary/20">
+              <CardContent className="p-4 sm:p-6">
                 <div className="relative mx-auto flex aspect-square size-32 rounded-full border-2 before:absolute before:-inset-2 before:rounded-full before:border dark:border-white/10 dark:before:border-white/5 border-primary/20 before:border-primary/10">
                   <Shield className="m-auto h-fit w-12 text-primary" strokeWidth={1.5} />
                 </div>
@@ -54,8 +54,8 @@ export function ModernFeatures() {
             </Card>
 
             {/* Card 3: Real-time Updates */}
-            <Card className="relative col-span-full overflow-hidden sm:col-span-3 lg:col-span-2 border-2 hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-primary/20">
-              <CardContent className="pt-6">
+            <Card className="relative col-span-1 overflow-hidden border-2 hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-primary/20">
+              <CardContent className="p-4 sm:p-6">
                 <div className="pt-6 lg:px-6">
                   <svg className="dark:text-muted-foreground w-full" viewBox="0 0 386 123" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect width="386" height="123" rx="10" />
@@ -105,8 +105,8 @@ export function ModernFeatures() {
             </Card>
 
             {/* Card 4: Expert Community */}
-            <Card className="relative col-span-full overflow-hidden lg:col-span-3 border-2 hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-primary/20">
-              <CardContent className="grid pt-6 sm:grid-cols-2">
+            <Card className="relative col-span-1 overflow-hidden border-2 hover:border-primary/50 transition-all hover:shadow-xl hover:shadow-primary/20">
+              <CardContent className="grid p-4 sm:p-6 sm:grid-cols-2">
                 <div className="relative z-10 flex flex-col justify-between space-y-12 lg:space-y-6">
                   <div className="relative flex aspect-square size-12 rounded-full border-2 before:absolute before:-inset-2 before:rounded-full before:border dark:border-white/10 dark:before:border-white/5 border-primary/20 before:border-primary/10">
                     <Leaf className="m-auto size-6 text-primary" strokeWidth={1.5} />
