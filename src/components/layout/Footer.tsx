@@ -2,8 +2,15 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
+import { useTheme } from '@/contexts/ThemeContext';
+import wietforumLogoLight from '@/assets/wietforum-logo-light.png';
+import wietforumLogoDark from '@/assets/wietforum-logo-dark.png';
+import { Separator } from '@/components/ui/separator';
 
 export function Footer() {
+  const { theme } = useTheme();
+  const logoSrc = theme === 'dark' ? wietforumLogoDark : wietforumLogoLight;
+  
   const { data: topSuppliers = [] } = useQuery({
     queryKey: ['footer-top-suppliers'],
     queryFn: async () => {
@@ -40,30 +47,86 @@ export function Footer() {
   return (
     <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 mt-auto">
       <div className="container mx-auto px-4 sm:px-6 py-8 md:py-12">
-        {/* Top Leveranciers - Centered */}
-        <div className="max-w-md mx-auto text-center">
-          <h3 className="font-semibold text-foreground mb-4 md:mb-6 text-base md:text-lg">Top Leveranciers</h3>
-          <div className="space-y-2">
-            {displaySuppliers.length > 0 ? (
-              displaySuppliers.map((supplier, index) => (
-                <Link
-                  key={supplier.id}
-                  to={`/aanbod/${supplier.profiles.username}`}
-                  className="block text-sm text-muted-foreground hover:text-primary transition-colors min-h-[44px] flex items-center justify-center hover:font-medium"
-                >
-                  {index + 1}. {supplier.business_name}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          {/* Over Ons met Logo */}
+          <div className="flex flex-col items-start">
+            <img 
+              src={logoSrc} 
+              alt="Wiet Forum België" 
+              className="h-12 w-auto mb-4 object-contain"
+            />
+            <h3 className="heading-card mb-3">Over Ons</h3>
+            <p className="text-small">
+              De grootste cannabis community van België. Een veilige plek voor kennis delen en verbinding.
+            </p>
+          </div>
+
+          {/* Community Links */}
+          <div>
+            <h3 className="heading-card mb-4">Community</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/forums" className="text-small hover:text-primary transition-colors">
+                  Forums
                 </Link>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground">Binnenkort beschikbaar</p>
-            )}
+              </li>
+              <li>
+                <Link to="/leaderboard" className="text-small hover:text-primary transition-colors">
+                  Leaderboard
+                </Link>
+              </li>
+              <li>
+                <Link to="/members" className="text-small hover:text-primary transition-colors">
+                  Leden
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Top Leveranciers */}
+          <div>
+            <h3 className="heading-card mb-4">Top Leveranciers</h3>
+            <div className="space-y-2">
+              {displaySuppliers.length > 0 ? (
+                displaySuppliers.map((supplier, index) => (
+                  <Link
+                    key={supplier.id}
+                    to={`/aanbod/${supplier.profiles.username}`}
+                    className="block text-small hover:text-primary transition-colors hover:font-medium"
+                  >
+                    {index + 1}. {supplier.business_name}
+                  </Link>
+                ))
+              ) : (
+                <p className="text-small">Binnenkort beschikbaar</p>
+              )}
+            </div>
+          </div>
+
+          {/* Informatie */}
+          <div>
+            <h3 className="heading-card mb-4">Informatie</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/terms" className="text-small hover:text-primary transition-colors">
+                  Voorwaarden
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy" className="text-small hover:text-primary transition-colors">
+                  Privacy
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
 
+        <Separator className="my-6" />
+
         {/* Copyright */}
-        <div className="border-t mt-8 md:mt-12 pt-6 md:pt-8">
-          <p className="text-xs md:text-sm text-muted-foreground text-center">
-            © 2024 WietForum. Alle rechten voorbehouden.
+        <div className="text-center">
+          <p className="text-small">
+            © 2024 Wiet Forum België. Alle rechten voorbehouden.
           </p>
         </div>
       </div>

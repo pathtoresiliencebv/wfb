@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import {
   Home,
   MessageSquare,
@@ -96,11 +96,11 @@ export function AppSidebar() {
   };
 
   const getNavClass = (path: string) => {
-    const baseClass = "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors";
+    const baseClass = "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200";
     if (isActive(path)) {
-      return `${baseClass} bg-primary text-primary-foreground`;
+      return `${baseClass} bg-primary text-primary-foreground shadow-sm border-l-2 border-primary-foreground`;
     }
-    return `${baseClass} text-muted-foreground hover:bg-accent hover:text-accent-foreground`;
+    return `${baseClass} text-muted-foreground hover:bg-accent hover:text-accent-foreground hover:border-l-2 hover:border-primary/50`;
   };
 
   return (
@@ -110,14 +110,20 @@ export function AppSidebar() {
     >
       <SidebarContent className={isMobile ? "p-2" : "p-4"}>
         {/* Logo Section */}
-        <div className="mb-6 flex items-center justify-center">
-          <div className="flex h-20 w-20 items-center justify-center">
+        <div className={`mb-6 flex items-center transition-all duration-300 ${collapsed ? 'justify-center' : 'justify-start px-2'}`}>
+          <Link to="/" className="flex items-center gap-3 group">
             <img 
-              src="/lovable-uploads/8721330a-f235-4c3b-9c21-85436a192135.png" 
+              src={logoSrc} 
               alt="Wiet Forum België" 
-              className="h-16 w-auto object-contain"
+              className={`object-contain transition-all duration-300 group-hover:scale-105 ${collapsed ? 'h-10 w-10' : 'h-12 w-auto'}`}
             />
-          </div>
+            {!collapsed && (
+              <div className="flex flex-col">
+                <span className="font-heading text-base font-bold text-foreground">Wiet Forum</span>
+                <span className="text-xs text-muted-foreground">België</span>
+              </div>
+            )}
+          </Link>
         </div>
 
         {/* Main Navigation */}

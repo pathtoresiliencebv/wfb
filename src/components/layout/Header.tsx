@@ -19,12 +19,18 @@ import { ThemeToggle } from './ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
 import { useMessaging } from '@/hooks/useMessaging';
+import { useTheme } from '@/contexts/ThemeContext';
+import wietforumLogoLight from '@/assets/wietforum-logo-light.png';
+import wietforumLogoDark from '@/assets/wietforum-logo-dark.png';
 
 export function Header() {
   const { user, logout } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const { totalUnreadCount } = useMessaging();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  
+  const logoSrc = theme === 'dark' ? wietforumLogoDark : wietforumLogoLight;
 
   // Online/offline status
   useEffect(() => {
@@ -54,6 +60,15 @@ export function Header() {
       <div className="container flex h-14 md:h-16 items-center px-2 sm:px-4">
         <SidebarTrigger className="mr-2 md:mr-4 p-2" />
         
+        {/* Logo */}
+        <Link to="/" className="mr-3 md:mr-6 flex items-center shrink-0">
+          <img 
+            src={logoSrc} 
+            alt="Wiet Forum België" 
+            className="h-8 md:h-10 w-auto object-contain transition-opacity hover:opacity-80"
+          />
+        </Link>
+        
         {/* Primary navigation (desktop) - only show for logged-in users */}
         {user && (
           <nav aria-label="Hoofdnavigatie" className="hidden lg:flex items-center gap-1 mr-4">
@@ -67,7 +82,7 @@ export function Header() {
               <Link
                 key={item.to}
                 to={item.to}
-                className="px-2 lg:px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent whitespace-nowrap relative"
+                className="px-2 lg:px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 whitespace-nowrap relative border-b-2 border-transparent hover:border-primary/50"
               >
                 {item.title}
                 {item.badge !== undefined && item.badge !== null && item.badge > 0 && (
