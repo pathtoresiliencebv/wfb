@@ -13,6 +13,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { BadgedText } from '@/lib/badgeParser';
 
 interface Post {
   id: string;
@@ -24,6 +25,7 @@ interface Post {
     isVerified: boolean;
   };
   category: string;
+  categorySlug?: string;
   createdAt: Date;
   votes: number;
   replyCount: number;
@@ -67,7 +69,13 @@ export function PostCard({ post }: PostCardProps) {
     ) {
       return;
     }
-    navigate(`/topic/${post.id}`);
+    
+    // Use category slug for correct routing
+    if (post.categorySlug) {
+      navigate(`/forums/${post.categorySlug}/topic/${post.id}`);
+    } else {
+      navigate(`/topic/${post.id}`);
+    }
   };
 
   return (
@@ -137,10 +145,10 @@ export function PostCard({ post }: PostCardProps) {
                 </a>
               </div>
 
-              {/* Title */}
-              <h3 className="text-lg font-semibold leading-tight">
+              {/* Title - Met badges en max 2 regels */}
+              <h3 className="text-base font-semibold leading-tight line-clamp-2">
                 {post.isSticky && <Pin className="inline w-4 h-4 mr-1 text-primary" />}
-                {post.title}
+                <BadgedText text={post.title} />
               </h3>
 
               {/* Content Preview */}

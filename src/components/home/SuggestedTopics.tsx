@@ -6,6 +6,7 @@ import { Lightbulb, Eye, MessageSquare } from 'lucide-react';
 import { useSuggestedTopics } from '@/hooks/useSuggestedTopics';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
+import { BadgedText } from '@/lib/badgeParser';
 
 export function SuggestedTopics() {
   const { topics, isLoading } = useSuggestedTopics(5);
@@ -41,7 +42,7 @@ export function SuggestedTopics() {
         {topics.map((topic) => (
           <Link 
             key={topic.id}
-            to={`/topic/${topic.id}`}
+            to={`/forums/${topic.categories.slug}/topic/${topic.id}`}
             className="block"
           >
             <motion.div
@@ -51,7 +52,7 @@ export function SuggestedTopics() {
             >
               <div className="space-y-2">
                 <h4 className="font-medium leading-snug line-clamp-2 group-hover:text-primary transition-colors">
-                  {topic.title}
+                  <BadgedText text={topic.title} />
                 </h4>
                 
                 <div className="flex items-center justify-between gap-2">

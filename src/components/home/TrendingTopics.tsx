@@ -12,6 +12,7 @@ import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { BadgedText } from '@/lib/badgeParser';
 
 interface TrendingTopicsProps {
   limit?: number;
@@ -97,7 +98,7 @@ export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsP
               whileTap: { scale: 0.98 }
             })}
           >
-            <Link to={`/topic/${topic.id}`} className="block">
+            <Link to={`/forums/${topic.categories.slug}/topic/${topic.id}`} className="block">
               <Card className="group relative overflow-hidden transition-all duration-300 border-2 border-border/50 hover:border-primary/50 hover:shadow-2xl cursor-pointer active:scale-[0.98] min-h-[160px]">
                 {/* Groene gradient overlay - verschijnt bij hover */}
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -108,9 +109,9 @@ export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsP
                 {/* Content wrapper met relative positioning */}
                 <div className="relative z-10">
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base line-clamp-2 group-hover:text-primary transition-colors">
-                      {topic.title}
-                    </CardTitle>
+            <CardTitle className="text-base line-clamp-2 group-hover:text-primary transition-colors">
+              <BadgedText text={topic.title} />
+            </CardTitle>
                     <Badge 
                       variant="secondary" 
                       className="w-fit mt-2 bg-gradient-to-r from-primary/10 to-secondary/10"

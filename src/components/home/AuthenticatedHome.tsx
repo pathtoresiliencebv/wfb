@@ -45,7 +45,7 @@ export function AuthenticatedHome() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6">
       {isMobile ? (
         <PullToRefresh onRefresh={handleRefresh}>
           {mainContent}
