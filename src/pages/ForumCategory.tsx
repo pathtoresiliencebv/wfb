@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Plus, MessageSquare, Eye, Calendar, User } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import { BadgedText } from '@/lib/badgeParser';
 
 export default function ForumCategory() {
   const { slug } = useParams<{ slug: string }>();
@@ -129,7 +130,7 @@ export default function ForumCategory() {
                   <div className="flex-1 w-full min-w-0">
                     <Link to={`/forums/${slug}/topic/${topic.id}`}>
                       <CardTitle className="hover:text-primary transition-colors text-sm sm:text-base md:text-lg line-clamp-2">
-                        {topic.title}
+                        <BadgedText text={topic.title} />
                       </CardTitle>
                     </Link>
                     <div className="flex flex-wrap items-center gap-2 sm:gap-3 md:gap-4 mt-2 text-xs sm:text-sm text-muted-foreground">

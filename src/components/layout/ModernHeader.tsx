@@ -10,6 +10,8 @@ import {
 import { Menu, MoveRight, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { UserProfileDropdown } from "@/components/auth/UserProfileDropdown";
 
 export function ModernHeader() {
   const logo = '/lovable-uploads/8721330a-f235-4c3b-9c21-85436a192135.png';
@@ -67,6 +69,7 @@ export function ModernHeader() {
   ];
 
   const [isOpen, setOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   return (
     <header className="w-full z-40 fixed top-0 left-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/50 safe-area-inset-top">
@@ -142,38 +145,48 @@ export function ModernHeader() {
           </Link>
         </div>
 
-        {/* CTA Buttons - Right */}
-        <div className="flex justify-end w-full gap-2 sm:gap-3 md:gap-4">
-          <Button 
-            variant="ghost" 
-            className="hidden md:inline modern-header-nav-item"
-            asChild
-          >
-            <Link to="/forums">
-              Verken Forums
-            </Link>
-          </Button>
-          <div className="border-r hidden md:inline"></div>
-          <Button 
-            variant="outline"
-            className="min-h-[44px] text-xs sm:text-sm px-3 sm:px-4"
-            asChild
-          >
-            <Link to="/login">
-              <span className="hidden sm:inline">Inloggen</span>
-              <span className="sm:hidden">Login</span>
-            </Link>
-          </Button>
-          <Button 
-            className="modern-header-cta min-h-[44px] text-xs sm:text-sm px-3 sm:px-4"
-            asChild
-          >
-            <Link to="/register">
-              <span className="hidden sm:inline">Registreren</span>
-              <span className="sm:hidden">Sign Up</span>
-            </Link>
-          </Button>
-        </div>
+          {/* CTA Buttons - Right */}
+          <div className="flex justify-end w-full gap-2 sm:gap-3 md:gap-4">
+            <Button 
+              variant="ghost" 
+              className="hidden md:inline modern-header-nav-item"
+              asChild
+            >
+              <Link to="/forums">
+                Verken Forums
+              </Link>
+            </Button>
+            <div className="border-r hidden md:inline"></div>
+            
+            {/* Hide login/register buttons on mobile when authenticated */}
+            {!isAuthenticated ? (
+              <>
+                <Button 
+                  variant="outline"
+                  className="min-h-[44px] text-xs sm:text-sm px-3 sm:px-4"
+                  asChild
+                >
+                  <Link to="/login">
+                    <span className="hidden sm:inline">Inloggen</span>
+                    <span className="sm:hidden">Login</span>
+                  </Link>
+                </Button>
+                <Button 
+                  className="modern-header-cta min-h-[44px] text-xs sm:text-sm px-3 sm:px-4"
+                  asChild
+                >
+                  <Link to="/register">
+                    <span className="hidden sm:inline">Registreren</span>
+                    <span className="sm:hidden">Sign Up</span>
+                  </Link>
+                </Button>
+              </>
+            ) : (
+              <div className="lg:hidden">
+                <UserProfileDropdown />
+              </div>
+            )}
+          </div>
 
         {/* Mobile Menu Toggle */}
         <div className="flex w-12 shrink lg:hidden items-end justify-end">

@@ -370,10 +370,8 @@ export default function Search() {
         </p>
       </div>
 
-      {/* Search Form */}
-      <AdvancedSearch />
-
-      {/* Note: AdvancedSearch now handles its own search state and results */}
+      {/* Search Form - Hidden per user request */}
+      {/* <AdvancedSearch /> */}
 
       {/* Results */}
       {(filters.query || totalResults > 0) && (

@@ -14,6 +14,7 @@ import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbP
 import { ForumsLoadingSkeleton } from '@/components/loading/OptimizedLoadingStates';
 import { CategoryTopics } from '@/components/forums/CategoryTopics';
 import { getFallbackImage } from '@/lib/fallbackImages';
+import { BadgedText } from '@/lib/badgeParser';
 
 interface Category {
   id: string;
@@ -262,7 +263,7 @@ export default function Forums() {
                           to={`/forums/${topic.categories.slug}/topic/${topic.id}`}
                           className="font-medium hover:text-primary transition-colors line-clamp-2 block mb-1 sm:mb-2 text-xs sm:text-sm md:text-base"
                         >
-                          {topic.title}
+                          <BadgedText text={topic.title} />
                         </Link>
                         <div className="flex items-center gap-2 sm:gap-3 text-xs text-muted-foreground flex-wrap">
                           <div className="flex items-center gap-1">

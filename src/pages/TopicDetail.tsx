@@ -16,6 +16,7 @@ import { useTopicSubscriptions } from '@/hooks/useTopicSubscriptions';
 import { ReportModal } from '@/components/moderation/ReportModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { BadgedText, parseBadges } from '@/lib/badgeParser';
 
 interface TopicData {
   id: string;
@@ -320,7 +321,9 @@ export default function TopicDetail() {
             <span className="text-muted-foreground">•</span>
             <span className="text-muted-foreground">Topic</span>
           </div>
-          <h1 className="font-heading text-lg sm:text-xl md:text-2xl font-bold line-clamp-2">{topic.title}</h1>
+          <h1 className="font-heading text-lg sm:text-xl md:text-2xl font-bold line-clamp-2">
+            <BadgedText text={topic.title} />
+          </h1>
         </div>
         
         <div className="flex items-center gap-2 self-end sm:self-center">
@@ -454,7 +457,7 @@ export default function TopicDetail() {
               <div 
                 className="prose prose-sm max-w-none mb-4 md:mb-6 text-foreground text-sm md:text-base"
                 dangerouslySetInnerHTML={{ 
-                  __html: topic.content.replace(/\n/g, '<br>') 
+                  __html: parseBadges(topic.content.replace(/\n/g, '<br>')) 
                 }}
               />
               
@@ -530,7 +533,7 @@ export default function TopicDetail() {
                   <div 
                     className="text-sm prose prose-sm max-w-none text-foreground"
                     dangerouslySetInnerHTML={{ 
-                      __html: reply.content.replace(/\n/g, '<br>') 
+                      __html: parseBadges(reply.content.replace(/\n/g, '<br>'))
                     }}
                   />
                 </div>
