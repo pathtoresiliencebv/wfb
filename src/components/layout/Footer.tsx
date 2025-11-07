@@ -2,14 +2,10 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
-import { useTheme } from '@/contexts/ThemeContext';
-import wietforumLogoLight from '@/assets/wietforum-logo-light.png';
-import wietforumLogoDark from '@/assets/wietforum-logo-dark.png';
 import { Separator } from '@/components/ui/separator';
 
 export function Footer() {
-  const { theme } = useTheme();
-  const logoSrc = theme === 'dark' ? wietforumLogoDark : wietforumLogoLight;
+  const logo = '/lovable-uploads/8721330a-f235-4c3b-9c21-85436a192135.png';
   
   const { data: topSuppliers = [] } = useQuery({
     queryKey: ['footer-top-suppliers'],
@@ -51,7 +47,7 @@ export function Footer() {
           {/* Over Ons met Logo */}
           <div className="flex flex-col items-start">
             <img 
-              src={logoSrc} 
+              src={logo} 
               alt="Wiet Forum België" 
               className="h-12 w-auto mb-4 object-contain"
             />

@@ -5,7 +5,6 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Eye, EyeOff, Mail, Lock, Shield, Users, MessageSquare, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import logoMain from '@/assets/wietforum-logo-main.png';
 import { motion } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { AuthTestimonials } from './AuthTestimonials';
@@ -42,6 +41,7 @@ export function ModernSignIn({ onSignIn, onCreateAccount }: ModernSignInProps) {
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const logo = '/lovable-uploads/8721330a-f235-4c3b-9c21-85436a192135.png';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +54,7 @@ export function ModernSignIn({ onSignIn, onCreateAccount }: ModernSignInProps) {
       <header className="absolute top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <img src={logoMain} alt="Wiet Forum België" className="h-10" />
+            <img src={logo} alt="Wiet Forum België" className="h-10" />
           </Link>
           <Link to="/">
             <Button variant="ghost" size="sm">
@@ -80,7 +80,7 @@ export function ModernSignIn({ onSignIn, onCreateAccount }: ModernSignInProps) {
               transition={{ delay: 0.2 }}
               className="mb-8"
             >
-              <img src={logoMain} alt="Wiet Forum België" className="h-16 mb-6" />
+              <img src={logo} alt="Wiet Forum België" className="h-16 mb-6" />
               <h1 className="text-3xl font-bold text-foreground mb-2">
                 Welkom Terug!
               </h1>

@@ -3,19 +3,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Shield, Users, MessageSquare, ArrowRight, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '@/contexts/ThemeContext';
-import wietforumLogoLight from '@/assets/wietforum-logo-light.png';
-import wietforumLogoDark from '@/assets/wietforum-logo-dark.png';
 import { TypingText } from '@/components/animations/TypingText';
 import { AnimatedCounter } from '@/components/animations/AnimatedCounter';
 
 export function HeroSection() {
   const navigate = useNavigate();
-  const { theme } = useTheme();
   const prefersReducedMotion = useReducedMotion();
   const { scrollY } = useScroll();
-  
-  const logo = theme === 'dark' ? wietforumLogoDark : wietforumLogoLight;
+  const logo = '/lovable-uploads/8721330a-f235-4c3b-9c21-85436a192135.png';
   
   // Parallax effect for background elements
   const y1 = useTransform(scrollY, [0, 500], [0, -150]);

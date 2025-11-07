@@ -20,9 +20,6 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import wietforumLogoLight from '@/assets/wietforum-logo-light.png';
-import wietforumLogoDark from '@/assets/wietforum-logo-dark.png';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -60,12 +57,12 @@ const iconMap = {
 
 export function AppSidebar() {
   const { state } = useSidebar();
-  const { theme } = useTheme();
   const { user } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
   const isMobile = useIsMobile();
   const collapsed = state === "collapsed";
+  const logo = '/lovable-uploads/8721330a-f235-4c3b-9c21-85436a192135.png';
   
   // Fetch categories from database
   const { data: categories = [], isLoading: categoriesLoading } = useQuery({
@@ -84,9 +81,6 @@ export function AppSidebar() {
   
   // Show mini icons on mobile for specific routes (e.g., user and supplier profiles)
   const allowMiniOnMobile = currentPath.startsWith('/user') || currentPath.startsWith('/leverancier');
-  
-  // Use theme-appropriate logo
-  const logoSrc = theme === 'dark' ? wietforumLogoDark : wietforumLogoLight;
 
   const isActive = (path: string) => {
     if (path === '/') {
@@ -113,7 +107,7 @@ export function AppSidebar() {
         <div className={`mb-6 flex items-center transition-all duration-300 ${collapsed ? 'justify-center' : 'justify-start px-2'}`}>
           <Link to="/" className="flex items-center gap-3 group">
             <img 
-              src={logoSrc} 
+              src={logo} 
               alt="Wiet Forum België" 
               className={`object-contain transition-all duration-300 group-hover:scale-105 ${collapsed ? 'h-10 w-10' : 'h-12 w-auto'}`}
             />

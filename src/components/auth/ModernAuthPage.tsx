@@ -10,9 +10,6 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { nl } from 'date-fns/locale';
-import logoLight from '@/assets/wietforum-logo-light.png';
-import logoDark from '@/assets/wietforum-logo-dark.png';
-import { useTheme } from '@/contexts/ThemeContext';
 
 interface ModernAuthPageProps {
   username: string;
@@ -67,7 +64,7 @@ export function ModernAuthPage({
 }: ModernAuthPageProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { theme } = useTheme();
+  const logo = '/lovable-uploads/8721330a-f235-4c3b-9c21-85436a192135.png';
   
   const getPasswordStrength = (pwd: string) => {
     let strength = 0;
@@ -87,7 +84,7 @@ export function ModernAuthPage({
         <div className="from-background absolute inset-0 z-10 bg-gradient-to-t to-transparent" />
         <div className="z-10 flex items-center gap-3">
           <img 
-            src={theme === 'dark' ? logoDark : logoLight}
+            src={logo}
             alt="Wiet Forum België Logo"
             className="h-10 w-auto"
           />
@@ -125,7 +122,7 @@ export function ModernAuthPage({
         <div className="mx-auto space-y-4 sm:w-sm max-w-md">
           <div className="flex items-center gap-3 lg:hidden">
             <img 
-              src={theme === 'dark' ? logoDark : logoLight}
+              src={logo}
               alt="Wiet Forum België Logo"
               className="h-8 w-auto"
             />

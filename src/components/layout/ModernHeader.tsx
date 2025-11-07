@@ -10,13 +10,9 @@ import {
 import { Menu, MoveRight, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import wietforumLogoLight from '@/assets/wietforum-logo-light.png';
-import wietforumLogoDark from '@/assets/wietforum-logo-dark.png';
-import { useTheme } from '@/contexts/ThemeContext';
 
 export function ModernHeader() {
-  const { isDark } = useTheme();
-  const logo = isDark ? wietforumLogoDark : wietforumLogoLight;
+  const logo = '/lovable-uploads/8721330a-f235-4c3b-9c21-85436a192135.png';
 
   const navigationItems = [
     {

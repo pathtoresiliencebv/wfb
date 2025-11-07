@@ -19,18 +19,13 @@ import { ThemeToggle } from './ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
 import { useMessaging } from '@/hooks/useMessaging';
-import { useTheme } from '@/contexts/ThemeContext';
-import wietforumLogoLight from '@/assets/wietforum-logo-light.png';
-import wietforumLogoDark from '@/assets/wietforum-logo-dark.png';
 
 export function Header() {
   const { user, logout } = useAuth();
-  const { theme } = useTheme();
   const navigate = useNavigate();
   const { totalUnreadCount } = useMessaging();
+  const logo = '/lovable-uploads/8721330a-f235-4c3b-9c21-85436a192135.png';
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  
-  const logoSrc = theme === 'dark' ? wietforumLogoDark : wietforumLogoLight;
 
   // Online/offline status
   useEffect(() => {
@@ -63,7 +58,7 @@ export function Header() {
         {/* Logo */}
         <Link to="/" className="mr-3 md:mr-6 flex items-center shrink-0">
           <img 
-            src={logoSrc} 
+            src={logo} 
             alt="Wiet Forum België" 
             className="h-8 md:h-10 w-auto object-contain transition-opacity hover:opacity-80"
           />
