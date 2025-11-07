@@ -80,7 +80,7 @@ export function Header() {
         
 
         {/* Actions */}
-        <div className="flex items-center space-x-1 md:space-x-2">
+        <div className="flex items-center space-x-1 md:space-x-2 ml-auto">
           {/* Online/Offline indicator - hide on small mobile */}
           <div className="hidden sm:flex items-center gap-1 text-xs">
             {isOnline ? <Wifi className="w-4 h-4 text-green-500" /> : <WifiOff className="w-4 h-4 text-red-500" />}
