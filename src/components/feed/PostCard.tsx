@@ -32,7 +32,7 @@ interface PostCardProps {
 }
 
 export function PostCard({ post }: PostCardProps) {
-  const { votes, handleVote } = useVoting();
+  const { getVoteData, handleVote } = useVoting();
   const { isBookmarked, toggleBookmark } = useBookmarks();
 
   // Calculate reading time (200 words per minute average)
@@ -41,6 +41,16 @@ export function PostCard({ post }: PostCardProps) {
 
   // Check if post is new (< 24 hours)
   const isNew = differenceInHours(new Date(), post.createdAt) < 24;
+
+  const voteData = getVoteData(post.id) || {
+    id: post.id,
+    type: 'topic' as const,
+    currentVote: null,
+    upvotes: post.votes,
+    downvotes: 0,
+  };
+
+  const handleBookmarkClick = () => toggleBookmark(post.id, 'topic');
 
   return (
     <motion.div
@@ -52,8 +62,10 @@ export function PostCard({ post }: PostCardProps) {
           <div className="flex gap-4">
             {/* Voting Section */}
             <VotingButtons 
-              votes={votes(post.id, 'topic') || post.votes}
-              userVote={null}
+              itemId={post.id}
+              upvotes={voteData.upvotes}
+              downvotes={voteData.downvotes}
+              currentVote={voteData.currentVote}
               onVote={(voteType) => handleVote(post.id, voteType, 'topic')}
             />
 
@@ -131,8 +143,10 @@ export function PostCard({ post }: PostCardProps) {
                     <span>{post.replyCount}</span>
                   </div>
                   <PostActions 
+                    itemId={post.id}
+                    itemType="topic"
                     isBookmarked={isBookmarked(post.id)}
-                    onBookmark={() => toggleBookmark(post.id, 'topic')}
+                    onBookmark={handleBookmarkClick}
                     replyCount={post.replyCount}
                   />
                 </div>

@@ -47,7 +47,7 @@ export function RecentPosts() {
       const items = document.querySelectorAll('.masonry-item');
       items.forEach(item => {
         const height = item.getBoundingClientRect().height;
-        const rowSpan = Math.ceil(height / 10);
+        const rowSpan = Math.ceil(height / 8); // 8px = grid-auto-rows
         (item as HTMLElement).style.setProperty('--row-span', String(rowSpan));
       });
     };

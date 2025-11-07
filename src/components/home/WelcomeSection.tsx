@@ -23,7 +23,7 @@ export function WelcomeSection() {
     return null;
   }
 
-  const displayName = (user?.user_metadata as any)?.username || user?.email?.split('@')[0] || 'Gebruiker';
+  const displayName = user?.email?.split('@')[0] || 'Gebruiker';
 
   const userStats = [
     {
@@ -66,7 +66,7 @@ export function WelcomeSection() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <Avatar className="h-16 w-16 border-4 border-primary/30 shadow-lg">
-              <AvatarImage src={(user?.user_metadata as any)?.avatar_url} />
+              <AvatarImage src="" />
               <AvatarFallback className="bg-primary/10 text-primary text-xl font-semibold">
                 {displayName.charAt(0).toUpperCase()}
               </AvatarFallback>
