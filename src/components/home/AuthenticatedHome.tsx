@@ -27,7 +27,7 @@ export function AuthenticatedHome() {
   };
 
   const mainContent = (
-    <div className="lg:col-span-3 space-y-3">
+    <div className="lg:col-span-3 space-y-4 md:space-y-6">
       <WelcomeSection />
       
       <TopSuppliers />
@@ -36,10 +36,7 @@ export function AuthenticatedHome() {
       
       <TrendingTopics limit={6} showHeader={true} />
       
-      {/* Full width Aanbevolen voor jou */}
-      <div className="-mx-4 sm:-mx-0">
-        <SuggestedTopics />
-      </div>
+      <SuggestedTopics />
     </div>
   );
 
@@ -58,12 +55,8 @@ export function AuthenticatedHome() {
       )}
 
       {/* Sidebar - Recente Activiteit + Presentatie */}
-      <div className={`space-y-3 ${isMobile ? 'hidden' : 'lg:sticky lg:top-24'}`}>
-        {/* Full width Recente Activiteit */}
-        <div className="-mx-4 sm:-mx-0">
-          <RecentActivity />
-        </div>
-        
+      <div className={`space-y-4 md:space-y-6 ${isMobile ? 'hidden' : 'lg:sticky lg:top-24'}`}>
+        <RecentActivity />
         <PresentationTab />
       </div>
 

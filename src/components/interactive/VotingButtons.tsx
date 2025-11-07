@@ -13,6 +13,7 @@ interface VotingButtonsProps {
   onVote: (voteType: 'up' | 'down') => void;
   size?: 'sm' | 'md';
   orientation?: 'vertical' | 'horizontal';
+  inline?: boolean; // Alias for horizontal orientation
 }
 
 export function VotingButtons({
@@ -22,8 +23,10 @@ export function VotingButtons({
   currentVote,
   onVote,
   size = 'md',
-  orientation = 'vertical'
+  orientation = 'vertical',
+  inline = false
 }: VotingButtonsProps) {
+  const effectiveOrientation = inline ? 'horizontal' : orientation;
   const totalScore = upvotes - downvotes;
   const sizeClasses = size === 'sm' ? 'h-7 w-7' : 'h-8 w-8';
   const iconSize = size === 'sm' ? 'h-3 w-3' : 'h-4 w-4';
@@ -31,7 +34,7 @@ export function VotingButtons({
   return (
     <div className={cn(
       "flex items-center gap-1",
-      orientation === 'vertical' ? 'flex-col' : 'flex-row'
+      effectiveOrientation === 'vertical' ? 'flex-col' : 'flex-row'
     )}>
       <Button
         variant="ghost"

@@ -93,94 +93,69 @@ export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsP
             {...(!prefersReducedMotion && {
               variants: fadeInUp,
               transition: { delay: index * 0.08 },
-              whileHover: { 
-                scale: 1.02,
-                boxShadow: '0 20px 40px -12px hsl(var(--primary) / 0.2)'
-              }
+              whileHover: { scale: 1.02 },
+              whileTap: { scale: 0.98 }
             })}
           >
-            <Card className="group relative overflow-hidden transition-all duration-300 border-2 border-border/50 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/20 bg-gradient-to-br from-card via-card to-primary/5">
-              {/* Groene gradient overlay - verschijnt bij hover */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              
-              {/* Groene glow spot - subtiel in top-right corner */}
-              <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
-              {/* Content wrapper met relative positioning */}
-              <div className="relative z-10">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-base line-clamp-2">
-                      <Link 
-                        to={`/topic/${topic.id}`}
-                        className="hover:text-primary transition-colors"
-                      >
-                        {topic.title}
-                      </Link>
+            <Link to={`/topic/${topic.id}`} className="block">
+              <Card className="group relative overflow-hidden transition-all duration-300 border-2 border-border/50 hover:border-primary/50 hover:shadow-2xl cursor-pointer active:scale-[0.98] min-h-[160px]">
+                {/* Groene gradient overlay - verschijnt bij hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                
+                {/* Groene glow spot - subtiel in top-right corner */}
+                <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                {/* Content wrapper met relative positioning */}
+                <div className="relative z-10">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base line-clamp-2 group-hover:text-primary transition-colors">
+                      {topic.title}
                     </CardTitle>
-                  </div>
-                  <motion.div
-                    {...(!prefersReducedMotion && {
-                      whileHover: { scale: 1.05 }
-                    })}
-                  >
                     <Badge 
                       variant="secondary" 
-                      className="w-fit mt-2 bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 hover:from-primary/20 hover:to-secondary/20 transition-all"
+                      className="w-fit mt-2 bg-gradient-to-r from-primary/10 to-secondary/10"
                     >
                       {topic.categories.name}
                     </Badge>
-                  </motion.div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {topic.profiles && (
-                    <motion.div 
-                      className="flex items-center gap-2 text-sm text-muted-foreground"
-                      {...(!prefersReducedMotion && {
-                        whileHover: { x: 5 }
-                      })}
-                    >
-                      <Avatar className="h-6 w-6 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
-                        <AvatarImage src={topic.profiles.avatar_url || undefined} />
-                        <AvatarFallback>
-                          {(topic.profiles.display_name || topic.profiles.username || 'U').charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="truncate">
-                        {topic.profiles.display_name || topic.profiles.username}
-                      </span>
-                    </motion.div>
-                  )}
+                  </CardHeader>
                   
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <motion.div 
-                      className="flex items-center gap-1 hover:text-primary transition-colors"
-                      {...(!prefersReducedMotion && {
-                        whileHover: { scale: 1.1 }
-                      })}
-                    >
-                      <Eye className="h-4 w-4" />
-                      <span>{topic.view_count}</span>
-                    </motion.div>
-                    <motion.div 
-                      className="flex items-center gap-1 hover:text-primary transition-colors"
-                      {...(!prefersReducedMotion && {
-                        whileHover: { scale: 1.1 }
-                      })}
-                    >
-                      <MessageSquare className="h-4 w-4" />
-                      <span>{topic.reply_count}</span>
-                    </motion.div>
-                    <span className="ml-auto text-xs">
-                      {formatDistanceToNow(new Date(topic.created_at), { 
-                        addSuffix: true,
-                        locale: nl 
-                      })}
-                    </span>
-                  </div>
-                </CardContent>
-              </div>
-            </Card>
+                  <CardContent className="space-y-3">
+                    {topic.profiles && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Avatar className="h-6 w-6 ring-2 ring-primary/20">
+                          <AvatarImage src={topic.profiles.avatar_url || undefined} />
+                          <AvatarFallback>
+                            {(topic.profiles.display_name || topic.profiles.username || 'U').charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="truncate">
+                          {topic.profiles.display_name || topic.profiles.username}
+                        </span>
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1">
+                          <Eye className="h-4 w-4" />
+                          <span>{topic.view_count}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <MessageSquare className="h-4 w-4" />
+                          <span>{topic.reply_count}</span>
+                        </div>
+                      </div>
+                      <span className="text-xs truncate max-w-[100px]">
+                        {formatDistanceToNow(new Date(topic.created_at), { 
+                          addSuffix: true,
+                          locale: nl 
+                        })}
+                      </span>
+                    </div>
+                  </CardContent>
+                </div>
+              </Card>
+            </Link>
           </MotionDiv>
         ))}
       </motion.div>

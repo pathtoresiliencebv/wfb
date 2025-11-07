@@ -8,6 +8,7 @@ import { LoadingState } from '@/components/ui/loading-spinner';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
+import { motion } from 'framer-motion';
 
 export function ActivityFeed() {
   const { activities, isLoading, error } = useActivityFeed();
@@ -91,50 +92,63 @@ export function ActivityFeed() {
           Recente Activiteit
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-2">
         {activities?.length === 0 ? (
           <p className="text-center text-muted-foreground py-4">
             Nog geen activiteiten om te tonen
           </p>
         ) : (
-          activities?.map((activity) => (
-            <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg border">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={activity.profiles?.avatar_url} />
-                <AvatarFallback>
-                  {activity.profiles?.username?.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <Link 
-                    to={`/profile/${activity.profiles?.username}`}
-                    className="font-medium text-sm hover:underline"
-                  >
-                    {activity.profiles?.display_name || activity.profiles?.username}
-                  </Link>
-                  <Badge 
-                    variant="secondary" 
-                    className={`h-6 w-6 p-0 rounded-full ${getActivityColor(activity.activity_type)}`}
-                  >
-                    {getActivityIcon(activity.activity_type)}
-                  </Badge>
-                </div>
-                
-                <p className="text-sm text-muted-foreground">
-                  {getActivityText(activity)}
-                </p>
-                
-                <p className="text-xs text-muted-foreground mt-1">
-                  {formatDistanceToNow(new Date(activity.created_at), { 
-                    addSuffix: true, 
-                    locale: nl 
-                  })}
-                </p>
-              </div>
-            </div>
-          ))
+          activities?.map((activity) => {
+            const targetUrl = activity.activity_data?.topic_id 
+              ? `/topic/${activity.activity_data.topic_id}`
+              : `/profile/${activity.profiles?.username}`;
+            
+            return (
+              <Link 
+                key={activity.id}
+                to={targetUrl}
+                className="block"
+              >
+                <motion.div
+                  className="flex items-start gap-3 p-3 -mx-3 rounded-lg border hover:bg-muted/50 hover:border-primary/50 transition-all duration-200 active:scale-[0.98] cursor-pointer min-h-[80px]"
+                  whileHover={{ x: 4 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Avatar className="h-10 w-10 flex-shrink-0">
+                    <AvatarImage src={activity.profiles?.avatar_url} />
+                    <AvatarFallback>
+                      {activity.profiles?.username?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-sm">
+                        {activity.profiles?.display_name || activity.profiles?.username}
+                      </span>
+                      <Badge 
+                        variant="secondary" 
+                        className={`h-6 w-6 p-0 rounded-full flex items-center justify-center ${getActivityColor(activity.activity_type)}`}
+                      >
+                        {getActivityIcon(activity.activity_type)}
+                      </Badge>
+                    </div>
+                    
+                    <p className="text-sm text-muted-foreground leading-snug">
+                      {getActivityText(activity)}
+                    </p>
+                    
+                    <p className="text-xs text-muted-foreground">
+                      {formatDistanceToNow(new Date(activity.created_at), { 
+                        addSuffix: true, 
+                        locale: nl 
+                      })}
+                    </p>
+                  </div>
+                </motion.div>
+              </Link>
+            );
+          })
         )}
       </CardContent>
     </Card>

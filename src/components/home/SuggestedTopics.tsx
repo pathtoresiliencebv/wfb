@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Lightbulb, Eye, MessageSquare } from 'lucide-react';
 import { useSuggestedTopics } from '@/hooks/useSuggestedTopics';
 import { Skeleton } from '@/components/ui/skeleton';
+import { motion } from 'framer-motion';
 
 export function SuggestedTopics() {
   const { topics, isLoading } = useSuggestedTopics(5);
@@ -36,45 +37,54 @@ export function SuggestedTopics() {
           <CardTitle>Aanbevolen Voor Jou</CardTitle>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-2">
         {topics.map((topic) => (
-          <div key={topic.id} className="space-y-2 pb-4 border-b last:border-0 last:pb-0">
-            <Link 
-              to={`/topic/${topic.id}`}
-              className="font-medium hover:text-primary transition-colors line-clamp-2"
+          <Link 
+            key={topic.id}
+            to={`/topic/${topic.id}`}
+            className="block"
+          >
+            <motion.div
+              className="p-3 -mx-3 rounded-lg transition-all duration-200 hover:bg-muted/50 active:bg-muted active:scale-[0.98] cursor-pointer min-h-[80px]"
+              whileHover={{ x: 4 }}
+              whileTap={{ scale: 0.98 }}
             >
-              {topic.title}
-            </Link>
-            
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <Avatar className="h-5 w-5">
-                  <AvatarImage src={topic.profiles.avatar_url} />
-                  <AvatarFallback>
-                    {(topic.profiles.display_name || topic.profiles.username).charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-xs text-muted-foreground truncate">
-                  {topic.profiles.display_name || topic.profiles.username}
-                </span>
+              <div className="space-y-2">
+                <h4 className="font-medium leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                  {topic.title}
+                </h4>
+                
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Avatar className="h-6 w-6 flex-shrink-0">
+                      <AvatarImage src={topic.profiles.avatar_url} />
+                      <AvatarFallback>
+                        {(topic.profiles.display_name || topic.profiles.username).charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-xs text-muted-foreground truncate">
+                      {topic.profiles.display_name || topic.profiles.username}
+                    </span>
+                  </div>
+                  
+                  <Badge variant="secondary" className="text-xs flex-shrink-0">
+                    {topic.categories.name}
+                  </Badge>
+                </div>
+                
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Eye className="h-3 w-3" />
+                    <span>{topic.view_count}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <MessageSquare className="h-3 w-3" />
+                    <span>{topic.reply_count}</span>
+                  </div>
+                </div>
               </div>
-              
-              <Badge variant="secondary" className="text-xs">
-                {topic.categories.name}
-              </Badge>
-            </div>
-            
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Eye className="h-3 w-3" />
-                <span>{topic.view_count}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <MessageSquare className="h-3 w-3" />
-                <span>{topic.reply_count}</span>
-              </div>
-            </div>
-          </div>
+            </motion.div>
+          </Link>
         ))}
       </CardContent>
     </Card>

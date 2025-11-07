@@ -4,9 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
-import { useEffect } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 export function RecentPosts() {
+  const isMobile = useIsMobile();
   const { data: recentTopics = [], isLoading } = useQuery({
     queryKey: ['recentTopics'],
     queryFn: async () => {
@@ -41,24 +43,6 @@ export function RecentPosts() {
     staleTime: 60000, // 1 minute
   });
 
-  // Calculate masonry grid row spans based on card heights
-  useEffect(() => {
-    const updateRowSpans = () => {
-      const items = document.querySelectorAll('.masonry-item');
-      items.forEach(item => {
-        const height = item.getBoundingClientRect().height;
-        const rowSpan = Math.ceil(height / 8); // 8px = grid-auto-rows
-        (item as HTMLElement).style.setProperty('--row-span', String(rowSpan));
-      });
-    };
-
-    if (!isLoading && recentTopics.length > 0) {
-      // Small delay to ensure DOM is ready
-      setTimeout(updateRowSpans, 100);
-      window.addEventListener('resize', updateRowSpans);
-      return () => window.removeEventListener('resize', updateRowSpans);
-    }
-  }, [recentTopics, isLoading]);
 
   return (
     <div className="space-y-4">
@@ -71,32 +55,27 @@ export function RecentPosts() {
         </Button>
       </div>
       
-      {/* Masonry Grid Layout */}
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="p-4 border rounded-lg space-y-3">
-              <Skeleton className="h-5 w-3/4" />
-              <Skeleton className="h-4 w-full" />
-              <div className="flex items-center space-x-2">
-                <Skeleton className="h-6 w-6 rounded-full" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            </div>
+            <Skeleton key={i} className="h-32" />
           ))}
         </div>
       ) : (
-        <div className="masonry-grid">
+        <div className={cn(
+          "gap-4",
+          isMobile 
+            ? "flex flex-col" 
+            : "grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3"
+        )}>
           {recentTopics.map((post, index) => (
             <motion.div
               key={post.id}
-              className="masonry-item"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ 
-                duration: 0.4,
-                delay: index * 0.1,
-                ease: "easeOut"
+                duration: 0.3,
+                delay: isMobile ? index * 0.05 : index * 0.1,
               }}
             >
               <PostCard post={post} />
