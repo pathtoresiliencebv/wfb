@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { RichTextEditor } from '@/components/rich-text/RichTextEditor';
+import { InlineRichTextEditor } from '@/components/rich-text/InlineRichTextEditor';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { VotingButtons } from '@/components/interactive/VotingButtons';
@@ -555,12 +555,11 @@ export default function TopicDetail() {
             <h4 className="font-medium text-base">Reageer op dit topic</h4>
           </CardHeader>
           <CardContent className="p-4 space-y-4">
-            <RichTextEditor
+            <InlineRichTextEditor
               value={replyContent}
               onChange={setReplyContent}
               placeholder="Deel je gedachten over dit topic..."
               minHeight={150}
-              showLivePreview={true}
             />
             <div className="flex justify-end gap-2">
               <Button 
