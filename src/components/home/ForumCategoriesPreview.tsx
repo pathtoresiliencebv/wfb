@@ -6,9 +6,10 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, MessageSquare, Sprout, Stethoscope, Scale, Leaf, Coffee, Newspaper, MessageCircle, Folder, type LucideIcon } from 'lucide-react';
 import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { getFallbackImage } from '@/lib/fallbackImages';
 
 interface Category {
   id: string;
@@ -37,6 +38,7 @@ export function ForumCategoriesPreview() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
   const prefersReducedMotion = useReducedMotion();
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
   // Helper functie om het juiste icoon te krijgen
   const getCategoryIcon = (slug: string): LucideIcon => {
@@ -101,6 +103,9 @@ export function ForumCategoriesPreview() {
       >
         {categories.map((category, index) => {
           const CategoryIcon = getCategoryIcon(category.slug);
+          const imageUrl = imageErrors[category.id] 
+            ? getFallbackImage(category.slug)
+            : (category.image_url || getFallbackImage(category.slug));
           
           return (
             <Link key={category.id} to={`/forums/${category.slug}`}>
@@ -119,7 +124,7 @@ export function ForumCategoriesPreview() {
                 <motion.div 
                   className="absolute inset-0 bg-cover bg-center"
                   style={{ 
-                    backgroundImage: category.image_url ? `url(${category.image_url})` : 'none',
+                    backgroundImage: `url(${imageUrl})`,
                     backgroundColor: category.color || 'hsl(var(--muted))'
                   }}
                   {...(!prefersReducedMotion && {
@@ -127,6 +132,16 @@ export function ForumCategoriesPreview() {
                     transition: { duration: 0.3 }
                   })}
                 >
+                  <img 
+                    src={imageUrl}
+                    alt={category.name}
+                    className="hidden"
+                    onError={() => {
+                      if (!imageErrors[category.id]) {
+                        setImageErrors(prev => ({ ...prev, [category.id]: true }));
+                      }
+                    }}
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-background/40 backdrop-blur-[2px]" />
                 </motion.div>
 

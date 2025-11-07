@@ -1,10 +1,8 @@
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { ModernHeader } from '@/components/layout/ModernHeader';
 import { HeroSection } from './HeroSection';
 import { FloatingCannabisLeaf } from '@/components/animations/FloatingCannabisLeaf';
-import logoMain from '@/assets/wietforum-logo-main.png';
 import { ValuePropositionSection } from './ValuePropositionSection';
-import { StatsHighlightSection } from './StatsHighlightSection';
 import { HowItWorksSection } from './HowItWorksSection';
 import { ModernFeatures } from './ModernFeatures';
 import { TrendingTopics } from '@/components/home/TrendingTopics';
@@ -25,22 +23,8 @@ export function LandingPage() {
         <FloatingCannabisLeaf size="large" delay={20} />
         <FloatingCannabisLeaf size="small" delay={25} />
       </div>
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-3">
-            <img src={logoMain} alt="Wiet Forum België" className="h-12 w-auto" />
-          </div>
-          <div className="flex items-center gap-3">
-            <Link to="/login">
-              <Button variant="ghost">Inloggen</Button>
-            </Link>
-            <Link to="/register">
-              <Button>Registreren</Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      {/* Modern Header */}
+      <ModernHeader />
 
       {/* Hero Section */}
       <HeroSection />

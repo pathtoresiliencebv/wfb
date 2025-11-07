@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Plus, Users, MessageSquare, Pin, Heart, Scale, Star, TrendingUp, Eye, Image as ImageIcon } from 'lucide-react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { ForumsLoadingSkeleton } from '@/components/loading/OptimizedLoadingStates';
 import { CategoryTopics } from '@/components/forums/CategoryTopics';
+import { getFallbackImage } from '@/lib/fallbackImages';
 
 interface Category {
   id: string;
@@ -53,6 +54,7 @@ export default function Forums() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { slug } = useParams();
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
   // Fetch categories with React Query
   const { data: categories = [], isLoading: categoriesLoading } = useQuery({
@@ -151,6 +153,9 @@ export default function Forums() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
           {categories.map((category) => {
             const IconComponent = iconMap[category.icon as keyof typeof iconMap] || MessageSquare;
+            const imageUrl = imageErrors[category.id] 
+              ? getFallbackImage(category.slug)
+              : (category.image_url || getFallbackImage(category.slug));
             
             return (
               <Card 
@@ -158,26 +163,20 @@ export default function Forums() {
                 className="group hover:shadow-lg md:hover:shadow-2xl hover:scale-[1.01] md:hover:scale-[1.02] transition-all duration-300 overflow-hidden border-0 bg-card/50 backdrop-blur-sm"
               >
                 <div className="relative">
-                  {/* Background Image or Gradient */}
-                  {category.image_url ? (
-                    <div className="relative h-32 sm:h-40 md:h-48 overflow-hidden">
-                      <LazyImage
-                        src={category.image_url}
-                        alt={category.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    </div>
-                  ) : (
-                    <div 
-                      className="h-32 sm:h-40 md:h-48 relative"
-                      style={{ 
-                        background: `linear-gradient(135deg, ${category.color}20, ${category.color}40)`
+                  {/* Background Image with Fallback */}
+                  <div className="relative h-32 sm:h-40 md:h-48 overflow-hidden">
+                    <LazyImage
+                      src={imageUrl}
+                      alt={category.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      onError={() => {
+                        if (!imageErrors[category.id]) {
+                          setImageErrors(prev => ({ ...prev, [category.id]: true }));
+                        }
                       }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-black/10" />
-                    </div>
-                  )}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  </div>
                   
                   {/* Icon */}
                   <div className="absolute top-3 left-3 md:top-4 md:left-4">

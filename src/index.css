@@ -3,6 +3,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Modern Header Styles */
+@layer components {
+  .modern-header-nav-item {
+    @apply transition-all duration-300;
+  }
+  
+  .modern-header-nav-item:hover {
+    @apply bg-primary/10 text-primary;
+  }
+  
+  .modern-header-cta {
+    @apply transition-all duration-300;
+  }
+  
+  .modern-header-cta:hover {
+    @apply shadow-[0_0_20px_hsl(var(--primary)_/_0.3)] -translate-y-0.5;
+  }
+}
+
 /* Design System - Wietforum België */
 
 @layer base {
