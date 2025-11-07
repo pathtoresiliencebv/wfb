@@ -1988,6 +1988,7 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: string
       }
+      get_user_rank: { Args: { user_id: string }; Returns: number }
       handle_login_attempt: {
         Args: {
           attempt_email: string

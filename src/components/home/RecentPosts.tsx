@@ -3,6 +3,8 @@ import { PostCard } from '@/components/feed/PostCard';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
+import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 
 export function RecentPosts() {
   const { data: recentTopics = [], isLoading } = useQuery({
@@ -39,6 +41,25 @@ export function RecentPosts() {
     staleTime: 60000, // 1 minute
   });
 
+  // Calculate masonry grid row spans based on card heights
+  useEffect(() => {
+    const updateRowSpans = () => {
+      const items = document.querySelectorAll('.masonry-item');
+      items.forEach(item => {
+        const height = item.getBoundingClientRect().height;
+        const rowSpan = Math.ceil(height / 10);
+        (item as HTMLElement).style.setProperty('--row-span', String(rowSpan));
+      });
+    };
+
+    if (!isLoading && recentTopics.length > 0) {
+      // Small delay to ensure DOM is ready
+      setTimeout(updateRowSpans, 100);
+      window.addEventListener('resize', updateRowSpans);
+      return () => window.removeEventListener('resize', updateRowSpans);
+    }
+  }, [recentTopics, isLoading]);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -50,9 +71,10 @@ export function RecentPosts() {
         </Button>
       </div>
       
-      <div className="space-y-3">
-        {isLoading ? (
-          Array.from({ length: 3 }).map((_, i) => (
+      {/* Masonry Grid Layout */}
+      {isLoading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="p-4 border rounded-lg space-y-3">
               <Skeleton className="h-5 w-3/4" />
               <Skeleton className="h-4 w-full" />
@@ -61,13 +83,27 @@ export function RecentPosts() {
                 <Skeleton className="h-4 w-24" />
               </div>
             </div>
-          ))
-        ) : (
-          recentTopics.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="masonry-grid">
+          {recentTopics.map((post, index) => (
+            <motion.div
+              key={post.id}
+              className="masonry-item"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ 
+                duration: 0.4,
+                delay: index * 0.1,
+                ease: "easeOut"
+              }}
+            >
+              <PostCard post={post} />
+            </motion.div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

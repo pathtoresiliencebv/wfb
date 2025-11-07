@@ -1,175 +1,208 @@
-import { useNavigate } from 'react-router-dom';
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { UserPlus, MessageSquare, Shield, Sparkles } from 'lucide-react';
-import logoLight from '@/assets/wietforum-logo-light.png';
-import logoDark from '@/assets/wietforum-logo-dark.png';
+import { Shield, Users, MessageSquare, ArrowRight, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/contexts/ThemeContext';
-import { motion } from 'framer-motion';
-import { fadeInUp, staggerContainer, tapScale, springConfig } from '@/lib/animations';
-import { useReducedMotion } from '@/hooks/useReducedMotion';
+import wietforumLogoLight from '@/assets/wietforum-logo-light.png';
+import wietforumLogoDark from '@/assets/wietforum-logo-dark.png';
+import { TypingText } from '@/components/animations/TypingText';
+import { AnimatedCounter } from '@/components/animations/AnimatedCounter';
 
 export function HeroSection() {
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const logo = theme === 'dark' ? logoDark : logoLight;
   const prefersReducedMotion = useReducedMotion();
+  const { scrollY } = useScroll();
+  
+  const logo = theme === 'dark' ? wietforumLogoDark : wietforumLogoLight;
+  
+  // Parallax effect for background elements
+  const y1 = useTransform(scrollY, [0, 500], [0, -150]);
+  const y2 = useTransform(scrollY, [0, 500], [0, -75]);
 
-  const MotionDiv = prefersReducedMotion ? 'div' : motion.div;
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6
+      }
+    }
+  };
 
   return (
-    <section className="relative overflow-hidden min-h-[90vh] flex items-center">
-      {/* Enhanced Background with Modern Gradients */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-primary/5 to-secondary/10" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_50%)]" />
-      <div className="absolute top-20 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-      
-      <div className="container relative z-10 px-4 py-20 sm:py-24 lg:py-32 w-full">
-        <MotionDiv 
-          className="mx-auto max-w-5xl text-center space-y-8"
-          {...(!prefersReducedMotion && {
-            variants: staggerContainer,
-            initial: "hidden",
-            animate: "visible"
-          })}
-        >
-          {/* Premium Badge */}
-          <MotionDiv 
-            className="inline-flex items-center rounded-full border border-primary/30 bg-gradient-to-r from-primary/10 to-secondary/10 px-6 py-2.5 text-sm backdrop-blur-md shadow-xl"
-            {...(!prefersReducedMotion && {
-              variants: fadeInUp,
-              transition: { delay: 0.1 }
-            })}
-          >
-            <Sparkles className="h-4 w-4 mr-2 text-primary animate-pulse" />
-            <span className="font-semibold bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
-              België's #1 Cannabis Community
-            </span>
-          </MotionDiv>
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-background via-background to-primary/5">
+      {/* Animated Background Blobs with Parallax */}
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          style={{ y: y1 }}
+          className="absolute -top-1/4 -left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.3, 0.5, 0.3]
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div
+          style={{ y: y2 }}
+          className="absolute top-1/3 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.2, 0.4, 0.2]
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1
+          }}
+        />
+      </div>
 
-          {/* Logo with Float Animation */}
-          <MotionDiv 
+      {/* Main Content */}
+      <motion.div 
+        className="container relative z-10 px-4 py-20 sm:py-24"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <div className="max-w-5xl mx-auto text-center space-y-8">
+          {/* Premium Badge */}
+          <motion.div variants={itemVariants}>
+            <Badge className="inline-flex items-center gap-2 px-6 py-2.5 text-sm bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/30 backdrop-blur-sm">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                België's #1 Cannabis Community
+              </span>
+            </Badge>
+          </motion.div>
+
+          {/* Logo with Animation */}
+          <motion.div 
+            variants={itemVariants}
             className="flex justify-center"
-            {...(!prefersReducedMotion && {
-              variants: fadeInUp,
-              transition: { delay: 0.2 }
-            })}
           >
             <motion.img 
               src={logo} 
               alt="Wiet Forum België" 
               className="h-24 sm:h-32 lg:h-40 w-auto drop-shadow-2xl"
-              {...(!prefersReducedMotion && {
-                animate: {
-                  y: [0, -8, 0],
-                  transition: {
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }
-                },
-                whileHover: { scale: 1.05 }
-              })}
+              animate={prefersReducedMotion ? {} : {
+                y: [0, -8, 0],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              whileHover={{ scale: 1.05 }}
             />
-          </MotionDiv>
+          </motion.div>
 
-          {/* Enhanced Heading with Gradient */}
-          <MotionDiv 
-            className="space-y-6"
-            {...(!prefersReducedMotion && {
-              variants: fadeInUp,
-              transition: { delay: 0.3 }
-            })}
-          >
-            <h1 className="font-heading text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-tight">
-              <span className="text-foreground">De Grootste </span>
-              <span className="bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
-                Cannabis Community
+          {/* Headline with Typing Animation */}
+          <motion.div variants={itemVariants}>
+            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+              België's Grootste{' '}
+              <span className="bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+                <TypingText 
+                  texts={['Cannabis Community', 'Kennis Platform', 'Leveranciers Netwerk']}
+                  speed={100}
+                  pauseDuration={3000}
+                />
               </span>
-              <span className="text-foreground"> van België</span>
             </h1>
-            <p className="mx-auto max-w-3xl text-lg sm:text-xl text-muted-foreground/90 leading-relaxed">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Ontdek betrouwbare leveranciers, deel kennis met duizenden leden, 
               en blijf op de hoogte van alles rondom cannabis in België.
             </p>
-          </MotionDiv>
+          </motion.div>
 
-          {/* Enhanced CTA Buttons */}
-          <MotionDiv 
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8"
-            {...(!prefersReducedMotion && {
-              variants: fadeInUp,
-              transition: { delay: 0.4 }
-            })}
+          {/* CTA Buttons */}
+          <motion.div 
+            className="flex flex-col sm:flex-row gap-4 mb-12 justify-center"
+            variants={itemVariants}
           >
-            <MotionDiv 
-              className="inline-block"
-              {...(!prefersReducedMotion && {
-                whileHover: { scale: 1.05, y: -2 },
-                whileTap: tapScale,
-                transition: springConfig
-              })}
+            <Button 
+              size="lg"
+              className="text-lg px-8 py-6 shadow-lg hover:shadow-xl transition-all duration-300 group relative overflow-hidden"
+              onClick={() => navigate('/register')}
             >
-              <Button 
-                size="lg" 
-                className="group w-full sm:w-auto text-lg px-10 py-7 bg-gradient-to-r from-primary to-secondary hover:shadow-2xl hover:shadow-primary/30 transition-all"
-                onClick={() => navigate('/register')}
-              >
-                <UserPlus className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
+              <span className="relative z-10 flex items-center gap-2">
                 Word Nu Lid - 100% Gratis
-              </Button>
-            </MotionDiv>
-            <MotionDiv 
-              className="inline-block"
-              {...(!prefersReducedMotion && {
-                whileHover: { scale: 1.05, y: -2 },
-                whileTap: tapScale,
-                transition: springConfig
-              })}
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </span>
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-primary to-primary/80"
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.3 }}
+              />
+            </Button>
+            <Button 
+              size="lg"
+              variant="outline"
+              className="text-lg px-8 py-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-primary/10 group"
+              onClick={() => navigate('/forums')}
             >
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="w-full sm:w-auto text-lg px-10 py-7 backdrop-blur-sm border-2 hover:bg-primary/5 hover:border-primary/50"
-                onClick={() => navigate('/forums')}
-              >
-                <MessageSquare className="mr-2 h-5 w-5" />
+              <span className="flex items-center gap-2">
                 Verken de Forums
-              </Button>
-            </MotionDiv>
-          </MotionDiv>
+                <MessageSquare className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+              </span>
+            </Button>
+          </motion.div>
 
-          {/* Enhanced Trust Indicators with Stats */}
-          <MotionDiv 
-            className="flex flex-wrap justify-center items-center gap-6 pt-12"
-            {...(!prefersReducedMotion && {
-              variants: staggerContainer,
-              transition: { delay: 0.5 }
-            })}
+          {/* Trust Indicators with Animated Counters */}
+          <motion.div 
+            className="flex flex-wrap justify-center items-center gap-6 pt-8"
+            variants={containerVariants}
           >
-            {[
-              { icon: Shield, label: '100% Anoniem & Veilig' },
-              { icon: MessageSquare, label: '10.000+ Actieve Leden' },
-              { icon: Sparkles, label: 'Geverifieerde Leveranciers' }
-            ].map((stat, index) => (
-              <MotionDiv 
-                key={index}
-                className="flex items-center gap-3 px-5 py-3 rounded-full bg-card/60 border border-border/50 backdrop-blur-md shadow-lg hover:shadow-xl transition-all cursor-default"
-                {...(!prefersReducedMotion && {
-                  variants: fadeInUp,
-                  whileHover: { scale: 1.05, y: -2 }
-                })}
-              >
-                <div className="p-2 rounded-full bg-primary/10">
-                  <stat.icon className="h-5 w-5 text-primary" />
-                </div>
-                <span className="text-sm font-semibold text-foreground">{stat.label}</span>
-              </MotionDiv>
-            ))}
-          </MotionDiv>
-        </MotionDiv>
-      </div>
+            <motion.div 
+              className="flex items-center gap-3 px-5 py-3 rounded-full bg-card/60 border border-border/50 backdrop-blur-md shadow-lg"
+              variants={itemVariants}
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <Shield className="w-6 h-6 text-primary" />
+              <span className="text-sm sm:text-base font-medium">100% Anoniem & Veilig</span>
+            </motion.div>
+            <motion.div 
+              className="flex items-center gap-3 px-5 py-3 rounded-full bg-card/60 border border-border/50 backdrop-blur-md shadow-lg"
+              variants={itemVariants}
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <Users className="w-6 h-6 text-primary" />
+              <span className="text-sm sm:text-base font-medium">
+                <AnimatedCounter end={10000} suffix="+" /> Actieve Leden
+              </span>
+            </motion.div>
+            <motion.div 
+              className="flex items-center gap-3 px-5 py-3 rounded-full bg-card/60 border border-border/50 backdrop-blur-md shadow-lg"
+              variants={itemVariants}
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <MessageSquare className="w-6 h-6 text-primary" />
+              <span className="text-sm sm:text-base font-medium">Dagelijks Nieuwe Discussies</span>
+            </motion.div>
+          </motion.div>
+        </div>
+      </motion.div>
 
       {/* Bottom gradient fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none" />

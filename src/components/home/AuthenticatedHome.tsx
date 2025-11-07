@@ -32,9 +32,9 @@ export function AuthenticatedHome() {
   };
 
   const mainContent = (
-    <div className="lg:col-span-3 space-y-6">
-      <QuickActionsPanel />
+    <div className="lg:col-span-3 space-y-8">
       <WelcomeSection />
+      <QuickActionsPanel />
       <div className="grid md:grid-cols-2 gap-6">
         <StatsOverview />
         <AchievementsShowcase />
@@ -62,7 +62,7 @@ export function AuthenticatedHome() {
       )}
 
       {/* Sidebar - Hidden on mobile */}
-      <div className={`space-y-6 ${isMobile ? 'hidden' : ''}`}>
+      <div className={`space-y-6 ${isMobile ? 'hidden' : 'lg:sticky lg:top-24'}`}>
         <RecentActivity />
         <Separator />
         <OnlineMembers />

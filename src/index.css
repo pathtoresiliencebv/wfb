@@ -240,6 +240,101 @@
   }
 }
 
+/* Hero Gradient */
+.gradient-hero {
+  background: linear-gradient(135deg, 
+    hsl(var(--primary) / 0.1) 0%, 
+    hsl(var(--card)) 50%, 
+    hsl(var(--primary) / 0.05) 100%
+  );
+  border: 1px solid hsl(var(--primary) / 0.2);
+}
+
+/* Masonry Grid Layout */
+.masonry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-auto-rows: 10px;
+  gap: 1rem;
+}
+
+.masonry-item {
+  grid-row-end: span var(--row-span);
+}
+
+/* Enhanced hover glow */
+.card-hover-glow {
+  transition: all 0.3s ease;
+}
+
+.card-hover-glow:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 0 20px hsl(var(--primary) / 0.2),
+    0 10px 30px rgba(0,0,0,0.15);
+  border-color: hsl(var(--primary) / 0.4);
+}
+
+/* Reading time badge */
+.reading-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+/* New badge pulse */
+.badge-new {
+  animation: pulse-green 2s ease-in-out infinite;
+}
+
+/* Button glow pulse */
+@keyframes glow-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3); 
+  }
+  50% { 
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.6); 
+  }
+}
+
+.button-glow {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Ripple effect */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Confetti animation */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: hsl(var(--primary));
+  animation: confetti-fall 3s ease-in-out infinite;
+}
+
 /* Custom Scrollbar */
 * {
   scrollbar-width: thin;
