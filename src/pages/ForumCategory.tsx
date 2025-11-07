@@ -83,39 +83,40 @@ export default function ForumCategory() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
+    <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-4 w-full sm:w-auto">
           <Link to="/forums">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Terug
+            <Button variant="ghost" size="sm" className="gap-1 sm:gap-2 h-9 px-2 sm:px-3">
+              <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="text-xs sm:text-sm">Terug</span>
             </Button>
           </Link>
-          <h1 className="text-3xl font-bold">{category.name}</h1>
+          <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold truncate">{category.name}</h1>
         </div>
         {user && (
-          <Link to="/create-topic">
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Nieuw Topic
+          <Link to="/create-topic" className="w-full sm:w-auto">
+            <Button className="gap-1 sm:gap-2 w-full sm:w-auto h-9 sm:h-10 text-xs sm:text-sm">
+              <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Nieuw Topic</span>
+              <span className="sm:hidden">Nieuw</span>
             </Button>
           </Link>
         )}
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {topics.length === 0 ? (
           <Card>
-            <CardContent className="pt-6 text-center">
-              <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Geen topics gevonden</h3>
-              <p className="text-muted-foreground mb-4">
+            <CardContent className="pt-4 sm:pt-6 text-center px-3 sm:px-6">
+              <MessageSquare className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-3 sm:mb-4" />
+              <h3 className="text-base sm:text-lg font-semibold mb-2">Geen topics gevonden</h3>
+              <p className="text-sm sm:text-base text-muted-foreground mb-3 sm:mb-4">
                 Er zijn nog geen topics in deze categorie.
               </p>
               {user && (
                 <Link to="/create-topic">
-                  <Button>Eerste Topic Maken</Button>
+                  <Button className="text-sm">Eerste Topic Maken</Button>
                 </Link>
               )}
             </CardContent>
@@ -123,22 +124,22 @@ export default function ForumCategory() {
         ) : (
           topics.map((topic) => (
             <Card key={topic.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
+              <CardHeader className="p-3 sm:p-4 md:p-6">
+                <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
+                  <div className="flex-1 w-full min-w-0">
                     <Link to={`/forums/${slug}/topic/${topic.id}`}>
-                      <CardTitle className="hover:text-primary transition-colors">
+                      <CardTitle className="hover:text-primary transition-colors text-sm sm:text-base md:text-lg line-clamp-2">
                         {topic.title}
                       </CardTitle>
                     </Link>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 md:gap-4 mt-2 text-xs sm:text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <User className="h-3 w-3" />
-                        <span>{topic.profiles?.display_name || topic.profiles?.username}</span>
+                        <span className="truncate max-w-[120px] sm:max-w-none">{topic.profiles?.display_name || topic.profiles?.username}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
-                        <span>
+                        <span className="truncate">
                           {formatDistanceToNow(new Date(topic.created_at), {
                             addSuffix: true,
                             locale: nl,
@@ -147,14 +148,14 @@ export default function ForumCategory() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Badge variant="secondary" className="gap-1">
+                  <div className="flex gap-2 self-start">
+                    <Badge variant="secondary" className="gap-1 text-xs px-2 py-1">
                       <MessageSquare className="h-3 w-3" />
-                      {topic.reply_count}
+                      <span>{topic.reply_count}</span>
                     </Badge>
-                    <Badge variant="outline" className="gap-1">
+                    <Badge variant="outline" className="gap-1 text-xs px-2 py-1">
                       <Eye className="h-3 w-3" />
-                      {topic.view_count}
+                      <span>{topic.view_count}</span>
                     </Badge>
                   </div>
                 </div>

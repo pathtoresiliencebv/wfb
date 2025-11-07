@@ -137,13 +137,13 @@ export function ModernHeader() {
             <img 
               src={logo} 
               alt="Wiet Forum België" 
-              className="h-12 w-auto transition-opacity hover:opacity-80"
+              className="h-8 sm:h-10 md:h-12 w-auto transition-opacity hover:opacity-80"
             />
           </Link>
         </div>
 
         {/* CTA Buttons - Right */}
-        <div className="flex justify-end w-full gap-4">
+        <div className="flex justify-end w-full gap-2 sm:gap-3 md:gap-4">
           <Button 
             variant="ghost" 
             className="hidden md:inline modern-header-nav-item"
@@ -156,19 +156,21 @@ export function ModernHeader() {
           <div className="border-r hidden md:inline"></div>
           <Button 
             variant="outline"
-            className="min-h-[44px]"
+            className="min-h-[44px] text-xs sm:text-sm px-3 sm:px-4"
             asChild
           >
             <Link to="/login">
-              Inloggen
+              <span className="hidden sm:inline">Inloggen</span>
+              <span className="sm:hidden">Login</span>
             </Link>
           </Button>
           <Button 
-            className="modern-header-cta min-h-[44px]"
+            className="modern-header-cta min-h-[44px] text-xs sm:text-sm px-3 sm:px-4"
             asChild
           >
             <Link to="/register">
-              Registreren
+              <span className="hidden sm:inline">Registreren</span>
+              <span className="sm:hidden">Sign Up</span>
             </Link>
           </Button>
         </div>

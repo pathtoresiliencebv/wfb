@@ -131,19 +131,19 @@ export default function Forums() {
         </Breadcrumb>
 
         {/* Hero Header */}
-        <div className="text-center space-y-3 md:space-y-4 mb-8 md:mb-12">
-          <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent px-2">
+        <div className="text-center space-y-2 sm:space-y-3 md:space-y-4 mb-6 sm:mb-8 md:mb-12">
+          <h1 className="font-heading text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent px-2">
             Community Forums
           </h1>
-          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
-            Ontdek onze verschillende communities, deel kennis en join de discussie met cannabis liefhebbers
+          <p className="text-xs sm:text-sm md:text-base text-muted-foreground max-w-2xl mx-auto px-2">
+            Ontdek onze verschillende communities, deel kennis en join de discussie
           </p>
           {user && (
-            <Button size="default" className="gap-2 shadow-lg hover:shadow-xl transition-all duration-300 h-11 px-6" asChild>
+            <Button size="default" className="gap-1 sm:gap-2 shadow-lg hover:shadow-xl transition-all duration-300 h-9 sm:h-10 md:h-11 px-4 sm:px-5 md:px-6 text-xs sm:text-sm" asChild>
               <Link to="/create-topic">
-                <Plus className="h-4 w-4 md:h-5 md:w-5" />
+                <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Start Nieuwe Discussie</span>
-                <span className="sm:hidden">Nieuwe Post</span>
+                <span className="sm:hidden">Nieuw</span>
               </Link>
             </Button>
           )}
@@ -199,30 +199,30 @@ export default function Forums() {
                   </div>
                 </div>
 
-                <CardContent className="p-4 md:p-6">
-                  <div className="space-y-3">
+                <CardContent className="p-3 sm:p-4 md:p-6">
+                  <div className="space-y-2 sm:space-y-3">
                     <div>
-                      <h3 className="font-heading text-lg md:text-xl font-bold group-hover:text-primary transition-colors line-clamp-2">
+                      <h3 className="font-heading text-base sm:text-lg md:text-xl font-bold group-hover:text-primary transition-colors line-clamp-2">
                         {category.name}
                       </h3>
-                      <p className="text-muted-foreground text-sm line-clamp-2 mt-1">
+                      <p className="text-muted-foreground text-xs sm:text-sm line-clamp-2 mt-1">
                         {category.description}
                       </p>
                     </div>
                     
-                    <div className="flex items-center justify-between text-xs md:text-sm text-muted-foreground">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <div className="flex items-center gap-1">
-                        <MessageSquare className="h-3 w-3 md:h-4 md:w-4" />
-                        <span className="truncate">{category.topic_count || 0} topics</span>
+                        <MessageSquare className="h-3 w-3" />
+                        <span className="truncate">{category.topic_count || 0}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Users className="h-3 w-3 md:h-4 md:w-4" />
-                        <span className="truncate">{category.reply_count || 0} replies</span>
+                        <Users className="h-3 w-3" />
+                        <span className="truncate">{category.reply_count || 0}</span>
                       </div>
                     </div>
 
                     <Button 
-                      className="w-full mt-3 md:mt-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors h-9 md:h-10 text-sm" 
+                      className="w-full mt-2 sm:mt-3 group-hover:bg-primary group-hover:text-primary-foreground transition-colors h-8 sm:h-9 text-xs sm:text-sm" 
                       variant="outline"
                       asChild
                     >
@@ -240,31 +240,31 @@ export default function Forums() {
 
         {/* Popular Topics Section */}
         {popularTopics.length > 0 && (
-          <div className="space-y-4 md:space-y-6">
-            <div className="text-center">
-              <h2 className="font-heading text-xl md:text-2xl font-bold mb-2">🔥 Trending Discussies</h2>
-              <p className="text-sm md:text-base text-muted-foreground">De meest bekeken topics van deze week</p>
+          <div className="space-y-3 sm:space-y-4 md:space-y-6">
+            <div className="text-center px-2">
+              <h2 className="font-heading text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2">🔥 Trending</h2>
+              <p className="text-xs sm:text-sm md:text-base text-muted-foreground">De meest bekeken topics</p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
               {popularTopics.map((topic, index) => (
                 <Card 
                   key={topic.id} 
                   className="hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-card to-accent/5"
                 >
-                  <CardContent className="p-4 md:p-6">
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-primary font-bold text-xs md:text-sm">#{index + 1}</span>
+                  <CardContent className="p-3 sm:p-4 md:p-6">
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <span className="text-primary font-bold text-xs">#{index + 1}</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <Link 
                           to={`/forums/${topic.categories.slug}/topic/${topic.id}`}
-                          className="font-medium hover:text-primary transition-colors line-clamp-2 block mb-2 text-sm md:text-base"
+                          className="font-medium hover:text-primary transition-colors line-clamp-2 block mb-1 sm:mb-2 text-xs sm:text-sm md:text-base"
                         >
                           {topic.title}
                         </Link>
-                        <div className="flex items-center gap-3 md:gap-4 text-xs text-muted-foreground flex-wrap">
+                        <div className="flex items-center gap-2 sm:gap-3 text-xs text-muted-foreground flex-wrap">
                           <div className="flex items-center gap-1">
                             <Eye className="h-3 w-3" />
                             <span>{topic.view_count}</span>
@@ -274,8 +274,8 @@ export default function Forums() {
                             <span>{topic.reply_count}</span>
                           </div>
                           {topic.is_pinned && (
-                            <Badge variant="secondary" className="text-xs px-2 py-0.5">
-                              <Pin className="h-3 w-3 mr-1" />
+                            <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+                              <Pin className="h-3 w-3 mr-0.5" />
                               <span className="hidden sm:inline">Pinned</span>
                             </Badge>
                           )}
