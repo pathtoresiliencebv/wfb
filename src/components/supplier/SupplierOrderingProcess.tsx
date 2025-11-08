@@ -73,20 +73,22 @@ export const SupplierOrderingProcess: React.FC<SupplierOrderingProcessProps> = (
       <CardContent className="p-8">
         {/* Process Steps Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {PROCESS_STEPS.map((step, index) => (
-            <div 
-              key={step.id} 
-              className="group relative bg-gradient-to-br from-card via-card/95 to-card/80 rounded-2xl p-6 border border-border shadow-md hover:shadow-2xl transition-all duration-500 hover:scale-[1.05] hover:-translate-y-1"
-            >
-              {/* Step Number Badge */}
-              <div className="absolute -top-3 -left-3 w-10 h-10 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-xl ring-4 ring-background group-hover:scale-110 transition-transform duration-300">
-                {index + 1}
-              </div>
-              
-              {/* Icon Circle with Lucide Icon */}
-              <div className="w-24 h-24 mx-auto mb-5 bg-gradient-to-br from-primary/20 via-primary/15 to-primary/10 rounded-3xl flex items-center justify-center group-hover:from-primary/30 group-hover:via-primary/25 group-hover:to-primary/20 transition-all duration-500 group-hover:scale-110 shadow-lg">
-                <step.icon className="w-12 h-12 text-primary group-hover:scale-110 transition-transform duration-300" />
-              </div>
+          {PROCESS_STEPS.map((step, index) => {
+            const StepIcon = step.icon;
+            return (
+              <div 
+                key={step.id} 
+                className="group relative bg-gradient-to-br from-card via-card/95 to-card/80 rounded-2xl p-6 border border-border shadow-md hover:shadow-2xl transition-all duration-500 hover:scale-[1.05] hover:-translate-y-1"
+              >
+                {/* Step Number Badge */}
+                <div className="absolute -top-3 -left-3 w-10 h-10 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-xl ring-4 ring-background group-hover:scale-110 transition-transform duration-300">
+                  {index + 1}
+                </div>
+                
+                {/* Icon Circle with Lucide Icon */}
+                <div className="w-24 h-24 mx-auto mb-5 bg-gradient-to-br from-primary/20 via-primary/15 to-primary/10 rounded-3xl flex items-center justify-center group-hover:from-primary/30 group-hover:via-primary/25 group-hover:to-primary/20 transition-all duration-500 group-hover:scale-110 shadow-lg">
+                  <StepIcon className="w-12 h-12 text-primary group-hover:scale-110 transition-transform duration-300" />
+                </div>
               
               {/* Content */}
               <div className="text-center space-y-3">
@@ -109,8 +111,9 @@ export const SupplierOrderingProcess: React.FC<SupplierOrderingProcessProps> = (
               
               {/* Glow effect on hover */}
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:to-primary/10 transition-all duration-500 pointer-events-none" />
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
         
         {/* Call to Action Section */}
