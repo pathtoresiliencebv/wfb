@@ -28,8 +28,8 @@ export function VotingButtons({
 }: VotingButtonsProps) {
   const effectiveOrientation = inline ? 'horizontal' : orientation;
   const totalScore = upvotes - downvotes;
-  const sizeClasses = size === 'sm' ? 'h-7 w-7' : 'h-8 w-8';
-  const iconSize = size === 'sm' ? 'h-3 w-3 md:h-3.5 md:w-3.5' : 'h-4 w-4';
+  const sizeClasses = size === 'sm' ? 'h-6 w-6' : 'h-8 w-8';
+  const iconSize = size === 'sm' ? 'h-3 w-3' : 'h-4 w-4';
 
   // Compact inline variant
   if (inline) {
@@ -63,7 +63,8 @@ export function VotingButtons({
         size="icon"
         className={cn(
           sizeClasses,
-          currentVote === 'up' && 'text-success bg-success/10 hover:bg-success/20'
+          'opacity-60 hover:opacity-100 transition-opacity',
+          currentVote === 'up' && 'text-success bg-success/10 hover:bg-success/20 opacity-100'
         )}
         onClick={(e) => {
           e.preventDefault();
@@ -88,7 +89,8 @@ export function VotingButtons({
         size="icon"
         className={cn(
           sizeClasses,
-          currentVote === 'down' && 'text-destructive bg-destructive/10 hover:bg-destructive/20'
+          'opacity-60 hover:opacity-100 transition-opacity',
+          currentVote === 'down' && 'text-destructive bg-destructive/10 hover:bg-destructive/20 opacity-100'
         )}
         onClick={(e) => {
           e.preventDefault();

@@ -23,6 +23,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import DOMPurify from 'dompurify';
 import { cn } from '@/lib/utils';
+import { BadgedText } from '@/lib/badgeParser';
 
 interface TopicData {
   id: string;
@@ -383,17 +384,6 @@ export default function TopicDetail() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 pt-2 pb-6 space-y-4">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => navigate(`/forums/${categoryId}`)}
-        className="gap-1 -ml-2 mb-2 text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" />
-        <span className="text-xs">Terug</span>
-      </Button>
-
       {/* Topic Card */}
       <Card>
         <CardHeader className="border-b">
@@ -451,7 +441,9 @@ export default function TopicDetail() {
         <CardContent className="p-6">
           {/* Titel bovenaan in content */}
           <div className="space-y-6">
-            <h1 className="text-2xl font-bold">{topic.title}</h1>
+            <h1 className="text-xl md:text-2xl font-bold">
+              <BadgedText text={topic.title} />
+            </h1>
             
             <div 
               className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:text-base prose-p:leading-7 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:font-bold prose-strong:text-foreground prose-em:italic prose-ul:list-disc prose-ol:list-decimal prose-li:text-base prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg prose-img:rounded-lg"
