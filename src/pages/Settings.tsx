@@ -14,6 +14,7 @@ import { ArrowLeft, Upload, Shield, Eye, User, FileWarning, AlertTriangle, Clock
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { SettingsBreadcrumb } from '@/components/ui/settings-breadcrumb';
+import { cn } from '@/lib/utils';
 import { SettingsProfileSkeleton, SettingsSecuritySkeleton, SettingsPrivacySkeleton } from '@/components/ui/settings-skeleton';
 import { SecuritySection } from '@/components/settings/SecuritySection';
 import SecurityDashboard from '@/components/settings/SecurityDashboard';
@@ -342,29 +343,44 @@ const Settings = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-1 gap-1 h-auto' : 'grid-cols-3'} bg-muted/50 p-1`}>
+          <TabsList className={cn(
+            "grid w-full bg-muted/50 p-1",
+            isMobile ? "grid-cols-1 gap-1 h-auto" : "grid-cols-3"
+          )}>
             <TabsTrigger 
               value="profile" 
-              className={`flex items-center gap-2 transition-all ${isMobile ? 'justify-start px-4 py-3' : 'justify-center'} data-[state=active]:bg-background data-[state=active]:shadow-sm`}
+              className={cn(
+                "flex items-center gap-2 transition-all min-h-[44px]",
+                isMobile ? "justify-start px-4 py-3" : "justify-center",
+                "data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:scale-[1.02]"
+              )}
             >
               <User className="h-4 w-4" />
-              <span>Profiel</span>
+              <span className="font-medium">Profiel</span>
               {tabBadges.profile}
             </TabsTrigger>
             <TabsTrigger 
               value="security" 
-              className={`flex items-center gap-2 transition-all ${isMobile ? 'justify-start px-4 py-3' : 'justify-center'} data-[state=active]:bg-background data-[state=active]:shadow-sm`}
+              className={cn(
+                "flex items-center gap-2 transition-all min-h-[44px]",
+                isMobile ? "justify-start px-4 py-3" : "justify-center",
+                "data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:scale-[1.02]"
+              )}
             >
               <Shield className="h-4 w-4" />
-              <span>Beveiliging</span>
+              <span className="font-medium">Beveiliging</span>
               {tabBadges.security}
             </TabsTrigger>
             <TabsTrigger 
               value="privacy" 
-              className={`flex items-center gap-2 transition-all ${isMobile ? 'justify-start px-4 py-3' : 'justify-center'} data-[state=active]:bg-background data-[state=active]:shadow-sm`}
+              className={cn(
+                "flex items-center gap-2 transition-all min-h-[44px]",
+                isMobile ? "justify-start px-4 py-3" : "justify-center",
+                "data-[state=active]:bg-background data-[state=active]:shadow-md data-[state=active]:scale-[1.02]"
+              )}
             >
               <Eye className="h-4 w-4" />
-              <span>Privacy</span>
+              <span className="font-medium">Privacy</span>
               {tabBadges.privacy}
             </TabsTrigger>
           </TabsList>
@@ -375,13 +391,15 @@ const Settings = () => {
             ) : (
               <>
                 {/* Profile Picture Section */}
-                <Card className="transition-all hover:shadow-md border-border/50">
-                  <CardHeader className="space-y-1">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <User className="h-5 w-5 text-primary" />
+                <Card className="transition-all hover:shadow-lg border-border/50 hover:border-primary/20">
+                  <CardHeader className="space-y-1 bg-gradient-to-r from-primary/5 to-transparent">
+                    <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <User className="h-5 w-5 text-primary" />
+                      </div>
                       Profielfoto
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-sm">
                       Upload een nieuwe profielfoto om je profiel te personaliseren
                     </CardDescription>
                   </CardHeader>
@@ -419,13 +437,15 @@ const Settings = () => {
                 </Card>
 
                 {/* Profile Information Section */}
-                <Card className="transition-all hover:shadow-md border-border/50">
-                  <CardHeader className="space-y-1">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <User className="h-5 w-5 text-primary" />
+                <Card className="transition-all hover:shadow-lg border-border/50 hover:border-primary/20">
+                  <CardHeader className="space-y-1 bg-gradient-to-r from-primary/5 to-transparent">
+                    <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <User className="h-5 w-5 text-primary" />
+                      </div>
                       Profiel informatie
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-sm">
                       Bewerk je profiel gegevens en laat anderen weten wie je bent
                     </CardDescription>
                   </CardHeader>
@@ -469,7 +489,7 @@ const Settings = () => {
                      <Button 
                       onClick={handleSaveProfile} 
                       disabled={isSaving}
-                      className="transition-all hover:scale-105 h-11 sm:h-10"
+                      className="transition-all hover:scale-105 min-h-[44px] font-medium shadow-sm"
                     >
                       {isSaving ? 'Opslaan...' : 'Profiel opslaan'}
                     </Button>

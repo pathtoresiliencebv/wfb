@@ -8,10 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { InlineRichTextEditor } from '@/components/rich-text/InlineRichTextEditor';
 import { VotingButtons } from '@/components/interactive/VotingButtons';
 import { PostActions } from '@/components/interactive/PostActions';
 import { FloatingActionButton } from '@/components/mobile/FloatingActionButton';
+import { ModernReplyBox } from '@/components/forum/ModernReplyBox';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useVoting } from '@/hooks/useVoting';
@@ -601,47 +601,19 @@ export default function TopicDetail() {
 
       {/* Reply Form */}
       {isAuthenticated ? (
-        <Card id="reply-form">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Avatar className="h-10 w-10">
-                <AvatarFallback>
-                  {getInitials(user?.email || 'U')}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-medium text-sm">Schrijf een reactie</p>
-                <p className="text-xs text-muted-foreground">{user?.email}</p>
-              </div>
-            </div>
-
-            <InlineRichTextEditor
-              value={replyContent}
-              onChange={setReplyContent}
-              placeholder="Deel je gedachten..."
-            />
-
-            <div className="flex justify-end gap-2 mt-4">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => setReplyContent('')}
-                disabled={isReplying || !replyContent.trim()}
-              >
-                <X className="h-4 w-4 mr-1" />
-                Annuleren
-              </Button>
-              <Button 
-                size="sm"
-                onClick={handleReply} 
-                disabled={isReplying || !replyContent.trim()}
-              >
-                <Send className="h-4 w-4 mr-1" />
-                Reageren
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <div id="reply-form">
+          <ModernReplyBox
+            user={{
+              username: user?.email,
+              avatar_url: undefined,
+              email: user?.email,
+            }}
+            replyContent={replyContent}
+            onReplyContentChange={setReplyContent}
+            onSubmit={handleReply}
+            isSubmitting={isReplying}
+          />
+        </div>
       ) : (
         <Card>
           <CardContent className="p-6 text-center">

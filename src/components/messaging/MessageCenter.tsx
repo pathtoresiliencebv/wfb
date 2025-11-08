@@ -231,13 +231,87 @@ export function MessageCenter() {
     return (
       <Card className="h-[calc(100vh-4rem)]">
         <CardContent className="p-4 md:p-6 flex items-center justify-center h-full">
-          <div className="animate-pulse">
-            <div className="h-6 md:h-8 bg-muted rounded w-32 md:w-48 mb-4" />
-            <div className="space-y-3">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="h-12 md:h-16 bg-muted rounded" />
-              ))}
+          <div className="text-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <div className="space-y-2">
+              <p className="text-foreground font-medium">Berichten laden...</p>
+              <p className="text-sm text-muted-foreground">Even geduld aub</p>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Empty state when no conversations exist
+  if (!conversations || conversations.length === 0) {
+    return (
+      <Card className="h-[calc(100vh-4rem)]">
+        <CardContent className="p-6 flex items-center justify-center h-full">
+          <div className="text-center space-y-4 max-w-md mx-auto">
+            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+              <MessageCircle className="h-8 w-8 text-primary" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Nog geen gesprekken</h3>
+              <p className="text-sm text-muted-foreground">
+                Begin een nieuw gesprek door een gebruiker te selecteren
+              </p>
+            </div>
+            <Dialog open={isNewConversationOpen} onOpenChange={setIsNewConversationOpen}>
+              <DialogTrigger asChild>
+                <Button className="mt-4">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nieuw gesprek starten
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Nieuw gesprek</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                  <div className="space-y-2">
+                    <Input
+                      placeholder="Zoek gebruikers..."
+                      value={searchUsers}
+                      onChange={(e) => setSearchUsers(e.target.value)}
+                      className="min-h-[44px]"
+                    />
+                  </div>
+                  <ScrollArea className="h-[300px] rounded-md border p-2">
+                    {availableUsers?.map(u => (
+                      <div
+                        key={u.user_id}
+                        className="flex items-center gap-3 p-3 hover:bg-muted rounded-lg cursor-pointer transition-colors"
+                        onClick={() => setSelectedUserId(u.user_id)}
+                      >
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={u.avatar_url} />
+                          <AvatarFallback>{u.username.slice(0, 2).toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1">
+                            <p className="font-medium text-sm truncate">{u.display_name || u.username}</p>
+                            {u.is_verified && <VerifiedBadge className="h-3.5 w-3.5" />}
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">@{u.username}</p>
+                        </div>
+                        {selectedUserId === u.user_id && (
+                          <Badge variant="secondary">Geselecteerd</Badge>
+                        )}
+                      </div>
+                    ))}
+                  </ScrollArea>
+                  <Button
+                    onClick={handleCreateConversation}
+                    disabled={!selectedUserId || isCreatingConversation}
+                    className="w-full min-h-[44px]"
+                  >
+                    {isCreatingConversation ? 'Starten...' : 'Gesprek starten'}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </CardContent>
       </Card>
