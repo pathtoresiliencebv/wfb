@@ -32,11 +32,18 @@ export const SupplierAboutSection: React.FC<SupplierAboutSectionProps> = ({
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Description */}
-        {description && (
-          <div className="text-muted-foreground leading-relaxed">
+        <div className="text-muted-foreground leading-relaxed">
+          {description ? (
             <BadgedText text={description} />
-          </div>
-        )}
+          ) : (
+            <p>
+              {supplierName} is een ervaren leverancier van hoogwaardige cannabis producten in België. 
+              Met jarenlange ervaring en een focus op kwaliteit en klanttevredenheid, bieden wij een breed assortiment 
+              aan premium producten. Onze expertise ligt in het selecteren van de beste strains en het verzorgen van 
+              discrete, betrouwbare leveringen aan onze klanten.
+            </p>
+          )}
+        </div>
 
         {/* Key Stats Grid */}
         <div className="grid md:grid-cols-3 gap-4 mt-6">

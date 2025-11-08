@@ -1,15 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, ArrowRight, Package, MessageSquare } from 'lucide-react';
-
-// Import real icon images
-import afspraakIcon from '@/assets/icons/afspraak.webp';
-import zoekIcon from '@/assets/icons/zoeken.webp';
-import akkoordIcon from '@/assets/icons/akkoord.webp';
-import betalenIcon from '@/assets/icons/betalen.webp';
-import bezorgenIcon from '@/assets/icons/bezorgen.webp';
-import ontvangenIcon from '@/assets/icons/ontvangen.webp';
+import { ShoppingCart, ArrowRight, Package, MessageSquare, MessageCircle, Search, CheckCircle, CreditCard, Truck, Gift, LucideIcon } from 'lucide-react';
 
 interface SupplierOrderingProcessProps {
   supplierName: string;
@@ -17,40 +9,45 @@ interface SupplierOrderingProcessProps {
   descriptions: Record<string, string>;
 }
 
-const PROCESS_STEPS = [
+const PROCESS_STEPS: Array<{
+  id: string;
+  icon: LucideIcon;
+  title: string;
+  defaultDescription: string;
+}> = [
   {
     id: 'contact',
-    image: afspraakIcon,
+    icon: MessageCircle,
     title: 'Maak Contact',
     defaultDescription: 'Neem contact op via Wire of Telegram voor je bestelling'
   },
   {
     id: 'menu',
-    image: zoekIcon,
+    icon: Search,
     title: 'Zoek & Selecteer',
     defaultDescription: 'Bekijk onze menukaart en kies je favoriete producten'
   },
   {
     id: 'order',
-    image: akkoordIcon,
+    icon: CheckCircle,
     title: 'Bevestig Bestelling',
     defaultDescription: 'Bevestig je bestelling en leveringsdetails'
   },
   {
     id: 'address',
-    image: betalenIcon,
+    icon: CreditCard,
     title: 'Betaal & Adres',
     defaultDescription: 'Betaal via onze veilige betaalmethoden en geef je adres door'
   },
   {
     id: 'delivery',
-    image: bezorgenIcon,
+    icon: Truck,
     title: 'Discrete Bezorging',
     defaultDescription: 'Je bestelling wordt discreet aan huis bezorgd'
   },
   {
     id: 'complete',
-    image: ontvangenIcon,
+    icon: Gift,
     title: 'Ontvang & Geniet',
     defaultDescription: 'Geniet van je hoogwaardige producten'
   }
@@ -86,13 +83,9 @@ export const SupplierOrderingProcess: React.FC<SupplierOrderingProcessProps> = (
                 {index + 1}
               </div>
               
-              {/* Icon Circle with Real Image */}
-              <div className="w-20 h-20 mx-auto mb-5 bg-gradient-to-br from-primary/20 via-primary/15 to-primary/10 rounded-3xl flex items-center justify-center group-hover:from-primary/30 group-hover:via-primary/25 group-hover:to-primary/20 transition-all duration-500 group-hover:scale-110 shadow-lg p-3">
-                <img 
-                  src={step.image} 
-                  alt={step.title}
-                  className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300"
-                />
+              {/* Icon Circle with Lucide Icon */}
+              <div className="w-24 h-24 mx-auto mb-5 bg-gradient-to-br from-primary/20 via-primary/15 to-primary/10 rounded-3xl flex items-center justify-center group-hover:from-primary/30 group-hover:via-primary/25 group-hover:to-primary/20 transition-all duration-500 group-hover:scale-110 shadow-lg">
+                <step.icon className="w-12 h-12 text-primary group-hover:scale-110 transition-transform duration-300" />
               </div>
               
               {/* Content */}

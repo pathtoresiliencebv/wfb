@@ -15,6 +15,7 @@ import { SupplierAboutSection } from '@/components/supplier/SupplierAboutSection
 import { SupplierUSPSection } from '@/components/supplier/SupplierUSPSection';
 import { SupplierOrderingProcess } from '@/components/supplier/SupplierOrderingProcess';
 import { SupplierContactSection } from '@/components/supplier/SupplierContactSection';
+import { SupplierFAQ } from '@/components/supplier/SupplierFAQ';
 import { Loader2, MessageCircle, Send, Star, MapPin, Clock, Package } from 'lucide-react';
 import { SupplierProfile } from '@/types/supplier';
 import { BadgedText } from '@/lib/badgeParser';
@@ -180,6 +181,17 @@ export default function SupplierPublic() {
               supplierName={supplier.business_name}
               productName={supplier.product_name || 'producten'}
               descriptions={(supplier.ordering_process_descriptions as Record<string, string>) || {}}
+            />
+          </div>
+
+          <Separator className="my-12" />
+
+          {/* FAQ Section */}
+          <div className="bg-gradient-to-r from-card/50 to-card/30 rounded-2xl p-8 border border-border/50 shadow-lg">
+            <SupplierFAQ 
+              supplierName={supplier.business_name}
+              deliveryAreas={supplier.delivery_areas}
+              minimumOrder={supplier.minimum_order}
             />
           </div>
 
