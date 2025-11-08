@@ -5,7 +5,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Lightbulb, Eye, MessageSquare } from 'lucide-react';
 import { useSuggestedTopics } from '@/hooks/useSuggestedTopics';
 import { Skeleton } from '@/components/ui/skeleton';
-import { motion } from 'framer-motion';
 import { BadgedText } from '@/lib/badgeParser';
 
 export function SuggestedTopics() {
@@ -45,11 +44,7 @@ export function SuggestedTopics() {
             to={`/forums/${topic.categories.slug}/topic/${topic.id}`}
             className="block"
           >
-            <motion.div
-              className="p-3 -mx-3 rounded-lg transition-all duration-200 hover:bg-muted/50 active:bg-muted active:scale-[0.98] cursor-pointer min-h-[80px]"
-              whileHover={{ x: 4 }}
-              whileTap={{ scale: 0.98 }}
-            >
+            <div className="p-3 -mx-3 rounded-lg transition-all duration-200 hover:bg-muted/50 active:bg-muted active:scale-[0.98] cursor-pointer min-h-[80px]">
               <div className="space-y-2">
                 <h4 className="font-medium leading-snug line-clamp-2 group-hover:text-primary transition-colors">
                   <BadgedText text={topic.title} />
@@ -84,7 +79,7 @@ export function SuggestedTopics() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </Link>
         ))}
       </CardContent>

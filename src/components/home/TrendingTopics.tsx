@@ -8,10 +8,6 @@ import { useTrendingTopics } from '@/hooks/useTrendingTopics';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
-import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
-import { fadeInUp, staggerContainer } from '@/lib/animations';
-import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { BadgedText } from '@/lib/badgeParser';
 
 interface TrendingTopicsProps {
@@ -21,11 +17,6 @@ interface TrendingTopicsProps {
 
 export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsProps) {
   const { topics, isLoading } = useTrendingTopics(limit);
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.2 });
-  const prefersReducedMotion = useReducedMotion();
-
-  const MotionDiv = prefersReducedMotion ? 'div' : motion.div;
 
   if (isLoading) {
     return (
@@ -47,57 +38,20 @@ export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsP
   return (
     <div className="space-y-6">
       {showHeader && (
-        <MotionDiv 
-          className="flex items-center gap-2"
-          {...(!prefersReducedMotion && {
-            initial: { opacity: 0, x: -30 },
-            animate: isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 },
-            transition: { duration: 0.5 }
-          })}
-        >
-          <motion.div
-            {...(!prefersReducedMotion && {
-              animate: { 
-                scale: [1, 1.2, 1],
-                rotate: [0, 5, -5, 0]
-              },
-              transition: { 
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }
-            })}
-          >
-            <TrendingUp className="h-6 w-6 text-primary" />
-          </motion.div>
+        <div className="flex items-center gap-2">
+          <TrendingUp className="h-6 w-6 text-primary" />
           <h2 className="text-3xl font-bold">
             <span className="bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
               Trending
             </span>
             <span className="text-foreground"> Topics</span>
           </h2>
-        </MotionDiv>
+        </div>
       )}
       
-      <motion.div 
-        ref={ref}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-        {...(!prefersReducedMotion && {
-          variants: staggerContainer,
-          initial: "hidden",
-          animate: isInView ? "visible" : "hidden"
-        })}
-      >
-        {topics.map((topic, index) => (
-          <MotionDiv
-            key={topic.id}
-            {...(!prefersReducedMotion && {
-              variants: fadeInUp,
-              transition: { delay: index * 0.08 },
-              whileHover: { scale: 1.02 },
-              whileTap: { scale: 0.98 }
-            })}
-          >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {topics.map((topic) => (
+          <div key={topic.id}>
             <Link to={`/forums/${topic.categories.slug}/topic/${topic.id}`} className="block">
               <Card className="group relative overflow-hidden transition-all duration-300 border-2 border-border/50 hover:border-primary/50 hover:shadow-2xl cursor-pointer active:scale-[0.98] min-h-[160px]">
                 {/* Groene gradient overlay - verschijnt bij hover */}
@@ -157,18 +111,11 @@ export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsP
                 </div>
               </Card>
             </Link>
-          </MotionDiv>
+          </div>
         ))}
-      </motion.div>
+      </div>
       
-      <MotionDiv 
-        className="text-center"
-        {...(!prefersReducedMotion && {
-          initial: { opacity: 0, y: 20 },
-          animate: isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 },
-          transition: { delay: 0.5 }
-        })}
-      >
+      <div className="text-center">
         <Button
           asChild
           size="lg"
@@ -182,7 +129,7 @@ export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsP
             Bekijk alle topics
           </Link>
         </Button>
-      </MotionDiv>
+      </div>
     </div>
   );
 }
