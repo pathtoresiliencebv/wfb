@@ -331,32 +331,42 @@ export const SupplierProfile: React.FC = () => {
                 </div>
 
                 {/* Ordering Process */}
-                <div className="bg-primary/5 rounded-lg p-6">
-                  <h4 className="font-semibold mb-4 text-center">Bestelproces</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                    <div className="text-center">
-                      <img src="/src/assets/icons/zoeken.webp" alt="Zoeken" className="h-12 w-12 mx-auto mb-2" />
-                      <div className="text-sm font-medium">1. Kiezen</div>
+                <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10 rounded-xl p-6 border border-primary/20">
+                  <h4 className="font-semibold mb-6 text-center text-lg">Bestelproces</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+                    <div className="text-center group">
+                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <Package className="h-8 w-8 text-primary" />
+                      </div>
+                      <div className="text-sm font-semibold mb-1">1. Kiezen</div>
                       <div className="text-xs text-muted-foreground">Selecteer producten</div>
                     </div>
-                    <div className="text-center">
-                      <img src="/src/assets/icons/afspraak.webp" alt="Contact" className="h-12 w-12 mx-auto mb-2" />
-                      <div className="text-sm font-medium">2. Contact</div>
+                    <div className="text-center group">
+                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <MessageCircle className="h-8 w-8 text-primary" />
+                      </div>
+                      <div className="text-sm font-semibold mb-1">2. Contact</div>
                       <div className="text-xs text-muted-foreground">Neem contact op</div>
                     </div>
-                    <div className="text-center">
-                      <img src="/src/assets/icons/akkoord.webp" alt="Akkoord" className="h-12 w-12 mx-auto mb-2" />
-                      <div className="text-sm font-medium">3. Akkoord</div>
+                    <div className="text-center group">
+                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <CheckCircle className="h-8 w-8 text-primary" />
+                      </div>
+                      <div className="text-sm font-semibold mb-1">3. Akkoord</div>
                       <div className="text-xs text-muted-foreground">Bevestig bestelling</div>
                     </div>
-                    <div className="text-center">
-                      <img src="/src/assets/icons/betalen.webp" alt="Betalen" className="h-12 w-12 mx-auto mb-2" />
-                      <div className="text-sm font-medium">4. Betalen</div>
+                    <div className="text-center group">
+                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <Euro className="h-8 w-8 text-primary" />
+                      </div>
+                      <div className="text-sm font-semibold mb-1">4. Betalen</div>
                       <div className="text-xs text-muted-foreground">Veilige betaling</div>
                     </div>
-                    <div className="text-center">
-                      <img src="/src/assets/icons/bezorgen.webp" alt="Bezorgen" className="h-12 w-12 mx-auto mb-2" />
-                      <div className="text-sm font-medium">5. Ontvangen</div>
+                    <div className="text-center group">
+                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <Truck className="h-8 w-8 text-primary" />
+                      </div>
+                      <div className="text-sm font-semibold mb-1">5. Ontvangen</div>
                       <div className="text-xs text-muted-foreground">Discrete levering</div>
                     </div>
                   </div>
