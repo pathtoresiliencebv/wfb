@@ -7,17 +7,12 @@ import { TopSuppliers } from '@/components/supplier/TopSuppliers';
 import { RecentPosts } from './RecentPosts';
 import { TrendingTopics } from './TrendingTopics';
 import { SuggestedTopics } from './SuggestedTopics';
-import { FloatingActionButton } from '@/components/mobile/FloatingActionButton';
 import { PullToRefresh } from '@/components/mobile/PullToRefresh';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { FeedLoadingSkeleton } from '@/components/loading/OptimizedLoadingStates';
 import { PresentationTab } from './PresentationTab';
 
 export function AuthenticatedHome() {
-  const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleRefresh = async () => {
@@ -61,30 +56,6 @@ export function AuthenticatedHome() {
         </>
       )}
 
-      {/* Mobile FAB for creating topics */}
-      {isMobile && (
-        <FloatingActionButton onClick={() => setShowCreateDialog(true)} />
-      )}
-
-      {/* Mobile Create Topic Dialog */}
-      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Nieuw Topic</DialogTitle>
-          </DialogHeader>
-          <div className="p-4">
-            <Button 
-              onClick={() => {
-                navigate('/create-topic');
-                setShowCreateDialog(false);
-              }}
-              className="w-full"
-            >
-              Ga naar Topic Creator
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

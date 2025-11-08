@@ -9,8 +9,6 @@ import { PostCard } from './PostCard';
 import { RecentActivity } from './RecentActivity';
 import { OnlineMembers } from './OnlineMembers';
 import { PullToRefresh } from '@/components/mobile/PullToRefresh';
-import { FloatingActionButton } from '@/components/mobile/FloatingActionButton';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { FeedTopSuppliers } from '@/components/supplier/FeedTopSuppliers';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,7 +30,6 @@ export function FeedPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   // Fetch recent topics with React Query
   const { data: recentTopics = [], isLoading: topicsLoading } = useQuery({
@@ -123,7 +120,7 @@ export function FeedPage() {
   }
 
   const mainContent = (
-    <div className="space-y-6">
+    <div className={isMobile ? "space-y-4" : "space-y-6"}>
       {/* Welcome Card - only show on desktop */}
       {!isMobile && (
         <Card className="cannabis-gradient text-primary-foreground">
@@ -194,7 +191,9 @@ export function FeedPage() {
       {/* Main Content with Pull to Refresh on Mobile */}
       {isMobile ? (
         <PullToRefresh onRefresh={handleRefresh}>
-          {mainContent}
+          <div className="space-y-4 pt-2">
+            {mainContent}
+          </div>
         </PullToRefresh>
       ) : (
         <>
@@ -210,30 +209,6 @@ export function FeedPage() {
         </>
       )}
 
-      {/* Mobile FAB for creating topics */}
-      {isMobile && (
-        <FloatingActionButton onClick={() => setShowCreateDialog(true)} />
-      )}
-
-      {/* Mobile Create Topic Dialog */}
-      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Nieuw Topic</DialogTitle>
-          </DialogHeader>
-          <div className="p-4">
-            <Button 
-              onClick={() => {
-                navigate('/create-topic');
-                setShowCreateDialog(false);
-              }}
-              className="w-full"
-            >
-              Ga naar Topic Creator
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
