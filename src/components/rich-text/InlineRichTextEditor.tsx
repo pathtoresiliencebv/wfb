@@ -54,6 +54,7 @@ export function InlineRichTextEditor({
   const [isFocused, setIsFocused] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
+  const [isToolbarCollapsed, setIsToolbarCollapsed] = useState(true);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
@@ -266,9 +267,24 @@ export function InlineRichTextEditor({
   });
 
   return (
-    <div className={cn("space-y-2 border rounded-md", className)}>
+    <div className={cn("space-y-2 border rounded-md relative", className)}>
+      {/* Toggle button when collapsed and not focused */}
+      {isToolbarCollapsed && !isFocused && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsToolbarCollapsed(false)}
+          className="absolute top-2 right-2 z-10 h-8 text-xs"
+        >
+          <MoreHorizontal className="h-4 w-4 mr-1" />
+          Opmaak
+        </Button>
+      )}
+      
       {/* Top Toolbar - Formatting */}
-      <div className="flex items-center gap-1 p-2 bg-muted/50 rounded-t-md border-b flex-wrap">
+      {(isFocused || !isToolbarCollapsed) && (
+        <div className="flex items-center gap-1 p-2 bg-muted/50 rounded-t-md border-b flex-wrap">
         {isMobile ? (
           <>
             {/* Essential buttons for mobile */}
@@ -401,7 +417,8 @@ export function InlineRichTextEditor({
             ))}
           </>
         )}
-      </div>
+        </div>
+      )}
 
       {/* Emoji Picker */}
       {showEmojiPicker && (
@@ -416,7 +433,10 @@ export function InlineRichTextEditor({
           ref={textareaRef}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          onFocus={() => setIsFocused(true)}
+          onFocus={() => {
+            setIsFocused(true);
+            setIsToolbarCollapsed(false);
+          }}
           onBlur={() => setIsFocused(false)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}

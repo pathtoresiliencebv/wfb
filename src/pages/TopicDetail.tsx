@@ -382,16 +382,16 @@ export default function TopicDetail() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 space-y-4">
+    <div className="max-w-6xl mx-auto px-4 pt-2 pb-6 space-y-4">
       {/* Back Button */}
       <Button
         variant="ghost"
         size="sm"
         onClick={() => navigate(`/forums/${categoryId}`)}
-        className="gap-2"
+        className="gap-1 -ml-2 mb-2 text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="h-4 w-4" />
-        Terug
+        <ArrowLeft className="h-3.5 w-3.5" />
+        <span className="text-xs">Terug</span>
       </Button>
 
       {/* Topic Card */}
@@ -404,24 +404,30 @@ export default function TopicDetail() {
             </Avatar>
             
             <div className="flex-1">
-              {/* User info met voting buttons naast datum */}
+              {/* User info met datum en voting in 1 rij */}
               <div className="flex items-center gap-3 flex-wrap">
-                <span className={cn("font-semibold", getRoleColor(topic.profiles.role))}>
+                {/* Element 1: Username */}
+                <span className={cn("font-semibold text-sm", getRoleColor(topic.profiles.role))}>
                   {topic.profiles.username}
                 </span>
-                <span className="text-sm text-muted-foreground">
+                
+                {/* Element 2: Datum */}
+                <span className="text-xs text-muted-foreground">
                   {formatDate(topic.created_at)}
                 </span>
-                {/* Voting buttons naast datum */}
-                <VotingButtons
-                  itemId={topic.id}
-                  upvotes={topicVotes.upvotes}
-                  downvotes={topicVotes.downvotes}
-                  currentVote={topicVotes.currentVote}
-                  onVote={(voteType) => handleVote(topic.id, voteType, 'topic')}
-                  orientation="horizontal"
-                  size="sm"
-                />
+                
+                {/* Element 3: Voting buttons */}
+                <div className="ml-auto">
+                  <VotingButtons
+                    itemId={topic.id}
+                    upvotes={topicVotes.upvotes}
+                    downvotes={topicVotes.downvotes}
+                    currentVote={topicVotes.currentVote}
+                    onVote={(voteType) => handleVote(topic.id, voteType, 'topic')}
+                    orientation="horizontal"
+                    size="sm"
+                  />
+                </div>
               </div>
               
               {/* Tags */}

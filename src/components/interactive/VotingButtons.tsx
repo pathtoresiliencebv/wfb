@@ -29,7 +29,7 @@ export function VotingButtons({
   const effectiveOrientation = inline ? 'horizontal' : orientation;
   const totalScore = upvotes - downvotes;
   const sizeClasses = size === 'sm' ? 'h-7 w-7' : 'h-8 w-8';
-  const iconSize = size === 'sm' ? 'h-3 w-3' : 'h-4 w-4';
+  const iconSize = size === 'sm' ? 'h-3 w-3 md:h-3.5 md:w-3.5' : 'h-4 w-4';
 
   // Compact inline variant
   if (inline) {
@@ -47,7 +47,7 @@ export function VotingButtons({
             : 'text-muted-foreground hover:text-foreground hover:bg-accent'
         )}
       >
-        <ArrowUp className="h-3 w-3" />
+        <ArrowUp className="h-3 w-3 md:h-3.5 md:w-3.5" />
         <span>{totalScore}</span>
       </button>
     );
