@@ -319,61 +319,62 @@ export default function TopicDetail() {
 
   return (
     <div className="space-y-3 px-2 sm:px-0">
-      {/* Back Button - Altijd bovenaan */}
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        onClick={() => navigate(`/forums/${categoryId}`)} 
-        className="self-start min-h-[44px]"
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        <span className="hidden sm:inline">Terug naar {topic.categories?.name}</span>
-        <span className="sm:hidden">Terug</span>
-      </Button>
+      {/* Compact Header: Back Button (20%) + Breadcrumb+Title (80%) */}
+      <div className="flex gap-2 items-start">
+        {/* Back Button - Only Icon (20%) */}
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => navigate(`/forums/${categoryId}`)} 
+          className="flex-shrink-0 min-h-[44px] w-10 p-0"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
 
-      {/* Breadcrumb + Titel Section */}
-      <div className="space-y-3">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
-          <Link 
-            to={`/forums/${categoryId}`} 
-            className="hover:text-primary"
-          >
-            {topic.categories?.name}
-          </Link>
-          <span>•</span>
-          <span>Topic</span>
-        </div>
-
-        {/* Titel */}
-        <h1 className="font-heading text-xl sm:text-2xl md:text-3xl font-bold break-words">
-          <BadgedText text={topic.title} />
-        </h1>
-
-        {/* Tags */}
-        {topic.topic_tags && topic.topic_tags.length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap">
-            {topic.topic_tags.map(({ tags }) => (
-              <Badge 
-                key={tags.id} 
-                variant="outline" 
-                className="text-xs"
-                style={{ borderColor: tags.color, color: tags.color }}
-              >
-                {tags.name}
-              </Badge>
-            ))}
+        {/* Breadcrumb + Title (80%) */}
+        <div className="flex-1 min-w-0 space-y-1">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Link 
+              to={`/forums/${categoryId}`} 
+              className="hover:text-primary"
+            >
+              {topic.categories?.name}
+            </Link>
+            <span>•</span>
+            <span>Topic</span>
           </div>
-        )}
+
+          {/* Titel */}
+          <h1 className="font-heading text-lg sm:text-xl md:text-2xl font-bold break-words leading-tight">
+            <BadgedText text={topic.title} />
+          </h1>
+
+          {/* Tags */}
+          {topic.topic_tags && topic.topic_tags.length > 0 && (
+            <div className="flex items-center gap-1.5 flex-wrap mt-1">
+              {topic.topic_tags.map(({ tags }) => (
+                <Badge 
+                  key={tags.id} 
+                  variant="outline" 
+                  className="text-xs py-0 h-5"
+                  style={{ borderColor: tags.color, color: tags.color }}
+                >
+                  {tags.name}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Original Post */}
       <Card className="mx-0">
-        <CardHeader className="p-4 border-b">
+        <CardHeader className="p-3 border-b">
           {/* Author info */}
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <Avatar className="h-10 w-10 flex-shrink-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <Avatar className="h-9 w-9 flex-shrink-0">
                 {topic.profiles?.avatar_url ? (
                   <img src={topic.profiles.avatar_url} alt={topic.profiles.username} />
                 ) : (
@@ -383,14 +384,21 @@ export default function TopicDetail() {
                 )}
               </Avatar>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="font-medium text-sm">{topic.profiles?.username}</span>
+                  
+                  {/* Verified Badge */}
+                  {(topic.profiles?.role === 'moderator' || topic.profiles?.role === 'expert' || topic.profiles?.role === 'supplier') && (
+                    <svg className="h-3.5 w-3.5 text-primary fill-current" viewBox="0 0 20 20">
+                      <path d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                    </svg>
+                  )}
                   
                   {/* Follow & Bookmark icons next to username */}
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="h-6 w-6 p-0"
+                    className="h-5 w-5 p-0 ml-1"
                     title="Volg gebruiker"
                   >
                     <UserPlus className="h-3 w-3" />
@@ -399,25 +407,25 @@ export default function TopicDetail() {
                     variant="ghost" 
                     size="sm" 
                     onClick={() => toggleBookmark(topic.id, 'topic')}
-                    className="h-6 w-6 p-0"
+                    className="h-5 w-5 p-0"
                     title="Markeer topic"
                   >
                     <Bookmark className={`h-3 w-3 ${isBookmarked(topic.id) ? 'fill-current' : ''}`} />
                   </Button>
                   
                   {topic.profiles?.role === 'moderator' && (
-                    <Badge variant="secondary" className="text-xs">MOD</Badge>
+                    <Badge variant="secondary" className="text-xs py-0 h-5">MOD</Badge>
                   )}
                   {topic.profiles?.role === 'expert' && (
-                    <Badge variant="default" className="text-xs">EXPERT</Badge>
+                    <Badge variant="default" className="text-xs py-0 h-5">EXPERT</Badge>
                   )}
                   {topic.profiles?.role === 'supplier' && (
-                    <Badge variant="outline" className="text-xs border-purple-500 text-purple-500">LEVERANCIER</Badge>
+                    <Badge variant="outline" className="text-xs py-0 h-5 border-purple-500 text-purple-500">LEVERANCIER</Badge>
                   )}
                 </div>
                 
                 {/* Stats instead of date */}
-                <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                <div className="flex items-center gap-2.5 text-xs text-muted-foreground mt-0.5">
                   <span className="flex items-center gap-1">
                     <Eye className="h-3 w-3" />
                     {topic.view_count}
@@ -434,26 +442,26 @@ export default function TopicDetail() {
               </div>
             </div>
             <ReportModal itemId={topic.id} itemType="topic">
-              <Button variant="ghost" size="sm" className="min-h-[44px] p-2">
+              <Button variant="ghost" size="sm" className="min-h-[44px] p-1.5">
                 <Flag className="h-4 w-4" />
               </Button>
             </ReportModal>
           </div>
         </CardHeader>
         
-        <CardContent className="p-4">
+        <CardContent className="p-3">
           {/* Content met inline voting voor mobiel */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
             {/* Content */}
             <div 
-              className="prose prose-sm max-w-none text-sm"
+              className="prose prose-sm max-w-none text-sm leading-relaxed"
               dangerouslySetInnerHTML={{ 
                 __html: parseBadges(topic.content.replace(/\n/g, '<br>')) 
               }}
             />
             
             {/* Voting en actions ONDER content op mobiel */}
-            <div className="flex items-center justify-between border-t pt-4">
+            <div className="flex items-center justify-between border-t pt-3">
               <div className="flex items-center">
                 {topicVoteData && (
                   <VotingButtons
@@ -485,10 +493,10 @@ export default function TopicDetail() {
         
         {replies.map((reply) => (
           <Card key={reply.id}>
-            <CardHeader className="p-4 border-b">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <Avatar className="h-10 w-10 flex-shrink-0">
+            <CardHeader className="p-3 border-b">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <Avatar className="h-9 w-9 flex-shrink-0">
                     {reply.profiles?.avatar_url ? (
                       <img src={reply.profiles.avatar_url} alt={reply.profiles.username} />
                     ) : (
@@ -498,29 +506,36 @@ export default function TopicDetail() {
                     )}
                   </Avatar>
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="font-medium text-sm">{reply.profiles?.username}</span>
+                      
+                      {/* Verified Badge */}
+                      {(reply.profiles?.role === 'moderator' || reply.profiles?.role === 'expert' || reply.profiles?.role === 'supplier') && (
+                        <svg className="h-3.5 w-3.5 text-primary fill-current" viewBox="0 0 20 20">
+                          <path d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                        </svg>
+                      )}
                       
                       {/* Follow & Bookmark icons */}
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="h-6 w-6 p-0"
+                        className="h-5 w-5 p-0 ml-1"
                         title="Volg gebruiker"
                       >
                         <UserPlus className="h-3 w-3" />
                       </Button>
                       
                       {reply.profiles?.role === 'expert' && (
-                        <Badge variant="default" className="text-xs">EXPERT</Badge>
+                        <Badge variant="default" className="text-xs py-0 h-5">EXPERT</Badge>
                       )}
                       {reply.profiles?.role === 'supplier' && (
-                        <Badge variant="outline" className="text-xs border-purple-500 text-purple-500">LEVERANCIER</Badge>
+                        <Badge variant="outline" className="text-xs py-0 h-5 border-purple-500 text-purple-500">LEVERANCIER</Badge>
                       )}
                     </div>
                     
                     {/* Stats under username */}
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                    <div className="flex items-center gap-2.5 text-xs text-muted-foreground mt-0.5">
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
                         {formatDateTime(reply.created_at)}
@@ -532,15 +547,15 @@ export default function TopicDetail() {
                   </div>
                 </div>
                 <ReportModal itemId={reply.id} itemType="reply">
-                  <Button variant="ghost" size="sm" className="min-h-[44px] p-2">
+                  <Button variant="ghost" size="sm" className="min-h-[44px] p-1.5">
                     <Flag className="h-4 w-4" />
                   </Button>
                 </ReportModal>
               </div>
             </CardHeader>
-            <CardContent className="p-4">
+            <CardContent className="p-3">
               {/* Content with avatar on left (social media style) */}
-              <div className="flex gap-3">
+              <div className="flex gap-2.5">
                 <Avatar className="h-8 w-8 flex-shrink-0">
                   {reply.profiles?.avatar_url ? (
                     <img src={reply.profiles.avatar_url} alt={reply.profiles.username} />
@@ -551,17 +566,17 @@ export default function TopicDetail() {
                   )}
                 </Avatar>
                 
-                <div className="flex-1 flex flex-col gap-4">
+                <div className="flex-1 flex flex-col gap-3">
                   {/* Reply Content */}
                   <div 
-                    className="text-sm prose prose-sm max-w-none"
+                    className="text-sm prose prose-sm max-w-none leading-relaxed"
                     dangerouslySetInnerHTML={{ 
                       __html: parseBadges(reply.content.replace(/\n/g, '<br>'))
                     }}
                   />
                   
                   {/* Voting */}
-                  <div className="flex items-center border-t pt-3">
+                  <div className="flex items-center border-t pt-2.5">
                     {getVoteData(reply.id) && (
                       <VotingButtons
                         itemId={reply.id}
