@@ -45,20 +45,21 @@ export function AuthenticatedHome() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6">
+    <div className={isMobile ? "space-y-4" : "grid grid-cols-1 lg:grid-cols-4 gap-4 md:gap-6"}>
       {isMobile ? (
         <PullToRefresh onRefresh={handleRefresh}>
           {mainContent}
         </PullToRefresh>
       ) : (
-        mainContent
+        <>
+          {mainContent}
+          {/* Sidebar - Recente Activiteit + Presentatie */}
+          <div className="space-y-4 md:space-y-6 lg:sticky lg:top-24">
+            <RecentActivity />
+            <PresentationTab />
+          </div>
+        </>
       )}
-
-      {/* Sidebar - Recente Activiteit + Presentatie */}
-      <div className={`space-y-4 md:space-y-6 ${isMobile ? 'hidden' : 'lg:sticky lg:top-24'}`}>
-        <RecentActivity />
-        <PresentationTab />
-      </div>
 
       {/* Mobile FAB for creating topics */}
       {isMobile && (

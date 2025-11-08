@@ -122,7 +122,7 @@ export function FeedPage() {
   }
 
   const mainContent = (
-    <div className="lg:col-span-3 space-y-6">
+    <div className="space-y-6">
       {/* Welcome Card - only show on desktop */}
       {!isMobile && (
         <Card className="cannabis-gradient text-primary-foreground">
@@ -148,7 +148,7 @@ export function FeedPage() {
       <FeedTopSuppliers />
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {stats.map((stat) => (
           <Card key={stat.title}>
             <CardContent className="flex items-center p-6">
@@ -189,22 +189,23 @@ export function FeedPage() {
   );
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div className={isMobile ? "space-y-6" : "grid grid-cols-1 lg:grid-cols-4 gap-6"}>
       {/* Main Content with Pull to Refresh on Mobile */}
       {isMobile ? (
         <PullToRefresh onRefresh={handleRefresh}>
           {mainContent}
         </PullToRefresh>
       ) : (
-        mainContent
+        <>
+          {mainContent}
+          {/* Sidebar - Hidden on mobile */}
+          <div className="space-y-6">
+            <RecentActivity />
+            <Separator />
+            <OnlineMembers />
+          </div>
+        </>
       )}
-
-      {/* Sidebar - Hidden on mobile */}
-      <div className={`space-y-6 ${isMobile ? 'hidden' : ''}`}>
-        <RecentActivity />
-        <Separator />
-        <OnlineMembers />
-      </div>
 
       {/* Mobile FAB for creating topics */}
       {isMobile && (

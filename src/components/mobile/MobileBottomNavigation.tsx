@@ -68,6 +68,14 @@ export function MobileBottomNavigation() {
       { icon: MessageSquare, label: 'Messages', path: '/messages' },
       { icon: Lock, label: 'Admin', path: '/admin' },
     ];
+  } else if (user.role === 'supplier') {
+    // Supplier menu: Replace Settings with Supplier (keep 4 buttons)
+    menuButtons = [
+      { icon: Home, label: 'Feed', path: '/' },
+      { icon: Users, label: 'Forums', path: '/forums' },
+      { icon: MessageSquare, label: 'Messages', path: '/messages' },
+      { icon: Store, label: 'Supplier', path: '/supplier-dashboard' },
+    ];
   } else {
     // Standard user/moderator menu
     menuButtons = [
@@ -76,11 +84,6 @@ export function MobileBottomNavigation() {
       { icon: MessageSquare, label: 'Messages', path: '/messages' },
       { icon: User, label: 'Settings', path: '/settings' },
     ];
-
-    // Add supplier button if user is a supplier
-    if (user.role === 'supplier') {
-      menuButtons.push({ icon: Store, label: 'Supplier', path: '/supplier-dashboard' });
-    }
   }
 
   const isActive = (path: string) => {
