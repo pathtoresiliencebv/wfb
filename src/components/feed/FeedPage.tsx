@@ -43,7 +43,7 @@ export function FeedPage() {
         .select(`
           *,
           profiles!topics_author_id_fkey(username, avatar_url, is_verified),
-          categories(name)
+          categories(name, slug)
         `)
         .order('created_at', { ascending: false })
         .limit(5);
@@ -53,13 +53,14 @@ export function FeedPage() {
       return topics?.map(topic => ({
         id: topic.id,
         title: topic.title,
-        content: topic.content,
+        content: topic.content || '',
         author: {
           username: topic.profiles?.username || 'Anonymous',
           avatar: topic.profiles?.avatar_url || null,
           isVerified: topic.profiles?.is_verified || false,
         },
         category: topic.categories?.name || 'General',
+        categorySlug: topic.categories?.slug || '',
         createdAt: new Date(topic.created_at),
         votes: 0,
         replyCount: topic.reply_count || 0,
@@ -197,7 +198,9 @@ export function FeedPage() {
         </PullToRefresh>
       ) : (
         <>
-          {mainContent}
+          <div className="lg:col-span-3">
+            {mainContent}
+          </div>
           {/* Sidebar - Hidden on mobile */}
           <div className="space-y-6">
             <RecentActivity />
