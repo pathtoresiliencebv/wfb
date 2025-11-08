@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowLeft, MessageSquare, Eye, Clock, Share2, Flag, Bookmark, 
-  Bell, BellOff, Quote, X, Send, ChevronRight
+  Bell, BellOff, Quote, X, Send
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -352,21 +352,16 @@ export default function TopicDetail() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-4">
-      {/* Breadcrumbs */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Link to="/forums" className="hover:text-foreground transition-colors">
-          Forums
-        </Link>
-        <ChevronRight className="h-4 w-4" />
-        <Link 
-          to={`/forums/${categoryId}`}
-          className="hover:text-foreground transition-colors"
-        >
-          {topic.categories.name}
-        </Link>
-        <ChevronRight className="h-4 w-4" />
-        <span className="text-foreground">{topic.title}</span>
-      </div>
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate(`/forums/${categoryId}`)}
+        className="gap-2"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Terug
+      </Button>
 
       {/* Topic Card */}
       <Card>
@@ -386,7 +381,7 @@ export default function TopicDetail() {
                   {formatDate(topic.created_at)}
                 </span>
               </div>
-              <h1 className="text-2xl font-bold mt-2">{topic.title}</h1>
+              <h1 className="text-xl font-bold mt-2">{topic.title}</h1>
               
               {/* Tags */}
               {topic.topic_tags.length > 0 && (
