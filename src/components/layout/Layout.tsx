@@ -3,6 +3,7 @@ import React from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { Header } from './Header';
+import { ModernHeader } from './ModernHeader';
 import { EmailVerificationBanner } from '@/components/auth/EmailVerificationBanner';
 import { MobileBottomNavigation } from '@/components/mobile/MobileBottomNavigation';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -19,7 +20,8 @@ export function Layout({ children }: LayoutProps) {
   const { user } = useAuth();
   const isHome = location.pathname === '/';
   const isMessages = location.pathname === '/messages';
-  const showAppHeader = !(isHome && !user);
+  const showModernHeader = isHome && !user;
+  const showAppHeader = !(isHome && !user) && !showModernHeader;
   const showSidebar = !(isHome && !user);
   
   // Full-screen pages without container padding
@@ -35,7 +37,7 @@ export function Layout({ children }: LayoutProps) {
         {showSidebar && <AppSidebar />}
         
         <div className="flex-1 flex flex-col min-w-0">
-          {showAppHeader && <Header />}
+          {showModernHeader ? <ModernHeader /> : showAppHeader && <Header />}
           <EmailVerificationBanner />
           
           <main className={`flex-1 ${isMessages ? 'flex flex-col' : 'overflow-auto'}`}>
