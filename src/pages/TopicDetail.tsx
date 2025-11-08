@@ -404,12 +404,15 @@ export default function TopicDetail() {
             </Avatar>
             
             <div className="flex-1">
-              {/* User info met voting buttons */}
+              {/* User info met voting buttons naast datum */}
               <div className="flex items-center gap-3 flex-wrap">
                 <span className={cn("font-semibold", getRoleColor(topic.profiles.role))}>
                   {topic.profiles.username}
                 </span>
-                {/* Voting buttons naast naam */}
+                <span className="text-sm text-muted-foreground">
+                  {formatDate(topic.created_at)}
+                </span>
+                {/* Voting buttons naast datum */}
                 <VotingButtons
                   itemId={topic.id}
                   upvotes={topicVotes.upvotes}
@@ -419,9 +422,6 @@ export default function TopicDetail() {
                   orientation="horizontal"
                   size="sm"
                 />
-                <span className="text-sm text-muted-foreground">
-                  {formatDate(topic.created_at)}
-                </span>
               </div>
               
               {/* Tags */}
