@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Settings, LogOut, Wifi, WifiOff, Share2 } from 'lucide-react';
+import { User, Settings, LogOut, Wifi, WifiOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,24 +40,6 @@ export function Header() {
   };
   const getUserInitials = (username: string) => {
     return username.slice(0, 2).toUpperCase();
-  };
-
-  const handleShare = async () => {
-    const url = window.location.href;
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Wiet Forum België',
-          url: url
-        });
-      } catch (err) {
-        console.log('Share cancelled or failed');
-      }
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(url);
-      // Could add a toast notification here
-    }
   };
   return <header className="sticky top-0 z-[100] w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 md:h-16 items-center px-2 sm:px-4">
@@ -106,19 +88,6 @@ export function Header() {
               {isOnline ? "Online" : "Offline"}
             </span>
           </div>
-          
-          {/* Share Button */}
-          {user && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handleShare}
-              className="h-8 w-8 md:h-9 md:w-9 p-0"
-              title="Deel pagina"
-            >
-              <Share2 className="h-4 w-4" />
-            </Button>
-          )}
           
           <ThemeToggle />
           
