@@ -11,6 +11,7 @@ import { SupplierHeader } from '@/components/supplier/SupplierHeader';
 import { SupplierStats } from '@/components/supplier/SupplierStats';
 import { SupplierFeatures } from '@/components/supplier/SupplierFeatures';
 import { SupplierMenu } from '@/components/supplier/SupplierMenu';
+import { SupplierAboutSection } from '@/components/supplier/SupplierAboutSection';
 import { SupplierUSPSection } from '@/components/supplier/SupplierUSPSection';
 import { SupplierOrderingProcess } from '@/components/supplier/SupplierOrderingProcess';
 import { SupplierContactSection } from '@/components/supplier/SupplierContactSection';
@@ -132,6 +133,18 @@ export default function SupplierPublic() {
           {/* Enhanced Stats Section */}
           <div className="bg-gradient-to-r from-card/50 to-card/30 rounded-2xl p-8 border border-border/50 shadow-lg">
             <SupplierStats supplier={supplier} />
+          </div>
+
+          <Separator className="my-12" />
+
+          {/* About Section */}
+          <div className="bg-gradient-to-l from-card/50 to-card/30 rounded-2xl p-8 border border-border/50 shadow-lg">
+            <SupplierAboutSection 
+              supplierName={supplier.business_name}
+              description={supplier.description}
+              stats={supplier.stats}
+              deliveryAreas={supplier.delivery_areas}
+            />
           </div>
 
           <Separator className="my-12" />

@@ -2,15 +2,14 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, ArrowRight, Package, MessageSquare } from 'lucide-react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faComments, 
-  faSearchPlus, 
-  faClipboardCheck, 
-  faMoneyBillWave, 
-  faShippingFast, 
-  faBoxOpen 
-} from '@fortawesome/free-solid-svg-icons';
+
+// Import real icon images
+import afspraakIcon from '@/assets/icons/afspraak.webp';
+import zoekIcon from '@/assets/icons/zoeken.webp';
+import akkoordIcon from '@/assets/icons/akkoord.webp';
+import betalenIcon from '@/assets/icons/betalen.webp';
+import bezorgenIcon from '@/assets/icons/bezorgen.webp';
+import ontvangenIcon from '@/assets/icons/ontvangen.webp';
 
 interface SupplierOrderingProcessProps {
   supplierName: string;
@@ -21,37 +20,37 @@ interface SupplierOrderingProcessProps {
 const PROCESS_STEPS = [
   {
     id: 'contact',
-    faIcon: faComments,
+    image: afspraakIcon,
     title: 'Maak Contact',
     defaultDescription: 'Neem contact op via Wire of Telegram voor je bestelling'
   },
   {
     id: 'menu',
-    faIcon: faSearchPlus,
+    image: zoekIcon,
     title: 'Zoek & Selecteer',
     defaultDescription: 'Bekijk onze menukaart en kies je favoriete producten'
   },
   {
     id: 'order',
-    faIcon: faClipboardCheck,
+    image: akkoordIcon,
     title: 'Bevestig Bestelling',
     defaultDescription: 'Bevestig je bestelling en leveringsdetails'
   },
   {
     id: 'address',
-    faIcon: faMoneyBillWave,
+    image: betalenIcon,
     title: 'Betaal & Adres',
     defaultDescription: 'Betaal via onze veilige betaalmethoden en geef je adres door'
   },
   {
     id: 'delivery',
-    faIcon: faShippingFast,
+    image: bezorgenIcon,
     title: 'Discrete Bezorging',
     defaultDescription: 'Je bestelling wordt discreet aan huis bezorgd'
   },
   {
     id: 'complete',
-    faIcon: faBoxOpen,
+    image: ontvangenIcon,
     title: 'Ontvang & Geniet',
     defaultDescription: 'Geniet van je hoogwaardige producten'
   }
@@ -87,11 +86,12 @@ export const SupplierOrderingProcess: React.FC<SupplierOrderingProcessProps> = (
                 {index + 1}
               </div>
               
-              {/* Icon Circle with Gradient */}
-              <div className="w-20 h-20 mx-auto mb-5 bg-gradient-to-br from-primary/20 via-primary/15 to-primary/10 rounded-3xl flex items-center justify-center group-hover:from-primary/30 group-hover:via-primary/25 group-hover:to-primary/20 transition-all duration-500 group-hover:rotate-6 group-hover:scale-110 shadow-lg">
-                <FontAwesomeIcon 
-                  icon={step.faIcon} 
-                  className="text-primary text-3xl group-hover:scale-110 transition-transform duration-300"
+              {/* Icon Circle with Real Image */}
+              <div className="w-20 h-20 mx-auto mb-5 bg-gradient-to-br from-primary/20 via-primary/15 to-primary/10 rounded-3xl flex items-center justify-center group-hover:from-primary/30 group-hover:via-primary/25 group-hover:to-primary/20 transition-all duration-500 group-hover:scale-110 shadow-lg p-3">
+                <img 
+                  src={step.image} 
+                  alt={step.title}
+                  className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300"
                 />
               </div>
               
