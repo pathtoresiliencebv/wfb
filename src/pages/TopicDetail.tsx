@@ -304,6 +304,37 @@ export default function TopicDetail() {
     }, 500);
   };
 
+  // Helper functions for content processing
+  const preserveLineBreaks = (content: string): string => {
+    return content.replace(/\n/g, '<br>');
+  };
+
+  const parseTagsInContent = (content: string): string => {
+    let processed = content;
+    
+    // Match [tag] pattern - primary colored badge
+    processed = processed.replace(/\[([^\]]+)\]/g, (match, tagText) => {
+      return `<span class="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20 mx-1">${tagText}</span>`;
+    });
+    
+    // Match {tag} pattern - success colored badge
+    processed = processed.replace(/\{([^\}]+)\}/g, (match, tagText) => {
+      return `<span class="inline-flex items-center rounded-md bg-green-500/10 px-2 py-1 text-xs font-medium text-green-600 dark:text-green-400 ring-1 ring-inset ring-green-500/20 mx-1">${tagText}</span>`;
+    });
+    
+    return processed;
+  };
+
+  const processContent = (content: string): string => {
+    // Step 1: Preserve line breaks
+    let processed = preserveLineBreaks(content);
+    
+    // Step 2: Parse tags
+    processed = parseTagsInContent(processed);
+    
+    return processed;
+  };
+
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
@@ -381,7 +412,7 @@ export default function TopicDetail() {
                   {formatDate(topic.created_at)}
                 </span>
               </div>
-              <h1 className="text-xl font-bold mt-2">{topic.title}</h1>
+              <h1 className="text-lg font-bold mt-2">{topic.title}</h1>
               
               {/* Tags */}
               {topic.topic_tags.length > 0 && (
@@ -420,7 +451,7 @@ export default function TopicDetail() {
               <div 
                 className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:text-base prose-p:leading-7 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:font-bold prose-strong:text-foreground prose-em:italic prose-ul:list-disc prose-ol:list-decimal prose-li:text-base prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg prose-img:rounded-lg"
                 dangerouslySetInnerHTML={{ 
-                  __html: DOMPurify.sanitize(topic.content, {
+                  __html: DOMPurify.sanitize(processContent(topic.content), {
                     ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'a', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'div', 'span'],
                     ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'style', 'target', 'rel']
                   })
@@ -513,7 +544,7 @@ export default function TopicDetail() {
                   <div 
                     className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-bold prose-p:text-sm prose-p:leading-6 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:font-bold prose-strong:text-foreground prose-em:italic prose-ul:list-disc prose-ol:list-decimal prose-li:text-sm prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-muted prose-pre:p-3 prose-pre:rounded-lg prose-img:rounded-lg"
                     dangerouslySetInnerHTML={{ 
-                      __html: DOMPurify.sanitize(reply.content, {
+                      __html: DOMPurify.sanitize(processContent(reply.content), {
                         ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'a', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'div', 'span'],
                         ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'style', 'target', 'rel']
                       })
