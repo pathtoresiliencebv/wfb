@@ -404,7 +404,12 @@ export default function TopicDetail() {
     );
   }
 
-  const topicVotes = getVoteData(topic.id);
+  const topicVotes = getVoteData(topic.id) || {
+    id: topic.id,
+    currentVote: null,
+    upvotes: 0,
+    downvotes: 0
+  };
   const sortedReplies = sortReplies(replies);
 
   return (
