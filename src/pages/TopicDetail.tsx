@@ -404,32 +404,25 @@ export default function TopicDetail() {
             </Avatar>
             
             <div className="flex-1">
-              {/* User info met volg-knop */}
-              <div className="flex items-center gap-2 flex-wrap">
+              {/* User info met voting buttons */}
+              <div className="flex items-center gap-3 flex-wrap">
                 <span className={cn("font-semibold", getRoleColor(topic.profiles.role))}>
                   {topic.profiles.username}
                 </span>
-                {/* Volg-knop naast naam */}
-                <Button 
-                  variant="ghost" 
+                {/* Voting buttons naast naam */}
+                <VotingButtons
+                  itemId={topic.id}
+                  upvotes={topicVotes.upvotes}
+                  downvotes={topicVotes.downvotes}
+                  currentVote={topicVotes.currentVote}
+                  onVote={(voteType) => handleVote(topic.id, voteType, 'topic')}
+                  orientation="horizontal"
                   size="sm"
-                  onClick={() => toggleSubscription(topicId || '')}
-                  className={cn("h-7 px-2", isSubscribed && "text-primary")}
-                  title={isSubscribed ? 'Volgend' : 'Volg dit topic'}
-                >
-                  {isSubscribed ? (
-                    <Bell className="h-3.5 w-3.5 fill-current" />
-                  ) : (
-                    <BellOff className="h-3.5 w-3.5" />
-                  )}
-                </Button>
+                />
                 <span className="text-sm text-muted-foreground">
                   {formatDate(topic.created_at)}
                 </span>
               </div>
-              
-              {/* Titel */}
-              <h1 className="text-lg font-bold mt-2">{topic.title}</h1>
               
               {/* Tags */}
               {topic.topic_tags.length > 0 && (
@@ -450,8 +443,10 @@ export default function TopicDetail() {
         </CardHeader>
 
         <CardContent className="p-6">
-          {/* Content zonder voting buttons */}
+          {/* Titel bovenaan in content */}
           <div className="space-y-6">
+            <h1 className="text-2xl font-bold">{topic.title}</h1>
+            
             <div 
               className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:text-base prose-p:leading-7 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:font-bold prose-strong:text-foreground prose-em:italic prose-ul:list-disc prose-ol:list-decimal prose-li:text-base prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg prose-img:rounded-lg"
               dangerouslySetInnerHTML={{ 
@@ -461,18 +456,6 @@ export default function TopicDetail() {
                 })
               }}
             />
-
-            {/* Voting buttons onderaan content */}
-            <div className="flex justify-center pt-4 border-t">
-              <VotingButtons
-                itemId={topic.id}
-                upvotes={topicVotes.upvotes}
-                downvotes={topicVotes.downvotes}
-                currentVote={topicVotes.currentVote}
-                onVote={(voteType) => handleVote(topic.id, voteType, 'topic')}
-                orientation="horizontal"
-              />
-            </div>
 
             {/* Stats links & Actions rechts */}
             <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t">
