@@ -290,14 +290,24 @@ export default function Members() {
                           </div>
                         )}
                         
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full"
-                          onClick={() => navigate(`/profile/${member.user_id}`)}
-                        >
-                          Bekijk Profiel
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1"
+                            onClick={() => navigate(`/profile/${member.user_id}`)}
+                          >
+                            Bekijk Profiel
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="h-9 w-9 p-0"
+                            onClick={() => navigate('/messages')}
+                          >
+                            <MessageCircle className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </CardContent>

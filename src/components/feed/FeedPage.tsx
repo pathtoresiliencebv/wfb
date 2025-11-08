@@ -142,8 +142,8 @@ export function FeedPage() {
         </Card>
       )}
 
-      {/* Top Leveranciers - Always visible */}
-      <FeedTopSuppliers />
+      {/* Top Leveranciers - Desktop only */}
+      {!isMobile && <FeedTopSuppliers />}
 
       {/* Stats */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

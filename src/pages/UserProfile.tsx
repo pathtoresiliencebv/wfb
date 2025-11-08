@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, MapPin, Award, MessageSquare, Eye, Clock, Edit, Mail, Shield, Loader2 } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Award, MessageSquare, Eye, Clock, Edit, MessageCircle, Shield, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -166,8 +166,8 @@ export default function UserProfile() {
                     Bewerk Profiel
                   </Button>
                 ) : (
-                  <Button variant="outline" size="sm">
-                    <Mail className="h-4 w-4 mr-2" />
+                  <Button variant="outline" size="sm" onClick={() => navigate('/messages')}>
+                    <MessageCircle className="h-4 w-4 mr-2" />
                     Stuur Bericht
                   </Button>
                 )}

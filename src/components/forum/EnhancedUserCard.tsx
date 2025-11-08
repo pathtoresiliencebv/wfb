@@ -187,6 +187,11 @@ export function EnhancedUserCard({
                       {supplierProfile.product_name || 'Producten'}
                     </Link>
                   </Button>
+                  <Button asChild size="sm" variant="ghost" className="h-7 w-7 p-0">
+                    <Link to="/messages">
+                      <MessageCircle className="h-4 w-4" />
+                    </Link>
+                  </Button>
                 </div>
               </div>
             )}
