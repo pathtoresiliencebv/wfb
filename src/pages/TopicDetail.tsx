@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, MessageSquare, Eye, Clock, User, Flag, Bookmark, Bell, BellOff, Tag, UserPlus, Share2 } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Eye, Clock, User, Flag, Bookmark, Bell, BellOff, Tag, UserPlus, Share2, Quote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,8 @@ import { ReportModal } from '@/components/moderation/ReportModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { BadgedText, parseBadges } from '@/lib/badgeParser';
+import { FloatingActionButton } from '@/components/mobile/FloatingActionButton';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TopicData {
   id: string;
@@ -71,6 +73,8 @@ export default function TopicDetail() {
   const [isReplying, setIsReplying] = useState(false);
   const [loading, setLoading] = useState(true);
   const [replyVotes, setReplyVotes] = useState<Record<string, any>>({});
+  const [showFAB, setShowFAB] = useState(true);
+  const isMobile = useIsMobile();
 
 
   // Initialize voting data for topic and replies
@@ -192,6 +196,27 @@ export default function TopicDetail() {
     fetchTopicAndReplies();
   }, [topicId, navigate, toast]);
 
+  // Scroll listener for FAB visibility
+  useEffect(() => {
+    if (!isMobile) return;
+    
+    const handleScroll = () => {
+      const replyForm = document.getElementById('reply-form');
+      if (!replyForm) return;
+      
+      const rect = replyForm.getBoundingClientRect();
+      const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+      
+      // Hide FAB when reply form is visible
+      setShowFAB(!isVisible);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Check initial state
+    
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isMobile]);
+
   const handleReply = async () => {
     if (!isAuthenticated || !user) {
       toast({
@@ -289,6 +314,31 @@ export default function TopicDetail() {
       case 'admin': return 'bg-red-500';
       default: return 'bg-gray-500';
     }
+  };
+
+  const handleQuoteReply = (reply: ReplyData) => {
+    // Format the quote
+    const username = reply.profiles?.username || 'Anonymous';
+    const cleanContent = reply.content
+      .replace(/<[^>]*>/g, '') // Strip HTML tags
+      .split('\n')
+      .map(line => `> ${line}`)
+      .join('\n');
+    
+    const quoteText = `**${username} schreef:**\n${cleanContent}\n\n`;
+    
+    // Add quote to reply content
+    setReplyContent(prev => prev ? `${prev}\n\n${quoteText}` : quoteText);
+    
+    // Scroll to reply form
+    const replyForm = document.getElementById('reply-form');
+    replyForm?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Focus on textarea after short delay (for smooth scroll)
+    setTimeout(() => {
+      const textarea = replyForm?.querySelector('textarea');
+      textarea?.focus();
+    }, 500);
   };
 
   if (loading) {
@@ -546,11 +596,25 @@ export default function TopicDetail() {
                     </div>
                   </div>
                 </div>
-                <ReportModal itemId={reply.id} itemType="reply">
-                  <Button variant="ghost" size="sm" className="min-h-[44px] p-1.5">
-                    <Flag className="h-4 w-4" />
+                <div className="flex items-center gap-1">
+                  {/* Quote Button */}
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleQuoteReply(reply)}
+                    className="min-h-[44px] p-1.5"
+                    title="Citeer reactie"
+                  >
+                    <Quote className="h-4 w-4" />
                   </Button>
-                </ReportModal>
+                  
+                  {/* Report Button */}
+                  <ReportModal itemId={reply.id} itemType="reply">
+                    <Button variant="ghost" size="sm" className="min-h-[44px] p-1.5">
+                      <Flag className="h-4 w-4" />
+                    </Button>
+                  </ReportModal>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="p-3">
@@ -597,7 +661,7 @@ export default function TopicDetail() {
 
       {/* Reply Form - Always allow replies unless topic is deleted */}
       {isAuthenticated ? (
-        <Card className="mx-0">
+        <Card className="mx-0" id="reply-form">
           <CardHeader className="p-4">
             <h4 className="font-medium text-base">Reageer op dit topic</h4>
           </CardHeader>
@@ -639,6 +703,23 @@ export default function TopicDetail() {
             </Button>
           </CardContent>
         </Card>
+      )}
+
+      {/* Floating Action Button for mobile */}
+      {isMobile && isAuthenticated && showFAB && (
+        <FloatingActionButton
+          onClick={() => {
+            const replyForm = document.getElementById('reply-form');
+            replyForm?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+              const textarea = replyForm?.querySelector('textarea');
+              textarea?.focus();
+            }, 500);
+          }}
+          icon={<MessageSquare className="h-6 w-6" />}
+          size="md"
+          className="bottom-20"
+        />
       )}
     </div>
   );
