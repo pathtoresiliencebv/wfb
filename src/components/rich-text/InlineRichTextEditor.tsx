@@ -1,22 +1,12 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useState, useRef, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
-import { ImageUpload } from '@/components/ui/image-upload';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
-import { 
-  Bold, 
-  Italic, 
-  Underline, 
-  Link, 
-  List, 
-  ListOrdered, 
-  Image,
-  Smile,
-} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Bold, Italic, Link as LinkIcon, List, Image as ImageIcon, Smile, Paperclip } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import DOMPurify from 'dompurify';
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
+import { useImageUpload } from '@/hooks/useImageUpload';
+import { ImageUpload } from '@/components/ui/image-upload';
 
 interface InlineRichTextEditorProps {
   value: string;
@@ -30,156 +20,133 @@ interface InlineRichTextEditorProps {
 export function InlineRichTextEditor({
   value,
   onChange,
-  placeholder = "Schrijf je bericht...",
-  minHeight = 200,
-  maxHeight = 500,
-  className,
+  placeholder = 'Schrijf je bericht...',
+  minHeight = 120,
+  maxHeight,
+  className
 }: InlineRichTextEditorProps) {
-  const [showImageUpload, setShowImageUpload] = useState(false);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const isMobile = useIsMobile();
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showImageUpload, setShowImageUpload] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
+  // Insert text or apply formatting at cursor position
   const insertText = (before: string, after: string = '') => {
-    if (!textareaRef.current) return;
-
     const textarea = textareaRef.current;
+    if (!textarea) return;
+
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const selectedText = value.substring(start, end);
-    
     const newText = value.substring(0, start) + before + selectedText + after + value.substring(end);
+    
     onChange(newText);
-
+    
+    // Restore focus and cursor position
     setTimeout(() => {
       textarea.focus();
-      textarea.setSelectionRange(start + before.length, end + before.length);
+      const newCursorPos = start + before.length + selectedText.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
     }, 0);
   };
 
+  // Handle emoji selection
   const handleEmojiClick = (emojiData: EmojiClickData) => {
-    if (!textareaRef.current) return;
-
-    const textarea = textareaRef.current;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    
-    const newText = value.substring(0, start) + emojiData.emoji + value.substring(end);
-    onChange(newText);
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + emojiData.emoji.length, start + emojiData.emoji.length);
-    }, 0);
-
+    insertText(emojiData.emoji);
     setShowEmojiPicker(false);
   };
 
-  const handleImageUploaded = useCallback((imageUrl: string) => {
-    const imageMarkdown = `![Afbeelding](${imageUrl})`;
-    insertText(imageMarkdown);
+  // Handle image upload
+  const handleImageUploaded = async (files: File[]) => {
+    if (files.length === 0) return;
+    // For now, just show the user they can upload, actual implementation would upload to Supabase
     setShowImageUpload(false);
-  }, [value]);
+  };
 
+  // Toolbar buttons
   const toolbarButtons = [
     { icon: Bold, action: () => insertText('**', '**'), title: 'Vet (Ctrl+B)' },
     { icon: Italic, action: () => insertText('*', '*'), title: 'Cursief (Ctrl+I)' },
-    { icon: Underline, action: () => insertText('<u>', '</u>'), title: 'Onderstreept' },
-    { icon: Link, action: () => insertText('[', '](url)'), title: 'Link' },
-    { icon: List, action: () => insertText('- '), title: 'Lijst' },
-    { icon: ListOrdered, action: () => insertText('1. '), title: 'Genummerde lijst' },
-    { icon: Image, action: () => setShowImageUpload(true), title: 'Afbeelding uploaden' },
+    { icon: LinkIcon, action: () => insertText('[', '](url)'), title: 'Link' },
+    { icon: List, action: () => insertText('- ', ''), title: 'Lijst' },
+    { icon: Paperclip, action: () => {}, title: 'Bijlage (komt binnenkort)' },
+    { icon: Smile, action: () => setShowEmojiPicker(!showEmojiPicker), title: 'Emoji' },
+    { icon: ImageIcon, action: () => setShowImageUpload(!showImageUpload), title: 'Afbeelding' },
   ];
 
+  // Render preview with basic formatting
   const renderPreview = (text: string) => {
-    if (!text) return '';
+    let html = text;
     
-    const html = text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/<u>(.*?)<\/u>/g, '<u>$1</u>')
-      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-primary hover:underline">$1</a>')
-      .replace(/^> (.*$)/gim, '<blockquote class="border-l-4 border-muted-foreground pl-4 italic my-2">$1</blockquote>')
-      .replace(/^- (.*$)/gim, '<li class="ml-4">$1</li>')
-      .replace(/^1\. (.*$)/gim, '<li class="ml-4">$1</li>')
-      .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-md my-2" />')
-      .replace(/\n/g, '<br>');
+    // Bold
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     
-    return DOMPurify.sanitize(html, {
-      ALLOWED_TAGS: ['strong', 'em', 'u', 'a', 'blockquote', 'li', 'img', 'br'],
-      ALLOWED_ATTR: ['href', 'class', 'src', 'alt'],
-      ALLOW_DATA_ATTR: false
-    });
+    // Italic
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    
+    // Underline
+    html = html.replace(/_(.+?)_/g, '<u>$1</u>');
+    
+    // Links
+    html = html.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-primary underline" target="_blank" rel="noopener noreferrer">$1</a>');
+    
+    // Blockquotes
+    html = html.replace(/^&gt; (.+)$/gm, '<blockquote class="border-l-4 border-primary pl-4 italic">$1</blockquote>');
+    
+    // Lists
+    html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>)/s, '<ul class="list-disc pl-6">$1</ul>');
+    
+    // Images
+    html = html.replace(/!\[(.+?)\]\((.+?)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-md" />');
+    
+    // Line breaks
+    html = html.replace(/\n/g, '<br>');
+    
+    return html;
   };
 
+  const sanitizedPreview = DOMPurify.sanitize(renderPreview(value), {
+    ALLOWED_TAGS: ['strong', 'em', 'u', 'a', 'br', 'blockquote', 'ul', 'li', 'img'],
+    ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'class']
+  });
+
   return (
-    <div className={cn('space-y-3', className)}>
-      {/* Toolbar */}
-      <div className="flex items-center gap-2 border-b pb-2 overflow-x-auto">
-        <div className="flex items-center gap-1 flex-shrink-0">
-          {toolbarButtons.map((button, index) => (
-            <Button
-              key={index}
-              variant="ghost"
-              size="sm"
-              onClick={button.action}
-              title={button.title}
-              className="min-h-[44px] min-w-[44px] p-0 flex-shrink-0"
-            >
-              <button.icon className="h-4 w-4" />
-            </Button>
-          ))}
-          
-          {/* Emoji Picker */}
-          <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                title="Emoji toevoegen"
-                className="min-h-[44px] min-w-[44px] p-0 flex-shrink-0"
-              >
-                <Smile className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 border-0" align="start">
-              <EmojiPicker
-                onEmojiClick={handleEmojiClick}
-                width={isMobile ? 280 : 350}
-                height={400}
-                searchPlaceHolder="Zoek emoji..."
-                previewConfig={{ showPreview: false }}
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
+    <div className={cn("space-y-2 border rounded-md", className)}>
+      {/* Top Toolbar - Formatting */}
+      <div className="flex items-center gap-1 p-2 bg-muted/50 rounded-t-md border-b flex-wrap">
+        {toolbarButtons.slice(0, 4).map((button) => (
+          <Button
+            key={button.title}
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={button.action}
+            title={button.title}
+            className="h-8 w-8 p-0"
+          >
+            <button.icon className="h-4 w-4" />
+          </Button>
+        ))}
       </div>
 
-      {/* Image Upload */}
-      {showImageUpload && (
-        <div className="border-t pt-3">
-          <ImageUpload
-            onImageUploaded={handleImageUploaded}
-            onImageRemoved={() => setShowImageUpload(false)}
-            showPreview={false}
-          />
-          <div className="flex justify-end gap-2 mt-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setShowImageUpload(false)}
-              className="min-h-[44px]"
-            >
-              Annuleren
-            </Button>
-          </div>
+      {/* Image Upload Section - Commented out for now */}
+      {/* {showImageUpload && (
+        <div className="p-4 border-b bg-muted/20">
+          <p className="text-sm text-muted-foreground">Afbeelding upload komt binnenkort...</p>
+        </div>
+      )} */}
+
+      {/* Emoji Picker */}
+      {showEmojiPicker && (
+        <div className="absolute z-50 mt-2">
+          <EmojiPicker onEmojiClick={handleEmojiClick} />
         </div>
       )}
 
-      {/* Editor + Live Preview overlay */}
+      {/* Editor Area */}
       <div className="relative">
-        {/* Textarea for input */}
         <Textarea
           ref={textareaRef}
           value={value}
@@ -188,31 +155,42 @@ export function InlineRichTextEditor({
           onBlur={() => setIsFocused(false)}
           placeholder={placeholder}
           className={cn(
-            "resize-none font-mono text-sm",
-            value && !isFocused && "opacity-0"
+            "min-h-[120px] resize-none font-mono text-sm border-0 focus-visible:ring-0",
+            "focus-visible:ring-offset-0",
+            minHeight && `min-h-[${minHeight}px]`,
+            maxHeight && `max-h-[${maxHeight}px]`,
+            className
           )}
-          style={{ minHeight, maxHeight }}
         />
         
-        {/* Live Preview overlay - shown when there's content and not focused */}
-        {value && !isFocused && (
+        {!isFocused && value && (
           <div 
-            className="absolute inset-0 p-3 rounded-md border bg-background pointer-events-none overflow-auto"
-            style={{ minHeight, maxHeight }}
-          >
-            <div 
-              className="prose prose-sm max-w-none text-sm"
-              dangerouslySetInnerHTML={{ __html: renderPreview(value) }}
-            />
-          </div>
+            className="absolute inset-0 p-3 pointer-events-none overflow-auto bg-background/50 backdrop-blur-sm rounded-md"
+            dangerouslySetInnerHTML={{ __html: sanitizedPreview }}
+          />
         )}
       </div>
 
-      {/* Help text */}
-      <div className="text-xs text-muted-foreground">
-        <p>
-          **vet** *cursief* [link](url) &gt; citaat • Klik buiten het tekstveld om de preview te zien
-        </p>
+      {/* Bottom Toolbar - Media & Emoji (Right Aligned) */}
+      <div className="flex items-center justify-between p-2 bg-muted/50 rounded-b-md border-t">
+        <div className="text-xs text-muted-foreground">
+          **vet** *cursief* [link](url)
+        </div>
+        <div className="flex items-center gap-1">
+          {toolbarButtons.slice(4).map((button) => (
+            <Button
+              key={button.title}
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={button.action}
+              title={button.title}
+              className="h-8 w-8 p-0"
+            >
+              <button.icon className="h-4 w-4" />
+            </Button>
+          ))}
+        </div>
       </div>
     </div>
   );

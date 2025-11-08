@@ -1,17 +1,16 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { ShoppingCart, ArrowRight, Package, MessageSquare } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  ShoppingCart, 
-  ArrowRight, 
-  Package, 
-  MessageSquare, 
-  Search, 
-  CheckCircle, 
-  CreditCard, 
-  Truck, 
-  Gift 
-} from 'lucide-react';
+  faComments, 
+  faSearchPlus, 
+  faClipboardCheck, 
+  faMoneyBillWave, 
+  faShippingFast, 
+  faBoxOpen 
+} from '@fortawesome/free-solid-svg-icons';
 
 interface SupplierOrderingProcessProps {
   supplierName: string;
@@ -22,37 +21,37 @@ interface SupplierOrderingProcessProps {
 const PROCESS_STEPS = [
   {
     id: 'contact',
-    icon: MessageSquare,
+    faIcon: faComments,
     title: 'Maak Contact',
     defaultDescription: 'Neem contact op via Wire of Telegram voor je bestelling'
   },
   {
     id: 'menu',
-    icon: Search,
+    faIcon: faSearchPlus,
     title: 'Zoek & Selecteer',
     defaultDescription: 'Bekijk onze menukaart en kies je favoriete producten'
   },
   {
     id: 'order',
-    icon: CheckCircle,
+    faIcon: faClipboardCheck,
     title: 'Bevestig Bestelling',
     defaultDescription: 'Bevestig je bestelling en leveringsdetails'
   },
   {
     id: 'address',
-    icon: CreditCard,
+    faIcon: faMoneyBillWave,
     title: 'Betaal & Adres',
     defaultDescription: 'Betaal via onze veilige betaalmethoden en geef je adres door'
   },
   {
     id: 'delivery',
-    icon: Truck,
+    faIcon: faShippingFast,
     title: 'Discrete Bezorging',
     defaultDescription: 'Je bestelling wordt discreet aan huis bezorgd'
   },
   {
     id: 'complete',
-    icon: Gift,
+    faIcon: faBoxOpen,
     title: 'Ontvang & Geniet',
     defaultDescription: 'Geniet van je hoogwaardige producten'
   }
@@ -78,44 +77,47 @@ export const SupplierOrderingProcess: React.FC<SupplierOrderingProcessProps> = (
       <CardContent className="p-8">
         {/* Process Steps Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {PROCESS_STEPS.map((step, index) => {
-            const Icon = step.icon;
-            return (
-              <div 
-                key={step.id} 
-                className="group relative bg-gradient-to-br from-card to-card/80 rounded-xl p-6 border border-border shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
-              >
-                {/* Step Number Badge */}
-                <div className="absolute -top-3 -left-3 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-lg">
-                  {index + 1}
-                </div>
-                
-                {/* Icon Circle */}
-                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-primary/10 to-primary/20 rounded-2xl flex items-center justify-center group-hover:from-primary/20 group-hover:to-primary/30 transition-all duration-300">
-                  <Icon className="h-8 w-8 text-primary" />
-                </div>
-                
-                {/* Content */}
-                <div className="text-center space-y-3">
-                  <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">
-                    {step.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {getDescription(step.id, step.defaultDescription)}
-                  </p>
-                </div>
-                
-                {/* Connection Arrow for Desktop */}
-                {index < PROCESS_STEPS.length - 1 && index % 3 !== 2 && (
-                  <div className="hidden lg:block absolute -right-3 top-1/2 transform -translate-y-1/2 z-10">
-                    <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center">
-                      <ArrowRight className="h-3 w-3 text-primary" />
-                    </div>
-                  </div>
-                )}
+          {PROCESS_STEPS.map((step, index) => (
+            <div 
+              key={step.id} 
+              className="group relative bg-gradient-to-br from-card via-card/95 to-card/80 rounded-2xl p-6 border border-border shadow-md hover:shadow-2xl transition-all duration-500 hover:scale-[1.05] hover:-translate-y-1"
+            >
+              {/* Step Number Badge */}
+              <div className="absolute -top-3 -left-3 w-10 h-10 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold shadow-xl ring-4 ring-background group-hover:scale-110 transition-transform duration-300">
+                {index + 1}
               </div>
-            );
-          })}
+              
+              {/* Icon Circle with Gradient */}
+              <div className="w-20 h-20 mx-auto mb-5 bg-gradient-to-br from-primary/20 via-primary/15 to-primary/10 rounded-3xl flex items-center justify-center group-hover:from-primary/30 group-hover:via-primary/25 group-hover:to-primary/20 transition-all duration-500 group-hover:rotate-6 group-hover:scale-110 shadow-lg">
+                <FontAwesomeIcon 
+                  icon={step.faIcon} 
+                  className="text-primary text-3xl group-hover:scale-110 transition-transform duration-300"
+                />
+              </div>
+              
+              {/* Content */}
+              <div className="text-center space-y-3">
+                <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors duration-300">
+                  {step.title}
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {getDescription(step.id, step.defaultDescription)}
+                </p>
+              </div>
+              
+              {/* Connection Arrow for Desktop */}
+              {index < PROCESS_STEPS.length - 1 && index % 3 !== 2 && (
+                <div className="hidden lg:block absolute -right-4 top-1/2 transform -translate-y-1/2 z-10">
+                  <div className="w-8 h-8 bg-gradient-to-r from-primary/30 to-primary/20 rounded-full flex items-center justify-center shadow-md animate-pulse">
+                    <ArrowRight className="h-4 w-4 text-primary" />
+                  </div>
+                </div>
+              )}
+              
+              {/* Glow effect on hover */}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:to-primary/10 transition-all duration-500 pointer-events-none" />
+            </div>
+          ))}
         </div>
         
         {/* Call to Action Section */}

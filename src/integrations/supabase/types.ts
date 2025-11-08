@@ -1261,6 +1261,7 @@ export type Database = {
           og_image: string | null
           og_title: string | null
           reply_count: number | null
+          share_count: number | null
           title: string
           updated_at: string
           view_count: number | null
@@ -1282,6 +1283,7 @@ export type Database = {
           og_image?: string | null
           og_title?: string | null
           reply_count?: number | null
+          share_count?: number | null
           title: string
           updated_at?: string
           view_count?: number | null
@@ -1303,6 +1305,7 @@ export type Database = {
           og_image?: string | null
           og_title?: string | null
           reply_count?: number | null
+          share_count?: number | null
           title?: string
           updated_at?: string
           view_count?: number | null

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, MessageSquare, Eye, Clock, User, Flag, Bookmark, Bell, BellOff, Tag } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Eye, Clock, User, Flag, Bookmark, Bell, BellOff, Tag, UserPlus, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +24,7 @@ interface TopicData {
   content: string;
   view_count: number;
   reply_count: number;
+  share_count: number;
   is_pinned: boolean;
   is_locked: boolean;
   created_at: string;
@@ -36,6 +37,7 @@ interface TopicData {
     role: string;
     reputation: number;
     created_at: string;
+    avatar_url?: string;
   };
   topic_tags: Array<{
     tags: {
@@ -53,6 +55,8 @@ interface ReplyData {
   profiles: {
     username: string;
     role: string;
+    avatar_url?: string;
+    reputation?: number;
   };
 }
 
@@ -110,6 +114,7 @@ export default function TopicDetail() {
             content,
             view_count,
             reply_count,
+            share_count,
             is_pinned,
             is_locked,
             created_at,
@@ -121,7 +126,8 @@ export default function TopicDetail() {
               username,
               role,
               reputation,
-              created_at
+              created_at,
+              avatar_url
             ),
             topic_tags (
               tags (
@@ -156,7 +162,9 @@ export default function TopicDetail() {
             created_at,
             profiles (
               username,
-              role
+              role,
+              avatar_url,
+              reputation
             )
           `)
           .eq('topic_id', topicId)
@@ -256,9 +264,15 @@ export default function TopicDetail() {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('nl-BE', {
-      year: 'numeric',
-      month: 'long',
       day: 'numeric',
+      month: 'short',
+    });
+  };
+
+  const formatDateTime = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('nl-BE', {
+      day: 'numeric',
+      month: 'short',
       hour: '2-digit',
       minute: '2-digit',
     });
@@ -317,79 +331,26 @@ export default function TopicDetail() {
         <span className="sm:hidden">Terug</span>
       </Button>
 
-      {/* Breadcrumb BOVEN titel */}
-      <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
-        <Link 
-          to={`/forums/${categoryId}`} 
-          className="hover:text-primary"
-        >
-          {topic.categories?.name}
-        </Link>
-        <span>•</span>
-        <span>Topic</span>
-      </div>
-
-      {/* Titel - VOLLEDIG zichtbaar (geen line-clamp) */}
-      <h1 className="font-heading text-xl sm:text-2xl md:text-3xl font-bold break-words">
-        <BadgedText text={topic.title} />
-      </h1>
-
-      {/* Action buttons - Subscribe en Bookmark */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <Button 
-          variant={isSubscribed ? "default" : "outline"} 
-          size="sm"
-          onClick={() => toggleSubscription(topic.id)}
-          disabled={isToggling}
-          className="min-h-[44px]"
-        >
-          {isSubscribed ? (
-            <>
-              <BellOff className="h-4 w-4 mr-2" />
-              Uitschrijven
-            </>
-          ) : (
-            <>
-              <Bell className="h-4 w-4 mr-2" />
-              Volgen
-            </>
-          )}
-        </Button>
-        <Button 
-          variant={isBookmarked(topic.id) ? "default" : "outline"} 
-          size="sm"
-          onClick={() => toggleBookmark(topic.id, 'topic')}
-          className="min-h-[44px]"
-        >
-          <Bookmark className={`h-4 w-4 ${isBookmarked(topic.id) ? 'fill-current' : ''}`} />
-        </Button>
-        <PostActions
-          itemId={topic.id}
-          itemType="topic"
-          isBookmarked={isBookmarked(topic.id)}
-          onBookmark={() => toggleBookmark(topic.id, 'topic')}
-        />
-      </div>
-
-      {/* Topic Stats & Tags - Compacter */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
-          <div className="flex items-center gap-1">
-            <Eye className="h-3 w-3" />
-            <span>{topic.view_count}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <MessageSquare className="h-3 w-3" />
-            <span>{topic.reply_count}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Clock className="h-3 w-3" />
-            <span className="hidden sm:inline">{formatDate(topic.created_at)}</span>
-            <span className="sm:hidden">{new Date(topic.created_at).toLocaleDateString('nl-BE', { day: 'numeric', month: 'numeric' })}</span>
-          </div>
+      {/* Breadcrumb + Titel Section */}
+      <div className="space-y-3">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+          <Link 
+            to={`/forums/${categoryId}`} 
+            className="hover:text-primary"
+          >
+            {topic.categories?.name}
+          </Link>
+          <span>•</span>
+          <span>Topic</span>
         </div>
 
-        {/* Tags - Compacter */}
+        {/* Titel */}
+        <h1 className="font-heading text-xl sm:text-2xl md:text-3xl font-bold break-words">
+          <BadgedText text={topic.title} />
+        </h1>
+
+        {/* Tags */}
         {topic.topic_tags && topic.topic_tags.length > 0 && (
           <div className="flex items-center gap-2 flex-wrap">
             {topic.topic_tags.map(({ tags }) => (
@@ -409,17 +370,41 @@ export default function TopicDetail() {
       {/* Original Post */}
       <Card className="mx-0">
         <CardHeader className="p-4 border-b">
-          {/* Author info BOVEN content */}
+          {/* Author info */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <Avatar className="h-10 w-10 flex-shrink-0">
-                <AvatarFallback className={getRoleColor(topic.profiles?.role || 'user')}>
-                  {getUserInitials(topic.profiles?.username || 'Anonymous')}
-                </AvatarFallback>
+                {topic.profiles?.avatar_url ? (
+                  <img src={topic.profiles.avatar_url} alt={topic.profiles.username} />
+                ) : (
+                  <AvatarFallback className={getRoleColor(topic.profiles?.role || 'user')}>
+                    {getUserInitials(topic.profiles?.username || 'Anonymous')}
+                  </AvatarFallback>
+                )}
               </Avatar>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-medium text-sm">{topic.profiles?.username}</span>
+                  
+                  {/* Follow & Bookmark icons next to username */}
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-6 w-6 p-0"
+                    title="Volg gebruiker"
+                  >
+                    <UserPlus className="h-3 w-3" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => toggleBookmark(topic.id, 'topic')}
+                    className="h-6 w-6 p-0"
+                    title="Markeer topic"
+                  >
+                    <Bookmark className={`h-3 w-3 ${isBookmarked(topic.id) ? 'fill-current' : ''}`} />
+                  </Button>
+                  
                   {topic.profiles?.role === 'moderator' && (
                     <Badge variant="secondary" className="text-xs">MOD</Badge>
                   )}
@@ -430,8 +415,21 @@ export default function TopicDetail() {
                     <Badge variant="outline" className="text-xs border-purple-500 text-purple-500">LEVERANCIER</Badge>
                   )}
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  {topic.profiles?.reputation || 0} rep
+                
+                {/* Stats instead of date */}
+                <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                  <span className="flex items-center gap-1">
+                    <Eye className="h-3 w-3" />
+                    {topic.view_count}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Share2 className="h-3 w-3" />
+                    {topic.share_count || 0}x
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {formatDateTime(topic.created_at)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -491,13 +489,28 @@ export default function TopicDetail() {
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <Avatar className="h-10 w-10 flex-shrink-0">
-                    <AvatarFallback className={getRoleColor(reply.profiles?.role || 'user')}>
-                      {getUserInitials(reply.profiles?.username || 'Anonymous')}
-                    </AvatarFallback>
+                    {reply.profiles?.avatar_url ? (
+                      <img src={reply.profiles.avatar_url} alt={reply.profiles.username} />
+                    ) : (
+                      <AvatarFallback className={getRoleColor(reply.profiles?.role || 'user')}>
+                        {getUserInitials(reply.profiles?.username || 'Anonymous')}
+                      </AvatarFallback>
+                    )}
                   </Avatar>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-medium text-sm">{reply.profiles?.username}</span>
+                      
+                      {/* Follow & Bookmark icons */}
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-6 w-6 p-0"
+                        title="Volg gebruiker"
+                      >
+                        <UserPlus className="h-3 w-3" />
+                      </Button>
+                      
                       {reply.profiles?.role === 'expert' && (
                         <Badge variant="default" className="text-xs">EXPERT</Badge>
                       )}
@@ -505,8 +518,16 @@ export default function TopicDetail() {
                         <Badge variant="outline" className="text-xs border-purple-500 text-purple-500">LEVERANCIER</Badge>
                       )}
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      {formatDate(reply.created_at)}
+                    
+                    {/* Stats under username */}
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {formatDateTime(reply.created_at)}
+                      </span>
+                      {reply.profiles?.reputation && (
+                        <span>{reply.profiles.reputation} rep</span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -518,18 +539,29 @@ export default function TopicDetail() {
               </div>
             </CardHeader>
             <CardContent className="p-4">
-              <div className="flex flex-col gap-4">
-                {/* Reply Content */}
-                <div 
-                  className="text-sm prose prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ 
-                    __html: parseBadges(reply.content.replace(/\n/g, '<br>'))
-                  }}
-                />
+              {/* Content with avatar on left (social media style) */}
+              <div className="flex gap-3">
+                <Avatar className="h-8 w-8 flex-shrink-0">
+                  {reply.profiles?.avatar_url ? (
+                    <img src={reply.profiles.avatar_url} alt={reply.profiles.username} />
+                  ) : (
+                    <AvatarFallback className={getRoleColor(reply.profiles?.role || 'user')}>
+                      {getUserInitials(reply.profiles?.username || 'Anonymous')}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
                 
-                {/* Voting ONDER content op mobiel */}
-                <div className="flex items-center justify-between border-t pt-4">
-                  <div className="flex items-center">
+                <div className="flex-1 flex flex-col gap-4">
+                  {/* Reply Content */}
+                  <div 
+                    className="text-sm prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ 
+                      __html: parseBadges(reply.content.replace(/\n/g, '<br>'))
+                    }}
+                  />
+                  
+                  {/* Voting */}
+                  <div className="flex items-center border-t pt-3">
                     {getVoteData(reply.id) && (
                       <VotingButtons
                         itemId={reply.id}

@@ -11,6 +11,7 @@ import { OnlineMembers } from './OnlineMembers';
 import { PullToRefresh } from '@/components/mobile/PullToRefresh';
 import { FloatingActionButton } from '@/components/mobile/FloatingActionButton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { FeedTopSuppliers } from '@/components/supplier/FeedTopSuppliers';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -142,6 +143,9 @@ export function FeedPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Top Leveranciers - Always visible */}
+      <FeedTopSuppliers />
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
