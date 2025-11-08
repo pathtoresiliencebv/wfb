@@ -61,6 +61,33 @@ export function ModernReplyBox({
           onChange={onReplyContentChange}
           placeholder="Deel je gedachten, ervaringen of stel een vraag..."
           minHeight={120}
+          actions={
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onReplyContentChange('')}
+                disabled={!replyContent || isSubmitting}
+                className="h-9 w-9 p-0 rounded-full"
+                title="Annuleren"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              
+              <Button
+                onClick={onSubmit}
+                disabled={!replyContent.trim() || isSubmitting || isOverLimit}
+                className="h-9 w-9 p-0 rounded-full bg-primary hover:bg-primary/90 transition-all hover:scale-105"
+                title="Reageren"
+              >
+                {isSubmitting ? (
+                  <LoadingSpinner size="sm" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+              </Button>
+            </>
+          }
         />
       </div>
 
@@ -74,33 +101,6 @@ export function ModernReplyBox({
           {characterCount} / {maxCharacters}
         </div>
       )}
-
-      {/* Actions Bar */}
-      <div className="flex items-center justify-end gap-2 pt-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onReplyContentChange('')}
-          disabled={!replyContent || isSubmitting}
-          className="h-10 w-10 p-0 rounded-full"
-          title="Annuleren"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        
-        <Button
-          onClick={onSubmit}
-          disabled={!replyContent.trim() || isSubmitting || isOverLimit}
-          className="h-10 w-10 p-0 rounded-full bg-primary hover:bg-primary/90 transition-all hover:scale-105"
-          title="Reageren"
-        >
-          {isSubmitting ? (
-            <LoadingSpinner size="sm" />
-          ) : (
-            <Send className="h-4 w-4" />
-          )}
-        </Button>
-      </div>
     </div>
   );
 }

@@ -41,6 +41,7 @@ interface InlineRichTextEditorProps {
   minHeight?: number;
   maxHeight?: number;
   className?: string;
+  actions?: React.ReactNode;
 }
 
 export function InlineRichTextEditor({
@@ -49,12 +50,12 @@ export function InlineRichTextEditor({
   placeholder = 'Schrijf je bericht...',
   minHeight = 120,
   maxHeight,
-  className
+  className,
+  actions
 }: InlineRichTextEditorProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
-  const [isToolbarCollapsed, setIsToolbarCollapsed] = useState(true);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
@@ -268,23 +269,8 @@ export function InlineRichTextEditor({
 
   return (
     <div className={cn("space-y-2 border rounded-md relative", className)}>
-      {/* Toggle button when collapsed and not focused */}
-      {isToolbarCollapsed && !isFocused && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsToolbarCollapsed(false)}
-          className="absolute top-2 right-2 z-10 h-8 text-xs"
-        >
-          <MoreHorizontal className="h-4 w-4 mr-1" />
-          Opmaak
-        </Button>
-      )}
-      
       {/* Top Toolbar - Formatting */}
-      {(isFocused || !isToolbarCollapsed) && (
-        <div className="flex items-center gap-1 p-2 bg-muted/50 rounded-t-md border-b flex-wrap">
+      <div className="flex items-center gap-1 p-2 bg-muted/50 rounded-t-md border-b flex-wrap">
         {isMobile ? (
           <>
             {/* Essential buttons for mobile */}
@@ -418,7 +404,6 @@ export function InlineRichTextEditor({
           </>
         )}
         </div>
-      )}
 
       {/* Emoji Picker */}
       {showEmojiPicker && (
@@ -433,10 +418,7 @@ export function InlineRichTextEditor({
           ref={textareaRef}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          onFocus={() => {
-            setIsFocused(true);
-            setIsToolbarCollapsed(false);
-          }}
+          onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
@@ -457,44 +439,37 @@ export function InlineRichTextEditor({
         )}
       </div>
 
-      {/* Bottom Toolbar - Help */}
-      <div className="flex items-center justify-between p-2 bg-muted/50 rounded-b-md border-t">
-        <Collapsible>
-          <CollapsibleTrigger asChild>
-            <Button type="button" variant="ghost" size="sm" className="text-xs h-auto py-1">
-              <HelpCircle className="h-3 w-3 mr-1" />
-              Help
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mt-2 absolute z-50 left-2 right-2">
-            <Card>
-              <CardContent className="p-3 text-xs space-y-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <p className="font-semibold mb-1">Text</p>
-                    <div className="space-y-0.5 text-muted-foreground">
-                      <div><code className="bg-muted px-1 rounded">**bold**</code></div>
-                      <div><code className="bg-muted px-1 rounded">*italic*</code></div>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="font-semibold mb-1">Special</p>
-                    <div className="space-y-0.5 text-muted-foreground">
-                      <div><code className="bg-muted px-1 rounded">[tag]</code> Primary</div>
-                      <div><code className="bg-muted px-1 rounded">{'{tag}'}</code> Success</div>
-                    </div>
-                  </div>
-                </div>
-                <Separator />
-                <div className="text-muted-foreground">
-                  <span><code className="bg-muted px-1 rounded">Ctrl+B</code> Bold</span>
-                  {' • '}
-                  <span><code className="bg-muted px-1 rounded">Ctrl+I</code> Italic</span>
-                </div>
-              </CardContent>
-            </Card>
-          </CollapsibleContent>
-        </Collapsible>
+      {/* Bottom Toolbar - Quick Actions */}
+      <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-b-md border-t">
+        {/* Emoji button */}
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+          className="h-9 w-9 p-0"
+          title="Emoji toevoegen"
+        >
+          <Smile className="h-4 w-4" />
+        </Button>
+        
+        {/* Link button */}
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => insertText('[', '](url)')}
+          className="h-9 w-9 p-0"
+          title="Link toevoegen"
+        >
+          <LinkIcon className="h-4 w-4" />
+        </Button>
+        
+        {/* Spacer */}
+        <div className="flex-1" />
+        
+        {/* Custom actions slot */}
+        {actions && <div className="flex items-center gap-2">{actions}</div>}
       </div>
     </div>
   );
