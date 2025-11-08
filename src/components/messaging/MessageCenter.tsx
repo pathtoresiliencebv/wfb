@@ -26,6 +26,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useTypingIndicator } from '@/hooks/useTypingIndicator';
 import { TypingIndicator } from '@/components/ui/typing-indicator';
 import { VerifiedBadge } from '@/components/ui/verified-badge';
+import { toast } from '@/hooks/use-toast';
 
 interface User {
   user_id: string;
@@ -107,26 +108,56 @@ export function MessageCenter() {
     }
   }, [selectedConversation, markConversationAsRead]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedConversation || !newMessage.trim()) return;
 
-    if (editingMessageId) {
-      // Update existing message
-      editMessage(editingMessageId, newMessage);
-      setEditingMessageId(null);
-    } else {
-      // Send new message
-      sendMessage(selectedConversation, newMessage);
+    try {
+      if (editingMessageId) {
+        // Update existing message
+        await editMessage(editingMessageId, newMessage);
+        setEditingMessageId(null);
+        toast({
+          title: "Bericht bijgewerkt",
+          description: "Je bericht is succesvol bewerkt",
+        });
+      } else {
+        // Send new message
+        await sendMessage(selectedConversation, newMessage);
+        toast({
+          title: "Bericht verzonden",
+          description: "Je bericht is succesvol verzonden",
+        });
+      }
+      
+      setNewMessage('');
+      stopTyping();
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        variant: "destructive",
+        title: "Fout",
+        description: "Kon bericht niet verzenden. Probeer het opnieuw.",
+      });
     }
-    
-    setNewMessage('');
-    stopTyping();
   };
 
-  const handleDeleteMessage = (messageId: string) => {
+  const handleDeleteMessage = async (messageId: string) => {
     if (confirm('Weet je zeker dat je dit bericht wilt verwijderen?')) {
-      deleteMessage(messageId);
+      try {
+        await deleteMessage(messageId);
+        toast({
+          title: "Bericht verwijderd",
+          description: "Je bericht is succesvol verwijderd",
+        });
+      } catch (error) {
+        console.error('Error deleting message:', error);
+        toast({
+          variant: "destructive",
+          title: "Fout",
+          description: "Kon bericht niet verwijderen. Probeer het opnieuw.",
+        });
+      }
     }
   };
 
@@ -148,12 +179,29 @@ export function MessageCenter() {
 
     try {
       const conversationId = await createConversation(selectedUserId);
+      const selectedUser = availableUsers?.find(u => u.user_id === selectedUserId);
+      
       setSelectedConversation(conversationId);
       setIsNewConversationOpen(false);
       setSelectedUserId('');
       setSearchUsers('');
+      
+      toast({
+        title: "Gesprek gestart",
+        description: `Gesprek gestart met ${selectedUser?.display_name || selectedUser?.username}`,
+      });
+      
+      // Auto-focus on conversation on mobile
+      if (isMobile) {
+        setShowConversationView(true);
+      }
     } catch (error) {
       console.error('Error creating conversation:', error);
+      toast({
+        variant: "destructive",
+        title: "Fout",
+        description: "Kon gesprek niet starten. Probeer het opnieuw.",
+      });
     }
   };
 
@@ -361,6 +409,10 @@ export function MessageCenter() {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     handleSendMessage(e);
+                  } else if (e.key === 'Escape' && editingMessageId) {
+                    e.preventDefault();
+                    setEditingMessageId(null);
+                    setNewMessage('');
                   }
                 }}
               />
@@ -452,10 +504,17 @@ export function MessageCenter() {
         <div className="flex-1 overflow-auto">
           <div className="divide-y">
           {conversations.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p className="text-base">Nog geen gesprekken</p>
-              <p className="text-sm text-muted-foreground mt-1">Start een nieuw gesprek om te beginnen</p>
+            <div className="text-center py-12 px-4 text-muted-foreground">
+              <MessageCircle className="h-16 w-16 mx-auto mb-4 opacity-50" />
+              <h3 className="text-lg font-semibold mb-2">Nog geen gesprekken</h3>
+              <p className="text-sm text-muted-foreground mb-6">Start een nieuw gesprek om berichten te versturen</p>
+              <Button 
+                onClick={() => setIsNewConversationOpen(true)}
+                className="min-h-[44px]"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Nieuw gesprek starten
+              </Button>
             </div>
           ) : (
             conversations.map((conversation) => {
@@ -587,9 +646,18 @@ export function MessageCenter() {
         <ScrollArea className="flex-1">
           <div className="p-2">
             {conversations.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="text-center py-8 px-4 text-muted-foreground">
                 <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Nog geen gesprekken</p>
+                <h3 className="font-semibold mb-2">Nog geen gesprekken</h3>
+                <p className="text-sm mb-4">Start een nieuw gesprek om te beginnen</p>
+                <Button 
+                  onClick={() => setIsNewConversationOpen(true)}
+                  size="sm"
+                  variant="outline"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nieuw gesprek
+                </Button>
               </div>
             ) : (
               conversations.map((conversation) => {
@@ -802,6 +870,10 @@ export function MessageCenter() {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
                       handleSendMessage(e);
+                    } else if (e.key === 'Escape' && editingMessageId) {
+                      e.preventDefault();
+                      setEditingMessageId(null);
+                      setNewMessage('');
                     }
                   }}
                 />
