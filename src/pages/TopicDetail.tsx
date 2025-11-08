@@ -404,14 +404,31 @@ export default function TopicDetail() {
             </Avatar>
             
             <div className="flex-1">
+              {/* User info met volg-knop */}
               <div className="flex items-center gap-2 flex-wrap">
                 <span className={cn("font-semibold", getRoleColor(topic.profiles.role))}>
                   {topic.profiles.username}
                 </span>
+                {/* Volg-knop naast naam */}
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => toggleSubscription(topicId || '')}
+                  className={cn("h-7 px-2", isSubscribed && "text-primary")}
+                  title={isSubscribed ? 'Volgend' : 'Volg dit topic'}
+                >
+                  {isSubscribed ? (
+                    <Bell className="h-3.5 w-3.5 fill-current" />
+                  ) : (
+                    <BellOff className="h-3.5 w-3.5" />
+                  )}
+                </Button>
                 <span className="text-sm text-muted-foreground">
                   {formatDate(topic.created_at)}
                 </span>
               </div>
+              
+              {/* Titel */}
               <h1 className="text-lg font-bold mt-2">{topic.title}</h1>
               
               {/* Tags */}
@@ -433,60 +450,81 @@ export default function TopicDetail() {
         </CardHeader>
 
         <CardContent className="p-6">
-          <div className="flex gap-6">
-            {/* Voting Buttons */}
-            <div className="flex-shrink-0">
+          {/* Content zonder voting buttons */}
+          <div className="space-y-6">
+            <div 
+              className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:text-base prose-p:leading-7 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:font-bold prose-strong:text-foreground prose-em:italic prose-ul:list-disc prose-ol:list-decimal prose-li:text-base prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg prose-img:rounded-lg"
+              dangerouslySetInnerHTML={{ 
+                __html: DOMPurify.sanitize(processContent(topic.content), {
+                  ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'a', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'div', 'span'],
+                  ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'style', 'target', 'rel']
+                })
+              }}
+            />
+
+            {/* Voting buttons onderaan content */}
+            <div className="flex justify-center pt-4 border-t">
               <VotingButtons
                 itemId={topic.id}
                 upvotes={topicVotes.upvotes}
                 downvotes={topicVotes.downvotes}
                 currentVote={topicVotes.currentVote}
                 onVote={(voteType) => handleVote(topic.id, voteType, 'topic')}
-                orientation="vertical"
+                orientation="horizontal"
               />
             </div>
 
-            {/* Content */}
-            <div className="flex-1 min-w-0">
-              <div 
-                className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:text-base prose-p:leading-7 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:font-bold prose-strong:text-foreground prose-em:italic prose-ul:list-disc prose-ol:list-decimal prose-li:text-base prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg prose-img:rounded-lg"
-                dangerouslySetInnerHTML={{ 
-                  __html: DOMPurify.sanitize(processContent(topic.content), {
-                    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'a', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'div', 'span'],
-                    ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'style', 'target', 'rel']
-                  })
-                }}
-              />
+            {/* Stats links & Actions rechts */}
+            <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t">
+              {/* Stats links onderin */}
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <Eye className="h-4 w-4" />
+                  {topic.view_count}
+                </span>
+                <span className="flex items-center gap-1">
+                  <MessageSquare className="h-4 w-4" />
+                  {topic.reply_count}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Share2 className="h-4 w-4" />
+                  {topic.share_count || 0}
+                </span>
+              </div>
 
-              {/* Stats & Actions */}
-              <div className="flex flex-wrap items-center gap-4 mt-6 pt-4 border-t">
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Eye className="h-4 w-4" />
-                    {topic.view_count}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <MessageSquare className="h-4 w-4" />
-                    {topic.reply_count}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Share2 className="h-4 w-4" />
-                    {topic.share_count || 0}
-                  </span>
-                </div>
-
-                <div className="ml-auto">
-                  <PostActions
-                    itemId={topic.id}
-                    itemType="topic"
-                    isBookmarked={isBookmarked(topic.id)}
-                    onBookmark={() => toggleBookmark(topic.id, 'topic')}
-                    isSubscribed={isSubscribed}
-                    onSubscribe={() => toggleSubscription(topicId || '')}
-                    showSubscribe={true}
-                    showReplyButton={false}
-                  />
-                </div>
+              {/* Actions rechts: bookmark, flag (zonder share) */}
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => toggleBookmark(topic.id, 'topic')}
+                  className={isBookmarked(topic.id) ? 'text-primary' : ''}
+                  title={isBookmarked(topic.id) ? 'Opgeslagen' : 'Opslaan'}
+                >
+                  <Bookmark className={`h-4 w-4 ${isBookmarked(topic.id) ? 'fill-current' : ''}`} />
+                </Button>
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => {
+                    if (!isAuthenticated) {
+                      toast({
+                        title: 'Inloggen vereist',
+                        description: 'Je moet ingelogd zijn om content te rapporteren.',
+                        variant: 'destructive',
+                      });
+                      return;
+                    }
+                    toast({
+                      title: 'Content gerapporteerd',
+                      description: 'Bedankt voor je melding. We zullen dit bekijken.',
+                    });
+                  }}
+                  title="Rapporteer"
+                >
+                  <Flag className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           </div>

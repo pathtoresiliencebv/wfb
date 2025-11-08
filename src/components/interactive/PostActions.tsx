@@ -111,10 +111,6 @@ export function PostActions({
         </Button>
       )}
       
-      <Button variant="ghost" size="sm" onClick={handleShare} title="Delen">
-        <Share2 className="h-3 w-3" />
-      </Button>
-      
       <Button variant="ghost" size="sm" onClick={handleReport} title="Rapporteer">
         <Flag className="h-3 w-3" />
       </Button>
