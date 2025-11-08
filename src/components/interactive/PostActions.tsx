@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MessageSquare, Share2, Bookmark, Flag, Quote } from 'lucide-react';
+import { MessageSquare, Share2, Bookmark, Flag, Quote, Bell, BellOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,6 +13,9 @@ interface PostActionsProps {
   onQuote?: () => void;
   replyCount?: number;
   showReplyButton?: boolean;
+  isSubscribed?: boolean;
+  onSubscribe?: () => void;
+  showSubscribe?: boolean;
 }
 
 export function PostActions({
@@ -22,7 +25,10 @@ export function PostActions({
   onBookmark,
   onQuote,
   replyCount,
-  showReplyButton = false
+  showReplyButton = false,
+  isSubscribed = false,
+  onSubscribe,
+  showSubscribe = false
 }: PostActionsProps) {
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
@@ -74,7 +80,7 @@ export function PostActions({
       )}
       
       {onQuote && (
-        <Button variant="ghost" size="sm" onClick={onQuote}>
+        <Button variant="ghost" size="sm" onClick={onQuote} title="Citeer">
           <Quote className="h-3 w-3" />
         </Button>
       )}
@@ -84,15 +90,32 @@ export function PostActions({
         size="sm" 
         onClick={onBookmark}
         className={isBookmarked ? 'text-primary' : ''}
+        title={isBookmarked ? 'Opgeslagen' : 'Opslaan'}
       >
         <Bookmark className={`h-3 w-3 ${isBookmarked ? 'fill-current' : ''}`} />
       </Button>
       
-      <Button variant="ghost" size="sm" onClick={handleShare}>
+      {showSubscribe && onSubscribe && (
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={onSubscribe}
+          className={isSubscribed ? 'text-primary' : ''}
+          title={isSubscribed ? 'Volgend' : 'Volg dit topic'}
+        >
+          {isSubscribed ? (
+            <Bell className="h-3 w-3 fill-current" />
+          ) : (
+            <BellOff className="h-3 w-3" />
+          )}
+        </Button>
+      )}
+      
+      <Button variant="ghost" size="sm" onClick={handleShare} title="Delen">
         <Share2 className="h-3 w-3" />
       </Button>
       
-      <Button variant="ghost" size="sm" onClick={handleReport}>
+      <Button variant="ghost" size="sm" onClick={handleReport} title="Rapporteer">
         <Flag className="h-3 w-3" />
       </Button>
     </div>

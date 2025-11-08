@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, MoreVertical, MessageSquare } from 'lucide-react';
+import { 
+  ArrowLeft, MessageSquare, Eye, Clock, Share2, Flag, Bookmark, 
+  Bell, BellOff, Quote, X, Send, ChevronRight
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { InlineRichTextEditor } from '@/components/rich-text/InlineRichTextEditor';
-import { ActionButtonGrid } from '@/components/forum/ActionButtonGrid';
-import { ReplyThread } from '@/components/forum/ReplyThread';
+import { VotingButtons } from '@/components/interactive/VotingButtons';
+import { PostActions } from '@/components/interactive/PostActions';
 import { FloatingActionButton } from '@/components/mobile/FloatingActionButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useVoting } from '@/hooks/useVoting';
+import { useBookmarks } from '@/hooks/useBookmarks';
 import { useTopicSubscriptions } from '@/hooks/useTopicSubscriptions';
 import { supabase } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -19,7 +23,6 @@ import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import DOMPurify from 'dompurify';
 import { cn } from '@/lib/utils';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface TopicData {
   id: string;
@@ -27,6 +30,9 @@ interface TopicData {
   content: string;
   view_count: number;
   reply_count: number;
+  share_count: number;
+  is_pinned: boolean;
+  is_locked: boolean;
   created_at: string;
   categories: {
     name: string;
@@ -36,6 +42,7 @@ interface TopicData {
     username: string;
     role: string;
     avatar_url?: string;
+    reputation: number;
   };
   topic_tags: Array<{
     tags: {
@@ -50,17 +57,12 @@ interface ReplyData {
   id: string;
   content: string;
   created_at: string;
-  depth?: number;
-  parent_reply_id?: string;
-  profiles?: {
+  profiles: {
     username: string;
     role: string;
-    avatar_url?: string | null;
+    avatar_url?: string;
   };
-  replies?: ReplyData[];
 }
-
-type SortOption = 'newest' | 'oldest' | 'top';
 
 export default function TopicDetail() {
   const { categoryId, topicId } = useParams<{ categoryId: string; topicId: string }>();
@@ -75,8 +77,6 @@ export default function TopicDetail() {
   const [isReplying, setIsReplying] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showFAB, setShowFAB] = useState(true);
-  const [sortBy, setSortBy] = useState<SortOption>('newest');
-  const [replyingToId, setReplyingToId] = useState<string | null>(null);
 
   const initialVotes: Record<string, any> = {};
   if (topic) {
@@ -89,7 +89,18 @@ export default function TopicDetail() {
     };
   }
 
+  replies.forEach(reply => {
+    initialVotes[reply.id] = {
+      id: reply.id,
+      type: 'reply' as const,
+      currentVote: null,
+      upvotes: 0,
+      downvotes: 0,
+    };
+  });
+
   const { handleVote, getVoteData } = useVoting(initialVotes);
+  const { toggleBookmark, isBookmarked } = useBookmarks();
   const { isSubscribed, toggleSubscription } = useTopicSubscriptions(topicId);
 
   useEffect(() => {
@@ -105,6 +116,9 @@ export default function TopicDetail() {
             content,
             view_count,
             reply_count,
+            share_count,
+            is_pinned,
+            is_locked,
             created_at,
             categories (
               name,
@@ -113,7 +127,8 @@ export default function TopicDetail() {
             profiles (
               username,
               role,
-              avatar_url
+              avatar_url,
+              reputation
             ),
             topic_tags (
               tags (
@@ -138,15 +153,12 @@ export default function TopicDetail() {
 
         setTopic(topicData);
 
-        // Fetch replies
         const { data: repliesData, error: repliesError } = await supabase
           .from('replies')
           .select(`
             id,
             content,
             created_at,
-            parent_reply_id,
-            depth,
             profiles (
               username,
               role,
@@ -159,12 +171,9 @@ export default function TopicDetail() {
         if (repliesError) {
           console.error('Error fetching replies:', repliesError);
         } else {
-          // Build threaded structure
-          const threadedReplies = buildThreadStructure(repliesData || []);
-          setReplies(threadedReplies);
+          setReplies(repliesData || []);
         }
 
-        // Update view count
         await supabase
           .from('topics')
           .update({ view_count: topicData.view_count + 1 })
@@ -179,57 +188,6 @@ export default function TopicDetail() {
 
     fetchTopicAndReplies();
   }, [topicId, navigate, toast]);
-
-  // Build threaded reply structure
-  const buildThreadStructure = (flatReplies: ReplyData[]): ReplyData[] => {
-    const repliesMap = new Map<string, ReplyData>();
-    const rootReplies: ReplyData[] = [];
-
-    // First pass: create map and initialize replies array
-    flatReplies.forEach(reply => {
-      repliesMap.set(reply.id, { ...reply, replies: [] });
-    });
-
-    // Second pass: build tree structure
-    flatReplies.forEach(reply => {
-      const replyNode = repliesMap.get(reply.id)!;
-      if (reply.parent_reply_id) {
-        const parent = repliesMap.get(reply.parent_reply_id);
-        if (parent) {
-          if (!parent.replies) parent.replies = [];
-          parent.replies.push(replyNode);
-        } else {
-          rootReplies.push(replyNode);
-        }
-      } else {
-        rootReplies.push(replyNode);
-      }
-    });
-
-    return rootReplies;
-  };
-
-  // Sort replies based on selected option
-  const sortReplies = (repliesToSort: ReplyData[]): ReplyData[] => {
-    const sorted = [...repliesToSort];
-    
-    switch (sortBy) {
-      case 'oldest':
-        return sorted.sort((a, b) => 
-          new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-        );
-      case 'top':
-        return sorted.sort((a, b) => {
-          // Sort by creation date for now (can be enhanced with vote counts later)
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        });
-      case 'newest':
-      default:
-        return sorted.sort((a, b) => 
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
-    }
-  };
 
   useEffect(() => {
     if (!isMobile) return;
@@ -277,7 +235,6 @@ export default function TopicDetail() {
           content: replyContent.trim(),
           topic_id: topicId,
           author_id: user.id,
-          parent_reply_id: replyingToId,
         });
 
       if (error) throw error;
@@ -288,17 +245,13 @@ export default function TopicDetail() {
       });
       
       setReplyContent('');
-      setReplyingToId(null);
       
-      // Refresh replies
       const { data: repliesData } = await supabase
         .from('replies')
         .select(`
           id,
           content,
           created_at,
-          parent_reply_id,
-          depth,
           profiles (
             username,
             role,
@@ -308,8 +261,7 @@ export default function TopicDetail() {
         .eq('topic_id', topicId)
         .order('created_at', { ascending: true });
 
-      const threadedReplies = buildThreadStructure(repliesData || []);
-      setReplies(threadedReplies);
+      setReplies(repliesData || []);
       
     } catch (error) {
       console.error('Error creating reply:', error);
@@ -343,26 +295,6 @@ export default function TopicDetail() {
     }, 500);
   };
 
-  const handleReplyTo = (replyId: string) => {
-    setReplyingToId(replyId);
-    const replyForm = document.getElementById('reply-form');
-    replyForm?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    
-    setTimeout(() => {
-      const textarea = replyForm?.querySelector('textarea');
-      textarea?.focus();
-    }, 500);
-  };
-
-  const handleTopicVote = async () => {
-    if (!topic) return;
-    await handleVote(topic.id, 'up', 'topic');
-  };
-
-  const handleReplyVote = async (replyId: string, voteType: 'up' | 'down') => {
-    await handleVote(replyId, voteType, 'reply');
-  };
-
   const scrollToReplyForm = () => {
     const replyForm = document.getElementById('reply-form');
     replyForm?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -383,6 +315,13 @@ export default function TopicDetail() {
       case 'supplier': return 'text-success';
       default: return 'text-foreground';
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    return formatDistanceToNow(new Date(dateString), { 
+      addSuffix: true, 
+      locale: nl 
+    });
   };
 
   if (loading) {
@@ -410,130 +349,217 @@ export default function TopicDetail() {
     upvotes: 0,
     downvotes: 0
   };
-  const sortedReplies = sortReplies(replies);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
-      {/* Compact Header */}
-      <div className="flex items-center justify-between mb-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate(`/forums/${categoryId}`)}
-          className="gap-2"
+    <div className="max-w-6xl mx-auto px-4 py-6 space-y-4">
+      {/* Breadcrumbs */}
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Link to="/forums" className="hover:text-foreground transition-colors">
+          Forums
+        </Link>
+        <ChevronRight className="h-4 w-4" />
+        <Link 
+          to={`/forums/${categoryId}`}
+          className="hover:text-foreground transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" />
-          {!isMobile && 'Terug'}
-        </Button>
-        
-        <Button variant="ghost" size="icon">
-          <MoreVertical className="h-5 w-5" />
-        </Button>
+          {topic.categories.name}
+        </Link>
+        <ChevronRight className="h-4 w-4" />
+        <span className="text-foreground">{topic.title}</span>
       </div>
 
-      {/* Topic Post */}
-      <Card className="overflow-hidden">
-        <div className="p-6 space-y-4">
-          {/* Author Info */}
-          <div className="flex items-start gap-3">
+      {/* Topic Card */}
+      <Card>
+        <CardHeader className="border-b">
+          <div className="flex items-start gap-4">
             <Avatar className="h-12 w-12">
               <AvatarImage src={topic.profiles.avatar_url} alt={topic.profiles.username} />
               <AvatarFallback>{getInitials(topic.profiles.username)}</AvatarFallback>
             </Avatar>
             
-            <div className="flex-1 min-w-0">
+            <div className="flex-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className={cn("font-semibold", getRoleColor(topic.profiles.role))}>
                   {topic.profiles.username}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  {formatDistanceToNow(new Date(topic.created_at), { 
-                    addSuffix: true, 
-                    locale: nl 
-                  })}
+                  {formatDate(topic.created_at)}
                 </span>
               </div>
-              <h1 className="text-xl md:text-2xl font-bold mt-2 text-foreground">
-                {topic.title}
-              </h1>
+              <h1 className="text-2xl font-bold mt-2">{topic.title}</h1>
+              
+              {/* Tags */}
+              {topic.topic_tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {topic.topic_tags.map(({ tags }) => (
+                    <Badge 
+                      key={tags.id} 
+                      variant="secondary"
+                      style={{ backgroundColor: `${tags.color}15`, color: tags.color }}
+                    >
+                      {tags.name}
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
+        </CardHeader>
 
-          {/* Content */}
-          <div 
-            className="prose prose-sm md:prose-base dark:prose-invert max-w-none"
-            dangerouslySetInnerHTML={{ 
-              __html: DOMPurify.sanitize(topic.content) 
-            }}
-          />
-
-          {/* Tags */}
-          {topic.topic_tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-2">
-              {topic.topic_tags.map(({ tags }) => (
-                <Badge 
-                  key={tags.id} 
-                  variant="secondary"
-                  style={{ backgroundColor: `${tags.color}15`, color: tags.color }}
-                  className="border-0"
-                >
-                  {tags.name}
-                </Badge>
-              ))}
+        <CardContent className="p-6">
+          <div className="flex gap-6">
+            {/* Voting Buttons */}
+            <div className="flex-shrink-0">
+              <VotingButtons
+                itemId={topic.id}
+                upvotes={topicVotes.upvotes}
+                downvotes={topicVotes.downvotes}
+                currentVote={topicVotes.currentVote}
+                onVote={(voteType) => handleVote(topic.id, voteType, 'topic')}
+                orientation="vertical"
+              />
             </div>
-          )}
 
-          {/* Action Grid */}
-          <ActionButtonGrid
-            upvotes={topicVotes.upvotes}
-            replyCount={topic.reply_count}
-            currentVote={topicVotes.currentVote}
-            onVote={handleTopicVote}
-            onReply={scrollToReplyForm}
-          />
-        </div>
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <div 
+                className="prose dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ 
+                  __html: DOMPurify.sanitize(topic.content) 
+                }}
+              />
+
+              {/* Stats & Actions */}
+              <div className="flex flex-wrap items-center gap-4 mt-6 pt-4 border-t">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Eye className="h-4 w-4" />
+                    {topic.view_count}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <MessageSquare className="h-4 w-4" />
+                    {topic.reply_count}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Share2 className="h-4 w-4" />
+                    {topic.share_count || 0}
+                  </span>
+                </div>
+
+                <div className="ml-auto">
+                  <PostActions
+                    itemId={topic.id}
+                    itemType="topic"
+                    isBookmarked={isBookmarked(topic.id)}
+                    onBookmark={() => toggleBookmark(topic.id, 'topic')}
+                    isSubscribed={isSubscribed}
+                    onSubscribe={() => toggleSubscription(topicId || '')}
+                    showSubscribe={true}
+                    showReplyButton={false}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
       </Card>
 
-      {/* Sort Tabs */}
-      {replies.length > 0 && (
-        <Tabs value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)} className="w-full">
-          <TabsList className="w-full grid grid-cols-3">
-            <TabsTrigger value="newest">Nieuwste</TabsTrigger>
-            <TabsTrigger value="oldest">Oudste</TabsTrigger>
-            <TabsTrigger value="top">Top</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      )}
+      {/* Replies */}
+      {replies.map((reply) => {
+        const replyVotes = getVoteData(reply.id) || {
+          id: reply.id,
+          currentVote: null,
+          upvotes: 0,
+          downvotes: 0
+        };
 
-      {/* Replies - Threaded */}
-      {replies.length > 0 && (
-        <Card className="overflow-hidden">
-          {sortedReplies.map((reply) => (
-            <ReplyThread
-              key={reply.id}
-              reply={reply as any}
-              currentUserId={user?.id}
-              onQuote={handleQuoteReply}
-              onReply={handleReplyTo}
-              onVote={handleReplyVote}
-            />
-          ))}
-        </Card>
-      )}
+        return (
+          <Card key={reply.id}>
+            <CardContent className="p-6">
+              <div className="flex gap-6">
+                {/* Voting */}
+                <div className="flex-shrink-0">
+                  <VotingButtons
+                    itemId={reply.id}
+                    upvotes={replyVotes.upvotes}
+                    downvotes={replyVotes.downvotes}
+                    currentVote={replyVotes.currentVote}
+                    onVote={(voteType) => handleVote(reply.id, voteType, 'reply')}
+                    orientation="vertical"
+                    size="sm"
+                  />
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start gap-3 mb-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={reply.profiles.avatar_url} alt={reply.profiles.username} />
+                      <AvatarFallback className="text-xs">
+                        {getInitials(reply.profiles.username)}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className={cn("font-semibold text-sm", getRoleColor(reply.profiles.role))}>
+                          {reply.profiles.username}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDate(reply.created_at)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div 
+                    className="prose prose-sm dark:prose-invert max-w-none"
+                    dangerouslySetInnerHTML={{ 
+                      __html: DOMPurify.sanitize(reply.content) 
+                    }}
+                  />
+
+                  {/* Reply Actions */}
+                  <div className="flex items-center gap-2 mt-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleQuoteReply(reply)}
+                      className="h-8"
+                    >
+                      <Quote className="h-3 w-3 mr-1" />
+                      Quote
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8"
+                    >
+                      <Flag className="h-3 w-3 mr-1" />
+                      Rapporteer
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
 
       {/* Reply Form */}
       {isAuthenticated ? (
-        <Card id="reply-form" className="overflow-hidden">
-          <div className="p-4 space-y-3">
-            <div className="flex items-center gap-2">
-              <Avatar className="h-8 w-8">
+        <Card id="reply-form">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Avatar className="h-10 w-10">
                 <AvatarFallback>
                   {getInitials(user?.email || 'U')}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-sm font-medium">
-                {replyingToId ? 'Reageren op bericht' : 'Schrijf een reactie'}
-              </span>
+              <div>
+                <p className="font-medium text-sm">Schrijf een reactie</p>
+                <p className="text-xs text-muted-foreground">{user?.email}</p>
+              </div>
             </div>
 
             <InlineRichTextEditor
@@ -542,46 +568,41 @@ export default function TopicDetail() {
               placeholder="Deel je gedachten..."
             />
 
-            <div className="flex justify-between items-center pt-2">
-              {replyingToId && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setReplyingToId(null)}
-                >
-                  Annuleer antwoord
-                </Button>
-              )}
-              <div className="flex gap-2 ml-auto">
-                <Button 
-                  variant="ghost" 
-                  onClick={() => setReplyContent('')}
-                  disabled={isReplying || !replyContent.trim()}
-                >
-                  Annuleren
-                </Button>
-                <Button 
-                  onClick={handleReply} 
-                  disabled={isReplying || !replyContent.trim()}
-                >
-                  {isReplying ? 'Plaatsen...' : 'Reageren'}
-                </Button>
-              </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setReplyContent('')}
+                disabled={isReplying || !replyContent.trim()}
+              >
+                <X className="h-4 w-4 mr-1" />
+                Annuleren
+              </Button>
+              <Button 
+                size="sm"
+                onClick={handleReply} 
+                disabled={isReplying || !replyContent.trim()}
+              >
+                <Send className="h-4 w-4 mr-1" />
+                Reageren
+              </Button>
             </div>
-          </div>
+          </CardContent>
         </Card>
       ) : (
-        <Card className="p-6 text-center">
-          <p className="text-muted-foreground mb-4">
-            Je moet ingelogd zijn om te kunnen reageren
-          </p>
-          <Button onClick={() => navigate('/login')}>
-            Inloggen
-          </Button>
+        <Card>
+          <CardContent className="p-6 text-center">
+            <p className="text-muted-foreground mb-4">
+              Je moet ingelogd zijn om te kunnen reageren
+            </p>
+            <Button onClick={() => navigate('/login')}>
+              Inloggen
+            </Button>
+          </CardContent>
         </Card>
       )}
 
-      {/* Floating Action Button */}
+      {/* FAB */}
       {isMobile && isAuthenticated && showFAB && (
         <FloatingActionButton
           onClick={scrollToReplyForm}
