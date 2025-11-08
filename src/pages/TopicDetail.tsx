@@ -423,9 +423,12 @@ export default function TopicDetail() {
             {/* Content */}
             <div className="flex-1 min-w-0">
               <div 
-                className="prose dark:prose-invert max-w-none"
+                className="prose prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:text-base prose-p:leading-7 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:font-bold prose-strong:text-foreground prose-em:italic prose-ul:list-disc prose-ol:list-decimal prose-li:text-base prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg prose-img:rounded-lg"
                 dangerouslySetInnerHTML={{ 
-                  __html: DOMPurify.sanitize(topic.content) 
+                  __html: DOMPurify.sanitize(topic.content, {
+                    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'a', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'div', 'span'],
+                    ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'style', 'target', 'rel']
+                  })
                 }}
               />
 
@@ -513,9 +516,12 @@ export default function TopicDetail() {
                   </div>
 
                   <div 
-                    className="prose prose-sm dark:prose-invert max-w-none"
+                    className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-bold prose-p:text-sm prose-p:leading-6 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:font-bold prose-strong:text-foreground prose-em:italic prose-ul:list-disc prose-ol:list-decimal prose-li:text-sm prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-muted prose-pre:p-3 prose-pre:rounded-lg prose-img:rounded-lg"
                     dangerouslySetInnerHTML={{ 
-                      __html: DOMPurify.sanitize(reply.content) 
+                      __html: DOMPurify.sanitize(reply.content, {
+                        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'a', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'div', 'span'],
+                        ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'style', 'target', 'rel']
+                      })
                     }}
                   />
 
