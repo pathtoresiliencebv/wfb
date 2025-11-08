@@ -31,6 +31,28 @@ export function VotingButtons({
   const sizeClasses = size === 'sm' ? 'h-7 w-7' : 'h-8 w-8';
   const iconSize = size === 'sm' ? 'h-3 w-3' : 'h-4 w-4';
 
+  // Compact inline variant
+  if (inline) {
+    return (
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onVote('up');
+        }}
+        className={cn(
+          "flex items-center gap-1 text-xs font-medium min-h-[44px] px-3 py-1 rounded-md transition-colors",
+          currentVote === 'up' 
+            ? 'text-success bg-success/10' 
+            : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+        )}
+      >
+        <ArrowUp className="h-3 w-3" />
+        <span>{totalScore}</span>
+      </button>
+    );
+  }
+
   return (
     <div className={cn(
       "flex items-center gap-1",

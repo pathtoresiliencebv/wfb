@@ -639,9 +639,11 @@ export type Database = {
           author_id: string
           content: string
           created_at: string
+          depth: number | null
           id: string
           is_solution: boolean | null
           parent_id: string | null
+          parent_reply_id: string | null
           topic_id: string
           updated_at: string
         }
@@ -649,9 +651,11 @@ export type Database = {
           author_id: string
           content: string
           created_at?: string
+          depth?: number | null
           id?: string
           is_solution?: boolean | null
           parent_id?: string | null
+          parent_reply_id?: string | null
           topic_id: string
           updated_at?: string
         }
@@ -659,9 +663,11 @@ export type Database = {
           author_id?: string
           content?: string
           created_at?: string
+          depth?: number | null
           id?: string
           is_solution?: boolean | null
           parent_id?: string | null
+          parent_reply_id?: string | null
           topic_id?: string
           updated_at?: string
         }
@@ -676,6 +682,13 @@ export type Database = {
           {
             foreignKeyName: "replies_parent_id_fkey"
             columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "replies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "replies_parent_reply_id_fkey"
+            columns: ["parent_reply_id"]
             isOneToOne: false
             referencedRelation: "replies"
             referencedColumns: ["id"]
