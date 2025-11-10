@@ -12,8 +12,8 @@ import { TrendingUp, Users, MessageSquare, Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function SocialProofSection() {
-  const { activities, isLoading: activitiesLoading } = useRealTimeActivity(5);
-  const { members, isLoading: membersLoading } = useRecentMembers(8);
+  const { activities, isLoading: activitiesLoading, error: activitiesError } = useRealTimeActivity(5);
+  const { members, isLoading: membersLoading, error: membersError } = useRecentMembers(8);
   const { stats } = useRealTimeStats();
 
   const getActivityText = (activity: any) => {
@@ -61,9 +61,19 @@ export function SocialProofSection() {
                     </div>
                   ))}
                 </div>
+              ) : activitiesError || !activities || activities.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-center px-4">
+                  <Activity className="w-12 h-12 text-muted-foreground/50 mb-4" />
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Nog geen recente activiteit
+                  </p>
+                  <p className="text-xs text-muted-foreground/70">
+                    Wees de eerste om actief te worden!
+                  </p>
+                </div>
               ) : (
                 <div className="space-y-4">
-                  {activities?.map((activity) => (
+                  {activities.map((activity) => (
                     <div 
                       key={activity.id} 
                       className="flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300"
@@ -114,9 +124,19 @@ export function SocialProofSection() {
                     </div>
                   ))}
                 </div>
+              ) : membersError || !members || members.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-center px-4">
+                  <Users className="w-12 h-12 text-muted-foreground/50 mb-4" />
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Nog geen nieuwe leden
+                  </p>
+                  <p className="text-xs text-muted-foreground/70">
+                    Word de eerste die zich registreert!
+                  </p>
+                </div>
               ) : (
                 <div className="space-y-4">
-                  {members?.map((member) => (
+                  {members.map((member) => (
                     <div 
                       key={member.id} 
                       className="flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300"

@@ -13,7 +13,7 @@ interface ActivityItem {
 export function useRealTimeActivity(limit: number = 5) {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['real-time-activity', limit],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -22,10 +22,14 @@ export function useRealTimeActivity(limit: number = 5) {
         .order('created_at', { ascending: false })
         .limit(limit);
       
-      if (error) throw error;
+      if (error) {
+        console.warn('Activity feed not available:', error);
+        return [];
+      }
       return data as ActivityItem[];
     },
     refetchInterval: 30000, // Refresh every 30 seconds
+    retry: false, // Don't retry if table doesn't exist
   });
 
   useEffect(() => {
@@ -59,5 +63,6 @@ export function useRealTimeActivity(limit: number = 5) {
   return {
     activities,
     isLoading,
+    error,
   };
 }

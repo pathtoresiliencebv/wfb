@@ -27,9 +27,13 @@ export function useActivityFeed() {
         .order('created_at', { ascending: false })
         .limit(50);
       
-      if (error) throw error;
+      if (error) {
+        console.warn('Activity feed not available:', error);
+        return [];
+      }
       return data as any[];
     },
+    retry: false, // Don't retry if table doesn't exist
   });
 
   return {
