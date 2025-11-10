@@ -301,70 +301,76 @@ export const SupplierProfile: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {(supplier.contact_info as SupplierContact).wire && (
                     <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border">
-                      <img src="/src/assets/icons/wire.webp" alt="Wire" className="h-8 w-8" />
-                      <div>
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <MessageCircle className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="min-w-0 flex-1">
                         <p className="font-medium">Wire</p>
-                        <p className="text-sm text-muted-foreground">{(supplier.contact_info as SupplierContact).wire}</p>
+                        <p className="text-sm text-muted-foreground truncate">{(supplier.contact_info as SupplierContact).wire}</p>
                       </div>
                     </div>
                   )}
                   
                   {(supplier.contact_info as SupplierContact).telegram && (
                     <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border">
-                      <img src="/src/assets/icons/telegram.webp" alt="Telegram" className="h-8 w-8" />
-                      <div>
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <MessageCircle className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="min-w-0 flex-1">
                         <p className="font-medium">Telegram</p>
-                        <p className="text-sm text-muted-foreground">{(supplier.contact_info as SupplierContact).telegram}</p>
+                        <p className="text-sm text-muted-foreground truncate">{(supplier.contact_info as SupplierContact).telegram}</p>
                       </div>
                     </div>
                   )}
                   
                   {(supplier.contact_info as SupplierContact).email && (
                     <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border">
-                      <Mail className="h-6 w-6 text-primary" />
-                      <div>
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Mail className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="min-w-0 flex-1">
                         <p className="font-medium">Email</p>
-                        <p className="text-sm text-muted-foreground">{(supplier.contact_info as SupplierContact).email}</p>
+                        <p className="text-sm text-muted-foreground truncate">{(supplier.contact_info as SupplierContact).email}</p>
                       </div>
                     </div>
                   )}
                 </div>
 
                 {/* Ordering Process */}
-                <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10 rounded-xl p-6 border border-primary/20">
-                  <h4 className="font-semibold mb-6 text-center text-lg">Bestelproces</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+                <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10 rounded-xl p-4 md:p-6 border border-primary/20">
+                  <h4 className="font-semibold mb-4 md:mb-6 text-center text-lg">Bestelproces</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4 md:gap-6">
                     <div className="text-center group">
-                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <Package className="h-8 w-8 text-primary" />
+                      <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <Package className="h-6 w-6 md:h-8 md:w-8 text-primary" />
                       </div>
                       <div className="text-sm font-semibold mb-1">1. Kiezen</div>
                       <div className="text-xs text-muted-foreground">Selecteer producten</div>
                     </div>
                     <div className="text-center group">
-                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <MessageCircle className="h-8 w-8 text-primary" />
+                      <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <MessageCircle className="h-6 w-6 md:h-8 md:w-8 text-primary" />
                       </div>
                       <div className="text-sm font-semibold mb-1">2. Contact</div>
                       <div className="text-xs text-muted-foreground">Neem contact op</div>
                     </div>
                     <div className="text-center group">
-                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <CheckCircle className="h-8 w-8 text-primary" />
+                      <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <CheckCircle className="h-6 w-6 md:h-8 md:w-8 text-primary" />
                       </div>
                       <div className="text-sm font-semibold mb-1">3. Akkoord</div>
                       <div className="text-xs text-muted-foreground">Bevestig bestelling</div>
                     </div>
                     <div className="text-center group">
-                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <Euro className="h-8 w-8 text-primary" />
+                      <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <Euro className="h-6 w-6 md:h-8 md:w-8 text-primary" />
                       </div>
                       <div className="text-sm font-semibold mb-1">4. Betalen</div>
                       <div className="text-xs text-muted-foreground">Veilige betaling</div>
                     </div>
                     <div className="text-center group">
-                      <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <Truck className="h-8 w-8 text-primary" />
+                      <div className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <Truck className="h-6 w-6 md:h-8 md:w-8 text-primary" />
                       </div>
                       <div className="text-sm font-semibold mb-1">5. Ontvangen</div>
                       <div className="text-xs text-muted-foreground">Discrete levering</div>
