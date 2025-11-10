@@ -8,6 +8,10 @@ interface Stats {
   verifiedCommunity: string;
 }
 
+// Cache stats in memory with timestamp
+let cachedStats: { data: Stats; timestamp: number } | null = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 export function useRealTimeStats() {
   const [stats, setStats] = useState<Stats>({
     userCount: 0,
@@ -19,38 +23,48 @@ export function useRealTimeStats() {
 
   useEffect(() => {
     const fetchStats = async () => {
+      // Return cached data if still valid
+      if (cachedStats && Date.now() - cachedStats.timestamp < CACHE_DURATION) {
+        setStats(cachedStats.data);
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        // Get user count
-        const { count: userCount } = await supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true });
+        // Batch all queries together for better performance
+        const [profilesResult, expertsResult, topicsResult] = await Promise.all([
+          supabase.from('profiles').select('*', { count: 'exact', head: true }),
+          supabase.from('profiles').select('*', { count: 'exact', head: true }).in('role', ['expert', 'admin', 'moderator']),
+          supabase.from('topics').select('*', { count: 'exact', head: true })
+        ]);
 
-        // Get expert count (users with expert or admin role)
-        const { count: expertCount } = await supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true })
-          .in('role', ['expert', 'admin', 'moderator']);
-
-        // Get actual topic count from topics table
-        const { count: topicCount } = await supabase
-          .from('topics')
-          .select('*', { count: 'exact', head: true });
-
-        setStats({
-          userCount: userCount || 0,
-          topicCount: topicCount || 0,
-          expertCount: expertCount || 0,
+        const newStats = {
+          userCount: profilesResult.count || 0,
+          topicCount: topicsResult.count || 0,
+          expertCount: expertsResult.count || 0,
           verifiedCommunity: '100%',
-        });
+        };
+
+        // Update cache
+        cachedStats = {
+          data: newStats,
+          timestamp: Date.now()
+        };
+
+        setStats(newStats);
       } catch (error) {
         console.error('Error fetching stats:', error);
-        // Fallback to 0 values if query fails
-        setStats({
-          userCount: 0,
-          topicCount: 0,
-          expertCount: 0,
-          verifiedCommunity: '100%',
-        });
+        // Use cached data if available, otherwise fallback to 0
+        if (cachedStats) {
+          setStats(cachedStats.data);
+        } else {
+          setStats({
+            userCount: 0,
+            topicCount: 0,
+            expertCount: 0,
+            verifiedCommunity: '100%',
+          });
+        }
       } finally {
         setIsLoading(false);
       }

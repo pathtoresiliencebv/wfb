@@ -1,17 +1,33 @@
+import { lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { HeroSection } from './HeroSection';
 import { FloatingCannabisLeaf } from '@/components/animations/FloatingCannabisLeaf';
 import { ValuePropositionSection } from './ValuePropositionSection';
 import { HowItWorksSection } from './HowItWorksSection';
-import { ModernFeatures } from './ModernFeatures';
-import { TrendingTopics } from '@/components/home/TrendingTopics';
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
-import { ForumCategoriesPreview } from '@/components/home/ForumCategoriesPreview';
 import { FAQSection } from '@/components/home/FAQSection';
-import { SocialProofSection } from '@/components/home/SocialProofSection';
 import { TrustBadgesSection } from './TrustBadgesSection';
 import { CTASection } from './CTASection';
 import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
+
+// Lazy load heavy components
+const ModernFeatures = lazy(() => import('./ModernFeatures').then(m => ({ default: m.ModernFeatures })));
+const ForumCategoriesPreview = lazy(() => import('@/components/home/ForumCategoriesPreview').then(m => ({ default: m.ForumCategoriesPreview })));
+const SocialProofSection = lazy(() => import('@/components/home/SocialProofSection').then(m => ({ default: m.SocialProofSection })));
+
+// Loading skeleton for lazy components
+const SectionSkeleton = () => (
+  <div className="container mx-auto px-4 py-16 space-y-4">
+    <Skeleton className="h-12 w-96 mx-auto" />
+    <Skeleton className="h-6 w-[500px] mx-auto" />
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+      {[...Array(4)].map((_, i) => (
+        <Skeleton key={i} className="h-[300px]" />
+      ))}
+    </div>
+  </div>
+);
 export function LandingPage() {
   return <div className="min-h-screen bg-background relative overflow-x-hidden pt-20">
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -32,7 +48,9 @@ export function LandingPage() {
         animationDelay: '0.25s'
       }} />
         <div className="relative container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <ForumCategoriesPreview />
+          <Suspense fallback={<SectionSkeleton />}>
+            <ForumCategoriesPreview />
+          </Suspense>
         </div>
       </section>
 
@@ -56,14 +74,18 @@ export function LandingPage() {
       <section className="relative z-10 py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-br from-background via-background/50 to-accent/20 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--primary)/0.08),transparent_70%)]" />
         <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <SocialProofSection />
+          <Suspense fallback={<SectionSkeleton />}>
+            <SocialProofSection />
+          </Suspense>
         </div>
       </section>
 
       {/* Modern Features - GROENE SECTIE */}
       <section className="relative z-10 bg-gradient-to-br from-green-950/5 via-background to-green-950/10 border-y border-green-500/10 overflow-hidden">
         <div className="absolute top-1/3 left-1/2 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-green-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.25s' }} />
-        <ModernFeatures />
+        <Suspense fallback={<SectionSkeleton />}>
+          <ModernFeatures />
+        </Suspense>
       </section>
 
       {/* Trust & Safety - LICHTE SECTIE */}

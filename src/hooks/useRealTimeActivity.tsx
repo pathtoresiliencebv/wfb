@@ -28,6 +28,7 @@ export function useRealTimeActivity(limit: number = 5) {
       }
       return data as ActivityItem[];
     },
+    staleTime: 30000, // Cache for 30 seconds
     refetchInterval: 30000, // Refresh every 30 seconds
     retry: false, // Don't retry if table doesn't exist
   });

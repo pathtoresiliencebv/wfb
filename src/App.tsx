@@ -52,9 +52,11 @@ import Privacy from "./pages/Privacy";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 2,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1, // Reduce retries for faster failures
+      staleTime: 60000, // 1 minute - data stays fresh longer
+      gcTime: 5 * 60 * 1000, // 5 minutes - keep in cache
       refetchOnWindowFocus: false,
+      refetchOnMount: false, // Don't refetch on component mount if data is fresh
     },
   },
 });
