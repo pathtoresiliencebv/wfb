@@ -6,6 +6,7 @@ import { Lightbulb, Eye, MessageSquare } from 'lucide-react';
 import { useSuggestedTopics } from '@/hooks/useSuggestedTopics';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BadgedText } from '@/lib/badgeParser';
+import { EmptyStateCard } from '@/components/feed/EmptyStateCard';
 
 export function SuggestedTopics() {
   const { topics, isLoading } = useSuggestedTopics(5);
@@ -26,7 +27,15 @@ export function SuggestedTopics() {
   }
 
   if (!topics || topics.length === 0) {
-    return null;
+    return (
+      <EmptyStateCard
+        type="topics"
+        title="Geen suggesties beschikbaar"
+        description="We hebben op dit moment geen topics om aan te bevelen. Verken de forums om interessante discussies te ontdekken!"
+        actionText="Bekijk alle topics"
+        actionPath="/forums"
+      />
+    );
   }
 
   return (

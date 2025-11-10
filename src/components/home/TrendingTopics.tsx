@@ -9,6 +9,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { BadgedText } from '@/lib/badgeParser';
+import { EmptyStateCard } from '@/components/feed/EmptyStateCard';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TrendingTopicsProps {
   limit?: number;
@@ -17,6 +19,7 @@ interface TrendingTopicsProps {
 
 export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsProps) {
   const { topics, isLoading } = useTrendingTopics(limit);
+  const isMobile = useIsMobile();
 
   if (isLoading) {
     return (
@@ -32,7 +35,15 @@ export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsP
   }
 
   if (!topics || topics.length === 0) {
-    return null;
+    return (
+      <EmptyStateCard
+        type="topics"
+        title="Nog geen trending topics"
+        description="Er zijn deze week nog geen trending topics. Wees de eerste om een populair topic te starten!"
+        actionText="Start een topic"
+        actionPath="/create-topic"
+      />
+    );
   }
 
   return (
@@ -49,7 +60,7 @@ export function TrendingTopics({ limit = 6, showHeader = true }: TrendingTopicsP
         </div>
       )}
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
         {topics.map((topic) => (
           <div key={topic.id}>
             <Link to={`/forums/${topic.categories.slug}/topic/${topic.id}`} className="block">
