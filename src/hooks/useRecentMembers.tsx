@@ -22,7 +22,7 @@ export function useRecentMembers(limit: number = 8) {
       if (error) throw error;
       return data as RecentMember[];
     },
-    refetchInterval: 60000, // Refresh every minute
+    staleTime: 300000, // 5 minutes
   });
 
   return {

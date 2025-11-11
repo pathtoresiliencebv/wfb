@@ -56,14 +56,7 @@ export function RecentPosts() {
         </Button>
       </div>
       
-      {isLoading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-32" />
-          ))}
-        </div>
-      ) : (
-        <div className={cn(
+      <div className={cn(
           "gap-4",
           isMobile 
             ? "flex flex-col" 
@@ -83,7 +76,6 @@ export function RecentPosts() {
             </motion.div>
           ))}
         </div>
-      )}
     </div>
   );
 }

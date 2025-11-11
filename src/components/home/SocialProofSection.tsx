@@ -49,19 +49,7 @@ export function SocialProofSection() {
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[320px] pr-4">
-              {activitiesLoading ? (
-                <div className="space-y-4">
-                  {[...Array(5)].map((_, i) => (
-                    <div key={i} className="flex items-start gap-3 animate-pulse">
-                      <div className="w-10 h-10 rounded-full bg-muted" />
-                      <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-muted rounded w-3/4" />
-                        <div className="h-3 bg-muted rounded w-1/2" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : activitiesError || !activities || activities.length === 0 ? (
+              {activitiesError || !activities || activities.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center px-4">
                   <Activity className="w-12 h-12 text-muted-foreground/50 mb-4" />
                   <p className="text-sm text-muted-foreground mb-2">
@@ -112,19 +100,7 @@ export function SocialProofSection() {
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[320px] pr-4">
-              {membersLoading ? (
-                <div className="space-y-4">
-                  {[...Array(8)].map((_, i) => (
-                    <div key={i} className="flex items-center gap-3 animate-pulse">
-                      <div className="w-10 h-10 rounded-full bg-muted" />
-                      <div className="flex-1 space-y-2">
-                        <div className="h-4 bg-muted rounded w-2/3" />
-                        <div className="h-3 bg-muted rounded w-1/2" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : membersError || !members || members.length === 0 ? (
+              {membersError || !members || members.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center px-4">
                   <Users className="w-12 h-12 text-muted-foreground/50 mb-4" />
                   <p className="text-sm text-muted-foreground mb-2">

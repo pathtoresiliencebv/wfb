@@ -19,7 +19,7 @@ export function useRealTimeStats() {
     expertCount: 0,
     verifiedCommunity: '100%',
   });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
