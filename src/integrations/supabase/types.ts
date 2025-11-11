@@ -486,6 +486,7 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           edited_at: string | null
+          expires_at: string | null
           id: string
           is_deleted: boolean | null
           is_edited: boolean | null
@@ -499,6 +500,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           edited_at?: string | null
+          expires_at?: string | null
           id?: string
           is_deleted?: boolean | null
           is_edited?: boolean | null
@@ -512,6 +514,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           edited_at?: string | null
+          expires_at?: string | null
           id?: string
           is_deleted?: boolean | null
           is_edited?: boolean | null
@@ -1998,6 +2001,7 @@ export type Database = {
         }
         Returns: string
       }
+      delete_expired_messages: { Args: never; Returns: undefined }
       get_client_ip: { Args: never; Returns: unknown }
       get_current_user_role: { Args: never; Returns: string }
       get_profile_visibility: {

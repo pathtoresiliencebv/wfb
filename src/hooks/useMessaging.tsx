@@ -16,6 +16,7 @@ export interface Message {
   deleted_at?: string;
   is_edited?: boolean;
   edited_at?: string;
+  expires_at: string;
 }
 
 export interface Conversation {
@@ -135,6 +136,7 @@ export function useMessaging() {
           .select('*')
           .eq('conversation_id', conversationId)
           .eq('is_deleted', false)
+          .gte('expires_at', new Date().toISOString())
           .order('created_at', { ascending: true });
 
         if (error) throw error;
