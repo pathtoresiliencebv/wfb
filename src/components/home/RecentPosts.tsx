@@ -3,7 +3,6 @@ import { PostCard } from '@/components/feed/PostCard';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
-import { motion } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
@@ -63,17 +62,9 @@ export function RecentPosts() {
             : "grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3"
         )}>
           {recentTopics.map((post, index) => (
-            <motion.div
-              key={post.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ 
-                duration: 0.3,
-                delay: isMobile ? index * 0.05 : index * 0.1,
-              }}
-            >
+            <div key={post.id}>
               <PostCard post={post} />
-            </motion.div>
+            </div>
           ))}
         </div>
     </div>
