@@ -64,7 +64,7 @@ export function SocialProofSection() {
                   {activities.map((activity) => (
                     <div 
                       key={activity.id} 
-                      className="flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300"
+                      className="flex items-start gap-3"
                     >
                       <Avatar className="w-10 h-10">
                         <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${activity.user_id}`} />
@@ -115,7 +115,7 @@ export function SocialProofSection() {
                   {members.map((member) => (
                     <div 
                       key={member.id} 
-                      className="flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300"
+                      className="flex items-center gap-3"
                     >
                       <div className="relative">
                         <Avatar className="w-10 h-10">
@@ -124,7 +124,7 @@ export function SocialProofSection() {
                             {member.display_name?.[0] || member.username?.[0] || 'U'}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-pulse" />
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">

@@ -5,10 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, MessageSquare, Sprout, Stethoscope, Scale, Leaf, Coffee, Newspaper, MessageCircle, Folder, type LucideIcon } from 'lucide-react';
-import { motion, useInView } from 'framer-motion';
-import { useRef, useState } from 'react';
-import { fadeInUp, staggerContainer } from '@/lib/animations';
-import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useState } from 'react';
 import { getFallbackImage } from '@/lib/fallbackImages';
 
 interface Category {
@@ -35,9 +32,6 @@ const categoryIcons: Record<string, LucideIcon> = {
 };
 
 export function ForumCategoriesPreview() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.3 });
-  const prefersReducedMotion = useReducedMotion();
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
   // Helper functie om het juiste icoon te krijgen
@@ -66,8 +60,6 @@ export function ForumCategoriesPreview() {
     retry: false,
   });
 
-  const MotionDiv = prefersReducedMotion ? 'div' : motion.div;
-
   if (categories.length === 0) {
     return (
       <div className="text-center py-12">
@@ -78,32 +70,17 @@ export function ForumCategoriesPreview() {
 
   return (
     <div className="space-y-6 sm:space-y-8 pb-safe">
-      <MotionDiv 
-        className="text-center space-y-3 sm:space-y-4 px-4"
-        {...(!prefersReducedMotion && {
-          initial: { opacity: 0, y: 30 },
-          animate: isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 },
-          transition: { duration: 0.5 }
-        })}
-      >
+      <div className="text-center space-y-3 sm:space-y-4 px-4">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-heading">
           Verken Onze <span className="text-primary">Forum Categorieën</span>
         </h2>
         <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
           Van kweektips tot wetgeving - vind antwoorden op al je vragen
         </p>
-      </MotionDiv>
+      </div>
 
-      <motion.div 
-        ref={ref}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
-        {...(!prefersReducedMotion && {
-          variants: staggerContainer,
-          initial: "hidden",
-          animate: isInView ? "visible" : "hidden"
-        })}
-      >
-        {categories.map((category, index) => {
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {categories.map((category) => {
           const CategoryIcon = getCategoryIcon(category.slug);
           const imageUrl = imageErrors[category.id] 
             ? getFallbackImage(category.slug)
@@ -111,27 +88,14 @@ export function ForumCategoriesPreview() {
           
           return (
             <Link key={category.id} to={`/forums/${category.slug}`}>
-              <MotionDiv
-                {...(!prefersReducedMotion && {
-                  variants: fadeInUp,
-                  transition: { delay: index * 0.02 },
-                  whileHover: { 
-                    scale: 1.02
-                  }
-                })}
-              >
-                <Card className="group relative min-h-[280px] md:h-[300px] overflow-hidden transition-all duration-300 border-2 hover:border-primary/50 hover:shadow-[0_0_40px_rgba(34,197,94,0.2)]">
+              <Card className="group relative min-h-[280px] md:h-[300px] overflow-hidden transition-all duration-300 border-2 hover:border-primary/50 hover:shadow-[0_0_40px_rgba(34,197,94,0.2)]">
                 {/* Enhanced Background with Better Gradient */}
-                <motion.div 
-                  className="absolute inset-0 bg-cover bg-center"
+                <div 
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
                   style={{ 
                     backgroundImage: `url(${imageUrl})`,
                     backgroundColor: category.color || 'hsl(var(--muted))'
                   }}
-                  {...(!prefersReducedMotion && {
-                    whileHover: { scale: 1.1 },
-                    transition: { duration: 0.3 }
-                  })}
                 >
                   <img 
                     src={imageUrl}
@@ -144,13 +108,13 @@ export function ForumCategoriesPreview() {
                     }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-background/40 backdrop-blur-[2px]" />
-                </motion.div>
+                </div>
 
                 {/* Content */}
                 <div className="relative h-full flex flex-col justify-between p-4 sm:p-6">
                   {/* Enhanced Icon with Lucide Icon & Glow Effect */}
-                  <motion.div 
-                    className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg backdrop-blur-sm"
+                  <div 
+                    className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6"
                     style={{ 
                       backgroundColor: `${category.color}20`,
                       borderWidth: '2px',
@@ -158,31 +122,19 @@ export function ForumCategoriesPreview() {
                       borderColor: `${category.color}40`,
                       boxShadow: `0 8px 20px ${category.color}30`
                     }}
-                    {...(!prefersReducedMotion && {
-                      whileHover: { 
-                        rotate: [0, -10, 10, 0],
-                        scale: 1.1,
-                        transition: { duration: 0.5 }
-                      }
-                    })}
                   >
                     <CategoryIcon className="w-8 h-8" style={{ color: category.color }} />
-                  </motion.div>
+                  </div>
 
-                {/* Enhanced Text Content */}
-                <div className="space-y-3">
-                  <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
-                    {category.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                    {category.description}
-                  </p>
-                  <div className="flex items-center justify-between pt-2">
-                    <motion.div
-                      {...(!prefersReducedMotion && {
-                        whileHover: { scale: 1.1 }
-                      })}
-                    >
+                  {/* Enhanced Text Content */}
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
+                      {category.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                      {category.description}
+                    </p>
+                    <div className="flex items-center justify-between pt-2">
                       <Badge 
                         variant="secondary" 
                         className="backdrop-blur-sm"
@@ -194,66 +146,28 @@ export function ForumCategoriesPreview() {
                       >
                         {category.topic_count} topics
                       </Badge>
-                    </motion.div>
-                    <motion.div
-                      {...(!prefersReducedMotion && {
-                        animate: { x: [0, 5, 0] },
-                        transition: { 
-                          duration: 1.5,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }
-                      })}
-                    >
                       <ArrowRight className="w-5 h-5 text-primary opacity-0 group-hover:opacity-100 transition-all duration-300" />
-                    </motion.div>
+                    </div>
                   </div>
                 </div>
-              </div>
               </Card>
-            </MotionDiv>
-          </Link>
-        );
+            </Link>
+          );
         })}
-      </motion.div>
+      </div>
 
-      <MotionDiv 
-        className="text-center pt-4"
-        {...(!prefersReducedMotion && {
-          initial: { opacity: 0, y: 20 },
-          animate: isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 },
-          transition: { delay: 0.5, duration: 0.5 }
-        })}
-      >
+      <div className="text-center pt-4">
         <Link to="/forums">
-          <MotionDiv 
-            className="inline-block"
-            {...(!prefersReducedMotion && {
-              whileHover: { scale: 1.05 },
-              whileTap: { scale: 0.95 }
-            })}
+          <Button 
+            size="lg" 
+            variant="outline" 
+            className="group"
           >
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="group"
-            >
-              Bekijk Alle Categorieën
-              <motion.div
-                {...(!prefersReducedMotion && {
-                  animate: { x: [0, 5, 0] },
-                  transition: { 
-                    duration: 1.5,
-                    repeat: Infinity
-                  }
-                })}
-              >
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </motion.div>
-            </Button>
-          </MotionDiv>
+            Bekijk Alle Categorieën
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
         </Link>
-      </MotionDiv>
+      </div>
     </div>
   );
 }
