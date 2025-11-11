@@ -1,4 +1,4 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { AuthConfigManager } from "@/components/auth/AuthConfigManager";
@@ -8,55 +8,65 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Layout } from "@/components/layout/Layout";
 import { HomePage } from "@/components/home/HomePage";
-
-import Forums from "./pages/Forums";
-import ForumCategory from "./pages/ForumCategory";
-import TopicDetail from "./pages/TopicDetail";
-import CreateTopic from "./pages/CreateTopic";
-import UserProfile from "./pages/UserProfile";
-import Members from "./pages/Members";
-import Leaderboard from "./pages/Leaderboard";
-import NotFound from "./pages/NotFound";
-import Messages from "./pages/Messages";
-import { AdminLayout } from "@/components/admin/AdminLayout";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminModeration from "./pages/admin/AdminModeration";
-import AdminUsers from "./pages/admin/AdminUsers";
-import AdminCategories from "./pages/admin/AdminCategories";
-import AdminTopics from "./pages/admin/AdminTopics";
-import AdminTags from "./pages/admin/AdminTags";
-import AdminImages from "./pages/admin/AdminImages";
-import AdminSecurity from "./pages/admin/AdminSecurity";
-import AdminAnalyticsPage from "./pages/admin/AdminAnalytics";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminSuppliers from "./pages/admin/AdminSuppliers";
-import Search from "./pages/Search";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AdminRoute } from "@/components/auth/AdminRoute";
 import { OnboardingWelcome } from "@/components/auth/OnboardingWelcome";
-import { LandingPage } from "@/components/landing/LandingPage";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import PasswordReset from "./pages/PasswordReset";
-import Settings from "./pages/Settings";
-import Gamification from "./pages/Gamification";
-import { SupplierProfile as SupplierProfilePage } from "./pages/SupplierProfile";
-import SupplierDashboard from "./pages/SupplierDashboard";
-import AdminLogin from "./pages/AdminLogin";
-import SupplierLogin from "./pages/SupplierLogin";
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
+import { PageLoadingSpinner } from "@/components/loading/PageLoadingSpinner";
+import { PerformanceOptimizations } from "@/components/performance/PerformanceOptimizations";
 
-// Create QueryClient instance outside of component to prevent recreation
+// Lazy load pages for code splitting
+const Forums = lazy(() => import("./pages/Forums"));
+const ForumCategory = lazy(() => import("./pages/ForumCategory"));
+const TopicDetail = lazy(() => import("./pages/TopicDetail"));
+const CreateTopic = lazy(() => import("./pages/CreateTopic"));
+const UserProfile = lazy(() => import("./pages/UserProfile"));
+const Members = lazy(() => import("./pages/Members"));
+const Leaderboard = lazy(() => import("./pages/Leaderboard"));
+const Messages = lazy(() => import("./pages/Messages"));
+const Search = lazy(() => import("./pages/Search"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Gamification = lazy(() => import("./pages/Gamification"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+// Auth pages
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const PasswordReset = lazy(() => import("./pages/PasswordReset"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const SupplierLogin = lazy(() => import("./pages/SupplierLogin"));
+
+// Admin pages (heavy - lazy load)
+const AdminLayout = lazy(() => import("@/components/admin/AdminLayout").then(m => ({ default: m.AdminLayout })));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminModeration = lazy(() => import("./pages/admin/AdminModeration"));
+const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
+const AdminCategories = lazy(() => import("./pages/admin/AdminCategories"));
+const AdminTopics = lazy(() => import("./pages/admin/AdminTopics"));
+const AdminTags = lazy(() => import("./pages/admin/AdminTags"));
+const AdminImages = lazy(() => import("./pages/admin/AdminImages"));
+const AdminSecurity = lazy(() => import("./pages/admin/AdminSecurity"));
+const AdminAnalyticsPage = lazy(() => import("./pages/admin/AdminAnalytics"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminSuppliers = lazy(() => import("./pages/admin/AdminSuppliers"));
+
+// Supplier pages
+const SupplierProfilePage = lazy(() => import("./pages/SupplierProfile").then(m => ({ default: m.SupplierProfile })));
+const SupplierDashboard = lazy(() => import("./pages/SupplierDashboard"));
+
+// Legal pages
+const Terms = lazy(() => import("./pages/Terms"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+
+// Optimized QueryClient with aggressive caching
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1, // Reduce retries for faster failures
-      staleTime: 60000, // 1 minute - data stays fresh longer
-      gcTime: 5 * 60 * 1000, // 5 minutes - keep in cache
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes - data stays fresh longer
+      gcTime: 30 * 60 * 1000, // 30 minutes - keep in cache longer
       refetchOnWindowFocus: false,
-      refetchOnMount: false, // Don't refetch on component mount if data is fresh
+      refetchOnMount: false,
     },
   },
 });
@@ -80,7 +90,9 @@ function AppRoutes() {
                   path="/login" 
                   element={
                     <ProtectedRoute requireAuth={false}>
-                      <Login />
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <Login />
+                      </Suspense>
                     </ProtectedRoute>
                   } 
                 />
@@ -88,7 +100,9 @@ function AppRoutes() {
                   path="/register" 
                   element={
                     <ProtectedRoute requireAuth={false}>
-                      <Register />
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <Register />
+                      </Suspense>
                     </ProtectedRoute>
                   } 
                 />
@@ -96,7 +110,9 @@ function AppRoutes() {
                   path="/password-reset" 
                   element={
                     <ProtectedRoute requireAuth={false}>
-                      <PasswordReset />
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <PasswordReset />
+                      </Suspense>
                     </ProtectedRoute>
                   } 
                 />
@@ -106,7 +122,9 @@ function AppRoutes() {
                   path="/admin/login" 
                   element={
                     <ProtectedRoute requireAuth={false}>
-                      <AdminLogin />
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <AdminLogin />
+                      </Suspense>
                     </ProtectedRoute>
                   } 
                 />
@@ -116,7 +134,9 @@ function AppRoutes() {
                   path="/supplier-login" 
                   element={
                     <ProtectedRoute requireAuth={false}>
-                      <SupplierLogin />
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <SupplierLogin />
+                      </Suspense>
                     </ProtectedRoute>
                   } 
                 />
@@ -134,7 +154,9 @@ function AppRoutes() {
                   path="/forums" 
                   element={
                     <Layout>
-                      <Forums />
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <Forums />
+                      </Suspense>
                     </Layout>
                   } 
                 />
@@ -142,7 +164,9 @@ function AppRoutes() {
                   path="/forums/:slug" 
                   element={
                     <Layout>
-                      <ForumCategory />
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <ForumCategory />
+                      </Suspense>
                     </Layout>
                   } 
                 />
@@ -150,7 +174,9 @@ function AppRoutes() {
                   path="/forums/:slug/topic/:topicId" 
                   element={
                     <Layout>
-                      <TopicDetail />
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <TopicDetail />
+                      </Suspense>
                     </Layout>
                   } 
                  />
@@ -158,7 +184,9 @@ function AppRoutes() {
                   path="/create-topic" 
                   element={
                     <Layout>
-                      <CreateTopic />
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <CreateTopic />
+                      </Suspense>
                     </Layout>
                   } 
                 />
@@ -174,7 +202,9 @@ function AppRoutes() {
                   path="/user/:userId" 
                   element={
                     <Layout>
-                      <UserProfile />
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <UserProfile />
+                      </Suspense>
                     </Layout>
                   } 
                 />
@@ -182,7 +212,9 @@ function AppRoutes() {
                   path="/members" 
                   element={
                     <Layout>
-                      <Members />
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <Members />
+                      </Suspense>
                     </Layout>
                   } 
                 />
@@ -190,7 +222,9 @@ function AppRoutes() {
                   path="/leaderboard" 
                   element={
                     <Layout>
-                      <Leaderboard />
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <Leaderboard />
+                      </Suspense>
                     </Layout>
                   } 
                 />
@@ -199,7 +233,9 @@ function AppRoutes() {
                   element={
                     <ProtectedRoute>
                       <Layout>
-                        <Messages />
+                        <Suspense fallback={<PageLoadingSpinner />}>
+                          <Messages />
+                        </Suspense>
                       </Layout>
                     </ProtectedRoute>
                   } 
@@ -208,7 +244,9 @@ function AppRoutes() {
                   path="/search" 
                   element={
                     <Layout>
-                      <Search />
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <Search />
+                      </Suspense>
                     </Layout>
                   } 
                 />
@@ -217,7 +255,9 @@ function AppRoutes() {
                   element={
                     <ProtectedRoute>
                       <Layout>
-                        <Settings />
+                        <Suspense fallback={<PageLoadingSpinner />}>
+                          <Settings />
+                        </Suspense>
                       </Layout>
                     </ProtectedRoute>
                   } 
@@ -226,7 +266,9 @@ function AppRoutes() {
                   path="/gamification" 
                   element={
                     <Layout>
-                      <Gamification />
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <Gamification />
+                      </Suspense>
                     </Layout>
                   } 
                 />
@@ -234,9 +276,11 @@ function AppRoutes() {
                   path="/admin" 
                   element={
                     <AdminRoute requireRole="moderator">
-                      <AdminLayout>
-                        <AdminDashboard />
-                      </AdminLayout>
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <AdminLayout>
+                          <AdminDashboard />
+                        </AdminLayout>
+                      </Suspense>
                     </AdminRoute>
                   } 
                 />
@@ -244,9 +288,11 @@ function AppRoutes() {
                   path="/admin/moderation" 
                   element={
                     <AdminRoute requireRole="moderator">
-                      <AdminLayout>
-                        <AdminModeration />
-                      </AdminLayout>
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <AdminLayout>
+                          <AdminModeration />
+                        </AdminLayout>
+                      </Suspense>
                     </AdminRoute>
                   } 
                 />
@@ -335,28 +381,46 @@ function AppRoutes() {
                    path="/aanbod/:username" 
                    element={
                      <ProtectedRoute>
-                       <SupplierProfilePage />
+                       <Suspense fallback={<PageLoadingSpinner />}>
+                         <SupplierProfilePage />
+                       </Suspense>
                      </ProtectedRoute>
                    } 
                  />
                 
                 <Route 
                   path="/leverancier/dashboard" 
-                  element={<SupplierDashboard />} 
+                  element={
+                    <Suspense fallback={<PageLoadingSpinner />}>
+                      <SupplierDashboard />
+                    </Suspense>
+                  } 
                 />
                 
                 {/* Legal pages */}
                 <Route 
                   path="/terms" 
-                  element={<Terms />} 
+                  element={
+                    <Suspense fallback={<PageLoadingSpinner />}>
+                      <Terms />
+                    </Suspense>
+                  } 
                 />
                 <Route 
                   path="/privacy" 
-                  element={<Privacy />} 
+                  element={
+                    <Suspense fallback={<PageLoadingSpinner />}>
+                      <Privacy />
+                    </Suspense>
+                  } 
                 />
                 
         {/* Catch-all route */}
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={
+          <Suspense fallback={<PageLoadingSpinner />}>
+            <NotFound />
+          </Suspense>
+        } />
       </Routes>
     </>
   );
@@ -372,6 +436,7 @@ function App() {
             <TooltipProvider>
               <Toaster />
               <Sonner />
+              <PerformanceOptimizations />
               <AppRoutes />
             </TooltipProvider>
           </ThemeProvider>
