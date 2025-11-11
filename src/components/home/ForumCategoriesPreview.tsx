@@ -45,7 +45,7 @@ export function ForumCategoriesPreview() {
     return categoryIcons[slug] || Folder;
   };
 
-  const { data: categories, isLoading } = useQuery({
+  const { data: categories = [] } = useQuery({
     queryKey: ['categories-preview'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -55,16 +55,20 @@ export function ForumCategoriesPreview() {
         .order('topic_count', { ascending: false })
         .limit(4);
       
-      if (error) throw error;
-      return data as Category[];
+      if (error) {
+        console.warn('Categories fetch failed:', error);
+        return [];
+      }
+      return data as Category[] || [];
     },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: false,
   });
 
   const MotionDiv = prefersReducedMotion ? 'div' : motion.div;
 
-  if (!categories?.length) {
+  if (categories.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground">Geen categorieën beschikbaar</p>

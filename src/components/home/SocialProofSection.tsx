@@ -12,8 +12,8 @@ import { TrendingUp, Users, MessageSquare, Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function SocialProofSection() {
-  const { activities, isLoading: activitiesLoading, error: activitiesError } = useRealTimeActivity(5);
-  const { members, isLoading: membersLoading, error: membersError } = useRecentMembers(8);
+  const { activities = [], error: activitiesError } = useRealTimeActivity(5);
+  const { members = [], error: membersError } = useRecentMembers(8);
   const { stats } = useRealTimeStats();
 
   const getActivityText = (activity: any) => {
@@ -49,7 +49,7 @@ export function SocialProofSection() {
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[320px] pr-4">
-              {activitiesError || !activities || activities.length === 0 ? (
+              {activities.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center px-4">
                   <Activity className="w-12 h-12 text-muted-foreground/50 mb-4" />
                   <p className="text-sm text-muted-foreground mb-2">
@@ -100,7 +100,7 @@ export function SocialProofSection() {
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[320px] pr-4">
-              {membersError || !members || members.length === 0 ? (
+              {members.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center px-4">
                   <Users className="w-12 h-12 text-muted-foreground/50 mb-4" />
                   <p className="text-sm text-muted-foreground mb-2">

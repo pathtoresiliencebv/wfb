@@ -10,7 +10,7 @@ interface RecentMember {
 }
 
 export function useRecentMembers(limit: number = 8) {
-  const { data: members, isLoading, error } = useQuery({
+  const { data: members = [], isLoading, error } = useQuery({
     queryKey: ['recent-members', limit],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -19,10 +19,14 @@ export function useRecentMembers(limit: number = 8) {
         .order('created_at', { ascending: false })
         .limit(limit);
       
-      if (error) throw error;
-      return data as RecentMember[];
+      if (error) {
+        console.warn('Recent members fetch failed:', error);
+        return [];
+      }
+      return data as RecentMember[] || [];
     },
-    staleTime: 300000, // 5 minutes
+    staleTime: 300000,
+    retry: false,
   });
 
   return {
