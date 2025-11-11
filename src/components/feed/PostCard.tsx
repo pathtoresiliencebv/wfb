@@ -9,7 +9,6 @@ import { PostActions } from '@/components/interactive/PostActions';
 import { VerifiedBadge } from '@/components/ui/verified-badge';
 import { useVoting } from '@/hooks/useVoting';
 import { useBookmarks } from '@/hooks/useBookmarks';
-import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
@@ -79,15 +78,10 @@ export function PostCard({ post }: PostCardProps) {
   };
 
   return (
-    <motion.div
-      whileHover={{ y: -2 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.2 }}
+    <Card 
+      className="card-hover-glow gradient-card overflow-hidden transition-all duration-300 group cursor-pointer hover:-translate-y-0.5 active:scale-[0.98]"
+      onClick={handleCardClick}
     >
-      <Card 
-        className="card-hover-glow gradient-card overflow-hidden transition-all duration-300 group cursor-pointer active:scale-[0.98]"
-        onClick={handleCardClick}
-      >
         <CardContent className="p-4">
           <div className={cn(
             "flex gap-4",
@@ -201,6 +195,5 @@ export function PostCard({ post }: PostCardProps) {
           </div>
         </CardContent>
       </Card>
-    </motion.div>
   );
 }

@@ -91,10 +91,10 @@ export function RecentActivity() {
           <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="flex items-start gap-3">
-                <div className="h-6 w-6 rounded-full bg-muted animate-pulse" />
+                <div className="h-6 w-6 rounded-full bg-muted" />
                 <div className="flex-1 space-y-1">
-                  <div className="h-3 bg-muted rounded animate-pulse" />
-                  <div className="h-2 bg-muted rounded w-2/3 animate-pulse" />
+                  <div className="h-3 bg-muted rounded" />
+                  <div className="h-2 bg-muted rounded w-2/3" />
                 </div>
               </div>
             ))}
