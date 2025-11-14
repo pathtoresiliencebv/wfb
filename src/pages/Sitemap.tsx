@@ -3,8 +3,8 @@ import { ExternalLink, CheckCircle2, FileText, Globe } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function Sitemap() {
-  const baseUrl = window.location.origin;
-  const sitemapUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-sitemap`;
+  const baseUrl = "https://wietforumbelgique.com";
+  const sitemapBaseUrl = `${baseUrl}`;
 
   const sitemaps = [
     { name: "Sitemap Index", type: "index", description: "Hoofdindex van alle sitemaps", icon: Globe },
@@ -64,7 +64,7 @@ export default function Sitemap() {
           <CardContent>
             <div className="space-y-2">
               <a
-                href={`${sitemapUrl}?type=index`}
+                href={`${sitemapBaseUrl}/sitemap.xml`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline font-mono text-sm break-all block"
@@ -98,7 +98,7 @@ export default function Sitemap() {
                   </CardHeader>
                   <CardContent>
                     <a
-                      href={`${sitemapUrl}?type=${sitemap.type}`}
+                      href={`${sitemapBaseUrl}/sitemap-${sitemap.type}.xml`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs text-primary hover:underline break-all block font-mono"
