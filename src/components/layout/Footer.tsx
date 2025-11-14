@@ -43,7 +43,7 @@ export function Footer() {
   return (
     <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 mt-auto">
       <div className="container mx-auto px-4 sm:px-6 py-8 md:py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
           {/* Over Ons met Logo */}
           <div className="flex flex-col items-start">
             <img 
@@ -76,6 +76,49 @@ export function Footer() {
                   Leden
                 </Link>
               </li>
+              <li>
+                <Link to="/gamification" className="text-small hover:text-primary transition-colors">
+                  Gamification
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Cannabis België SEO Pages */}
+          <div>
+            <h3 className="heading-card mb-4">Cannabis België</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/cannabis-belgie" className="text-small hover:text-primary transition-colors font-medium">
+                  🌿 Complete Gids
+                </Link>
+              </li>
+              <li className="text-xs text-muted-foreground font-semibold mt-3 mb-1">Provincies:</li>
+              <li>
+                <Link to="/cannabis-belgie/antwerpen" className="text-small hover:text-primary transition-colors">
+                  Antwerpen
+                </Link>
+              </li>
+              <li>
+                <Link to="/cannabis-belgie/oost-vlaanderen" className="text-small hover:text-primary transition-colors">
+                  Oost-Vlaanderen
+                </Link>
+              </li>
+              <li>
+                <Link to="/cannabis-belgie/west-vlaanderen" className="text-small hover:text-primary transition-colors">
+                  West-Vlaanderen
+                </Link>
+              </li>
+              <li>
+                <Link to="/cannabis-belgie/vlaams-brabant" className="text-small hover:text-primary transition-colors">
+                  Vlaams-Brabant
+                </Link>
+              </li>
+              <li>
+                <Link to="/cannabis-belgie/limburg" className="text-small hover:text-primary transition-colors">
+                  Limburg
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -97,9 +140,34 @@ export function Footer() {
                 <p className="text-small">Binnenkort beschikbaar</p>
               )}
             </div>
+            <div className="mt-4 pt-4 border-t border-border">
+              <h4 className="text-xs font-semibold text-muted-foreground mb-2">Belangrijke Steden:</h4>
+              <ul className="space-y-1">
+                <li>
+                  <Link to="/cannabis-belgie/antwerpen/antwerpen" className="text-xs hover:text-primary transition-colors">
+                    Antwerpen
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/cannabis-belgie/oost-vlaanderen/gent" className="text-xs hover:text-primary transition-colors">
+                    Gent
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/cannabis-belgie/west-vlaanderen/brugge" className="text-xs hover:text-primary transition-colors">
+                    Brugge
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/cannabis-belgie/vlaams-brabant/leuven" className="text-xs hover:text-primary transition-colors">
+                    Leuven
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          {/* Informatie */}
+          {/* Informatie & SEO */}
           <div>
             <h3 className="heading-card mb-4">Informatie</h3>
             <ul className="space-y-2">
@@ -113,7 +181,35 @@ export function Footer() {
                   Privacy
                 </Link>
               </li>
+              <li>
+                <Link to="/sitemap" className="text-small hover:text-primary transition-colors font-medium">
+                  🗺️ Sitemap
+                </Link>
+              </li>
             </ul>
+            <div className="mt-4 pt-4 border-t border-border">
+              <h4 className="text-xs font-semibold text-muted-foreground mb-2">Meer Steden:</h4>
+              <div className="grid grid-cols-2 gap-1">
+                <Link to="/cannabis-belgie/west-vlaanderen/kortrijk" className="text-xs hover:text-primary transition-colors">
+                  Kortrijk
+                </Link>
+                <Link to="/cannabis-belgie/limburg/hasselt" className="text-xs hover:text-primary transition-colors">
+                  Hasselt
+                </Link>
+                <Link to="/cannabis-belgie/antwerpen/mechelen" className="text-xs hover:text-primary transition-colors">
+                  Mechelen
+                </Link>
+                <Link to="/cannabis-belgie/oost-vlaanderen/aalst" className="text-xs hover:text-primary transition-colors">
+                  Aalst
+                </Link>
+                <Link to="/cannabis-belgie/west-vlaanderen/oostende" className="text-xs hover:text-primary transition-colors">
+                  Oostende
+                </Link>
+                <Link to="/cannabis-belgie/limburg/genk" className="text-xs hover:text-primary transition-colors">
+                  Genk
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
 
