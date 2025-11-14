@@ -59,6 +59,10 @@ const SupplierDashboard = lazy(() => import("./pages/SupplierDashboard"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 
+// SEO pages
+const Sitemap = lazy(() => import("./pages/Sitemap"));
+const SEOContent = lazy(() => import("./pages/SEOContent"));
+
 // Optimized QueryClient with aggressive caching
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -412,6 +416,52 @@ function AppRoutes() {
                   element={
                     <Suspense fallback={<PageLoadingSpinner />}>
                       <Privacy />
+                    </Suspense>
+                  } 
+                />
+
+                {/* SEO pages */}
+                <Route 
+                  path="/sitemap" 
+                  element={
+                    <Suspense fallback={<PageLoadingSpinner />}>
+                      <Sitemap />
+                    </Suspense>
+                  } 
+                />
+                
+                {/* SEO Content - catch-all for cannabis-belgie and subpaths */}
+                <Route 
+                  path="/cannabis-belgie" 
+                  element={
+                    <Suspense fallback={<PageLoadingSpinner />}>
+                      <SEOContent />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/cannabis-belgie/:province" 
+                  element={
+                    <Suspense fallback={<PageLoadingSpinner />}>
+                      <SEOContent />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/cannabis-belgie/:province/:city" 
+                  element={
+                    <Suspense fallback={<PageLoadingSpinner />}>
+                      <SEOContent />
+                    </Suspense>
+                  } 
+                />
+                
+                {/* Generic SEO content by slug */}
+                <Route 
+                  path="/:slug" 
+                  element={
+                    <Suspense fallback={<PageLoadingSpinner />}>
+                      <SEOContent />
                     </Suspense>
                   } 
                 />
