@@ -833,6 +833,144 @@ export type Database = {
           },
         ]
       }
+      seo_content_pages: {
+        Row: {
+          author_id: string | null
+          canonical_url: string | null
+          content: Json
+          created_at: string | null
+          h1_title: string
+          id: string
+          is_published: boolean | null
+          last_updated: string | null
+          meta_description: string | null
+          meta_keywords: string[] | null
+          page_type: string
+          parent_slug: string | null
+          publish_date: string | null
+          schema_markup: Json | null
+          seo_score: number | null
+          slug: string
+          title: string
+          view_count: number | null
+        }
+        Insert: {
+          author_id?: string | null
+          canonical_url?: string | null
+          content?: Json
+          created_at?: string | null
+          h1_title: string
+          id?: string
+          is_published?: boolean | null
+          last_updated?: string | null
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          page_type: string
+          parent_slug?: string | null
+          publish_date?: string | null
+          schema_markup?: Json | null
+          seo_score?: number | null
+          slug: string
+          title: string
+          view_count?: number | null
+        }
+        Update: {
+          author_id?: string | null
+          canonical_url?: string | null
+          content?: Json
+          created_at?: string | null
+          h1_title?: string
+          id?: string
+          is_published?: boolean | null
+          last_updated?: string | null
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          page_type?: string
+          parent_slug?: string | null
+          publish_date?: string | null
+          schema_markup?: Json | null
+          seo_score?: number | null
+          slug?: string
+          title?: string
+          view_count?: number | null
+        }
+        Relationships: []
+      }
+      seo_internal_links: {
+        Row: {
+          anchor_text: string
+          created_at: string | null
+          id: string
+          link_position: string | null
+          source_page_id: string | null
+          target_page_id: string | null
+        }
+        Insert: {
+          anchor_text: string
+          created_at?: string | null
+          id?: string
+          link_position?: string | null
+          source_page_id?: string | null
+          target_page_id?: string | null
+        }
+        Update: {
+          anchor_text?: string
+          created_at?: string | null
+          id?: string
+          link_position?: string | null
+          source_page_id?: string | null
+          target_page_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_internal_links_source_page_id_fkey"
+            columns: ["source_page_id"]
+            isOneToOne: false
+            referencedRelation: "seo_content_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seo_internal_links_target_page_id_fkey"
+            columns: ["target_page_id"]
+            isOneToOne: false
+            referencedRelation: "seo_content_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_redirects: {
+        Row: {
+          created_at: string | null
+          from_url: string
+          hit_count: number | null
+          id: string
+          is_active: boolean | null
+          redirect_type: number | null
+          to_url: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          from_url: string
+          hit_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          redirect_type?: number | null
+          to_url: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          from_url?: string
+          hit_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          redirect_type?: number | null
+          to_url?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       seo_settings: {
         Row: {
           created_at: string
