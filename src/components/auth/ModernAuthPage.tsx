@@ -2,14 +2,12 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ChevronLeft, AtSign, Eye, EyeOff, CheckCircle, XCircle, Loader2, CalendarIcon, User } from 'lucide-react';
+import { ChevronLeft, AtSign, Eye, EyeOff, CheckCircle, XCircle, Loader2, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format } from 'date-fns';
-import { nl } from 'date-fns/locale';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 
 const heroImage = '/lovable-uploads/a6faafc3-e2bd-47ec-8de8-603497930570.png';
 
@@ -205,39 +203,74 @@ export function ModernAuthPage({
 
             {/* Birth Date */}
             <div className="animate-element animate-delay-400">
-              <label className="text-sm font-medium text-muted-foreground mb-2 block">Geboortedatum</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal bg-foreground/5 backdrop-blur-sm border-border hover:border-primary/70 hover:bg-primary/10",
-                      !birthDate && "text-muted-foreground"
-                    )}
-                    disabled={isSubmitting}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {birthDate ? format(birthDate, "PPP", { locale: nl }) : <span>Selecteer je geboortedatum</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={birthDate}
-                    onSelect={onBirthDateChange}
-                    disabled={(date) =>
-                      date > new Date() || date < new Date("1900-01-01")
-                    }
-                    initialFocus
-                    captionLayout="dropdown"
-                    fromYear={1900}
-                    toYear={new Date().getFullYear()}
-                    defaultMonth={new Date(new Date().getFullYear() - 25, 0, 1)}
-                    locale={nl}
-                    className="pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
+              <Label className="text-sm font-medium text-muted-foreground mb-2 block">Geboortedatum</Label>
+              <div className="grid grid-cols-3 gap-2">
+                <Select 
+                  value={birthDate ? String(birthDate.getDate()) : ""} 
+                  onValueChange={(day) => {
+                    const currentDate = birthDate || new Date(2000, 0, 1);
+                    const newDate = new Date(currentDate);
+                    newDate.setDate(parseInt(day));
+                    onBirthDateChange(newDate);
+                  }}
+                  disabled={isSubmitting}
+                >
+                  <SelectTrigger className="bg-foreground/5 backdrop-blur-sm border-border hover:border-primary/70">
+                    <SelectValue placeholder="Dag" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px]">
+                    {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                      <SelectItem key={day} value={String(day)}>
+                        {day}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select 
+                  value={birthDate ? String(birthDate.getMonth()) : ""} 
+                  onValueChange={(month) => {
+                    const currentDate = birthDate || new Date(2000, 0, 1);
+                    const newDate = new Date(currentDate);
+                    newDate.setMonth(parseInt(month));
+                    onBirthDateChange(newDate);
+                  }}
+                  disabled={isSubmitting}
+                >
+                  <SelectTrigger className="bg-foreground/5 backdrop-blur-sm border-border hover:border-primary/70">
+                    <SelectValue placeholder="Maand" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px]">
+                    {["Jan", "Feb", "Mrt", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"].map((name, i) => (
+                      <SelectItem key={i} value={String(i)}>
+                        {name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select 
+                  value={birthDate ? String(birthDate.getFullYear()) : ""} 
+                  onValueChange={(year) => {
+                    const currentDate = birthDate || new Date(parseInt(year), 0, 1);
+                    const newDate = new Date(currentDate);
+                    newDate.setFullYear(parseInt(year));
+                    onBirthDateChange(newDate);
+                  }}
+                  disabled={isSubmitting}
+                >
+                  <SelectTrigger className="bg-foreground/5 backdrop-blur-sm border-border hover:border-primary/70">
+                    <SelectValue placeholder="Jaar" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px]">
+                    {Array.from({ length: new Date().getFullYear() - 1900 + 1 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                      <SelectItem key={year} value={String(year)}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <p className="text-xs text-muted-foreground mt-1">Je moet 18+ zijn om een account aan te maken</p>
               {errors.birthDate && <p className="text-sm text-red-500 mt-1">{errors.birthDate}</p>}
             </div>
