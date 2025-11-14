@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { HeroSection } from './HeroSection';
 import { FloatingCannabisLeaf } from '@/components/animations/FloatingCannabisLeaf';
 import { ValuePropositionSection } from './ValuePropositionSection';
@@ -7,10 +6,10 @@ import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { FAQSection } from '@/components/home/FAQSection';
 import { TrustBadgesSection } from './TrustBadgesSection';
 import { CTASection } from './CTASection';
-import { Separator } from '@/components/ui/separator';
 import { ModernFeatures } from './ModernFeatures';
 import { ForumCategoriesPreview } from '@/components/home/ForumCategoriesPreview';
 import { SocialProofSection } from '@/components/home/SocialProofSection';
+import { Footer } from '@/components/layout/Footer';
 
 export function LandingPage() {
   return <div className="min-h-screen bg-background relative overflow-x-hidden pt-20">
@@ -98,43 +97,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative z-10 border-t bg-muted/30">
-        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="font-semibold mb-4">Over Ons</h3>
-              <p className="text-sm text-muted-foreground">
-                De grootste cannabis community van België. Een veilige plek voor kennis delen en verbinding.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Community</h3>
-              <ul className="space-y-2 text-sm">
-                <li><Link to="/forums" className="text-muted-foreground hover:text-foreground">Forums</Link></li>
-                <li><Link to="/leaderboard" className="text-muted-foreground hover:text-foreground">Leaderboard</Link></li>
-                <li><Link to="/members" className="text-muted-foreground hover:text-foreground">Leden</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Informatie</h3>
-              <ul className="space-y-2 text-sm">
-                <li><Link to="/terms" className="text-muted-foreground hover:text-foreground">Voorwaarden</Link></li>
-                <li><Link to="/privacy" className="text-muted-foreground hover:text-foreground">Privacy</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Contact</h3>
-              <p className="text-sm text-muted-foreground">
-                Heb je vragen? Neem contact op via onze forums.
-              </p>
-            </div>
-          </div>
-          <Separator className="my-8" />
-          <div className="text-center text-sm text-muted-foreground">
-            <p>© 2024 Wiet Forum België. Alle rechten voorbehouden.</p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer met alle SEO pagina's */}
+      <Footer />
     </div>;
 }
