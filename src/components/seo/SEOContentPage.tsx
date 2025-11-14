@@ -9,6 +9,7 @@ import { Breadcrumbs } from "./Breadcrumbs";
 import { RelatedSEOPages } from "./RelatedSEOPages";
 import { InternalLinkSuggestions } from "./InternalLinkSuggestions";
 import { ForumIntegrationLinks } from "./ForumIntegrationLinks";
+import { AllLocationsGrid } from "./AllLocationsGrid";
 
 interface SEOContentPageProps {
   slug: string;
@@ -181,6 +182,9 @@ export function SEOContentPage({ slug }: SEOContentPageProps) {
             location={page.title.split(":")[0].replace("Cannabis in ", "").replace("Wiet in ", "")}
           />
         )}
+
+        {/* All Locations Grid - Volledige interne linkstructuur */}
+        <AllLocationsGrid />
 
         {/* Last Updated */}
         <div className="mt-8 pt-8 border-t border-border text-sm text-muted-foreground">
