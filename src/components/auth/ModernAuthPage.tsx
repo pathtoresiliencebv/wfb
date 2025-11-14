@@ -232,7 +232,9 @@ export function ModernAuthPage({
                     captionLayout="dropdown"
                     fromYear={1900}
                     toYear={new Date().getFullYear()}
+                    defaultMonth={new Date(new Date().getFullYear() - 25, 0, 1)}
                     locale={nl}
+                    className="pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
