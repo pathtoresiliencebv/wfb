@@ -1,0 +1,9 @@
+# Netlify redirects for sitemap
+/sitemap.xml https://yopswdnayrogadtxpwzm.supabase.co/functions/v1/generate-sitemap?type=index 200
+/sitemap-pages.xml https://yopswdnayrogadtxpwzm.supabase.co/functions/v1/generate-sitemap?type=pages 200
+/sitemap-cannabis.xml https://yopswdnayrogadtxpwzm.supabase.co/functions/v1/generate-sitemap?type=cannabis 200
+/sitemap-forums.xml https://yopswdnayrogadtxpwzm.supabase.co/functions/v1/generate-sitemap?type=forums 200
+/sitemap-topics.xml https://yopswdnayrogadtxpwzm.supabase.co/functions/v1/generate-sitemap?type=topics 200
+
+# SPA fallback
+/*    /index.html   200
