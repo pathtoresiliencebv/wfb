@@ -27,11 +27,11 @@ Allow: /*.webp
 Allow: /*.svg
 
 # Sitemaps (primary for Google Search Console)
-Sitemap: https://wietforum.be/sitemap.xml
-Sitemap: https://wietforum.be/sitemap-pages.xml
-Sitemap: https://wietforum.be/sitemap-cannabis.xml
-Sitemap: https://wietforum.be/sitemap-forums.xml
-Sitemap: https://wietforum.be/sitemap-topics.xml
+Sitemap: https://wietforumbelgique.com/sitemap.xml
+Sitemap: https://wietforumbelgique.com/sitemap-pages.xml
+Sitemap: https://wietforumbelgique.com/sitemap-cannabis.xml
+Sitemap: https://wietforumbelgique.com/sitemap-forums.xml
+Sitemap: https://wietforumbelgique.com/sitemap-topics.xml
 
 # Crawl delay for aggressive bots
 User-agent: AhrefsBot
