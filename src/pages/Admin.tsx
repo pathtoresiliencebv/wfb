@@ -8,10 +8,11 @@ import { CategoryManagement } from '@/components/admin/CategoryManagement';
 import { TopicManagement } from '@/components/admin/TopicManagement';
 import { TagManagement } from '@/components/admin/TagManagement';
 import { ForumSettings } from '@/components/admin/ForumSettings';
-import { Users, Shield, Flag, BarChart3, ImageIcon, Folder, MessageSquare, Tag, Settings, Search, Crown } from 'lucide-react';
+import { Users, Shield, Flag, BarChart3, ImageIcon, Folder, MessageSquare, Tag, Settings, Search, Crown, FileText } from 'lucide-react';
 import { AdminUserManagement } from '@/components/admin/AdminUserManagement';
 import { AdminAnalytics } from '@/components/admin/AdminAnalytics';
 import { SEOSettings } from '@/components/admin/SEOSettings';
+import { SEOContentManagement } from '@/components/admin/SEOContentManagement';
 import { SupplierRankingManager } from '@/components/admin/SupplierRankingManager';
 
 export default function Admin() {
@@ -69,7 +70,11 @@ export default function Admin() {
           </TabsTrigger>
           <TabsTrigger value="seo" className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
             <Search className="h-4 w-4" />
-            SEO
+            SEO Settings
+          </TabsTrigger>
+          <TabsTrigger value="seo-content" className="flex items-center gap-2 whitespace-nowrap flex-shrink-0">
+            <FileText className="h-4 w-4" />
+            SEO Content
           </TabsTrigger>
         </TabsList>
 
@@ -115,6 +120,10 @@ export default function Admin() {
 
         <TabsContent value="seo" className="space-y-4">
           <SEOSettings />
+        </TabsContent>
+
+        <TabsContent value="seo-content" className="space-y-4">
+          <SEOContentManagement />
         </TabsContent>
       </Tabs>
     </div>

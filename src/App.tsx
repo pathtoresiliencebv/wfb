@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { HelmetProvider } from "react-helmet-async";
 import { Layout } from "@/components/layout/Layout";
 import { HomePage } from "@/components/home/HomePage";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
@@ -429,19 +430,21 @@ function AppRoutes() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AuthProvider>
-          <AuthConfigManager />
-          <ThemeProvider defaultTheme="light">
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
+      <HelmetProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <AuthConfigManager />
+            <ThemeProvider defaultTheme="light">
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
               <PerformanceOptimizations />
               <AppRoutes />
             </TooltipProvider>
           </ThemeProvider>
         </AuthProvider>
       </BrowserRouter>
+      </HelmetProvider>
     </QueryClientProvider>
   );
 }
