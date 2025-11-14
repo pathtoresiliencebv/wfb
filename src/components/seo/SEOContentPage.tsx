@@ -6,6 +6,9 @@ import { AlertCircle } from "lucide-react";
 import { SEOHead } from "./SEOHead";
 import { MultiSchema, createArticleSchema, createFAQSchema } from "./SchemaMarkup";
 import { Breadcrumbs } from "./Breadcrumbs";
+import { RelatedSEOPages } from "./RelatedSEOPages";
+import { InternalLinkSuggestions } from "./InternalLinkSuggestions";
+import { ForumIntegrationLinks } from "./ForumIntegrationLinks";
 
 interface SEOContentPageProps {
   slug: string;
@@ -158,6 +161,26 @@ export function SEOContentPage({ slug }: SEOContentPageProps) {
             </div>
           )}
         </article>
+
+        {/* Related Pages - Internal Linking */}
+        <RelatedSEOPages 
+          currentSlug={page.slug}
+          pageType={page.page_type}
+          parentSlug={page.parent_slug}
+        />
+
+        {/* Keyword-based Internal Links */}
+        <InternalLinkSuggestions 
+          currentPageId={page.id}
+          keywords={page.meta_keywords || []}
+        />
+
+        {/* Forum Integration - Link to relevant discussions */}
+        {page.page_type === "city" && (
+          <ForumIntegrationLinks 
+            location={page.title.split(":")[0].replace("Cannabis in ", "").replace("Wiet in ", "")}
+          />
+        )}
 
         {/* Last Updated */}
         <div className="mt-8 pt-8 border-t border-border text-sm text-muted-foreground">

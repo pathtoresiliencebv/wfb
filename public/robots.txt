@@ -1,14 +1,47 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
+# Wietforum België Robots.txt
 User-agent: *
 Allow: /
+
+# Block admin and private areas
+Disallow: /admin/
+Disallow: /settings/
+Disallow: /messages/
+Disallow: /leverancier/dashboard/
+
+# Block API endpoints
+Disallow: /api/
+
+# Block search result pages with parameters
+Disallow: /*?*utm_source=
+Disallow: /*?*utm_medium=
+Disallow: /*?*utm_campaign=
+Disallow: /search?*
+
+# Allow crawling of important assets
+Allow: /assets/
+Allow: /*.css
+Allow: /*.js
+Allow: /*.jpg
+Allow: /*.png
+Allow: /*.webp
+Allow: /*.svg
+
+# Sitemaps (primary for Google Search Console)
+Sitemap: https://wietforum.be/sitemap.xml
+Sitemap: https://wietforum.be/sitemap-pages.xml
+Sitemap: https://wietforum.be/sitemap-cannabis.xml
+Sitemap: https://wietforum.be/sitemap-forums.xml
+Sitemap: https://wietforum.be/sitemap-topics.xml
+
+# Crawl delay for aggressive bots
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+User-agent: DotBot
+Crawl-delay: 10
+
+User-agent: MJ12bot
+Disallow: /
