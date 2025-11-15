@@ -159,10 +159,13 @@ export function useMessaging() {
 
   // Fetch messages for a specific conversation
   const useConversationMessages = (conversationId: string | null) => {
-    return useQuery({
+    return useQuery<Message[]>({
       queryKey: ['messages', conversationId],
       queryFn: async (): Promise<Message[]> => {
         if (!conversationId) return [];
+
+        console.log('[useConversationMessages] Fetching messages for:', conversationId);
+        const start = performance.now();
 
         const { data, error } = await supabase
           .from('messages')
@@ -172,10 +175,23 @@ export function useMessaging() {
           .gte('expires_at', new Date().toISOString())
           .order('created_at', { ascending: true });
 
-        if (error) throw error;
+        const duration = performance.now() - start;
+        console.log('[useConversationMessages] Query completed:', {
+          duration: `${duration.toFixed(2)}ms`,
+          count: data?.length || 0,
+          error: error?.message
+        });
+
+        if (error) {
+          console.error('[useConversationMessages] Error fetching messages:', error);
+          throw error;
+        }
+
         return data || [];
       },
       enabled: !!conversationId,
+      refetchOnMount: true,
+      staleTime: 0, // Always refetch to ensure latest messages
     });
   };
 
