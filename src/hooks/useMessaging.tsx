@@ -184,30 +184,29 @@ export function useMessaging() {
     mutationFn: async (participantUserId: string) => {
       if (!user) throw new Error('User not authenticated');
 
-      // Check if conversation already exists
-      const { data: existingConversations } = await supabase
-        .from('conversation_participants')
-        .select('conversation_id')
-        .eq('user_id', user.id);
+      console.log('[useMessaging] Checking for existing conversation with:', participantUserId);
 
-      if (existingConversations) {
-        for (const conv of existingConversations) {
-          const { data: otherParticipants } = await supabase
-            .from('conversation_participants')
-            .select('user_id')
-            .eq('conversation_id', conv.conversation_id)
-            .neq('user_id', user.id);
-
-          if (
-            otherParticipants?.length === 1 &&
-            otherParticipants[0].user_id === participantUserId
-          ) {
-            return conv.conversation_id;
-          }
+      // Check with efficient database function
+      const { data: existingConvId, error: findError } = await supabase.rpc(
+        'find_existing_conversation',
+        {
+          current_user_id: user.id,
+          other_user_id: participantUserId,
         }
+      );
+
+      if (findError) {
+        console.error('[useMessaging] Error finding existing conversation:', findError);
       }
 
-      // Use database function to create conversation with participants
+      if (existingConvId) {
+        console.log('[useMessaging] Found existing conversation:', existingConvId);
+        return existingConvId;
+      }
+
+      console.log('[useMessaging] Creating new conversation...');
+
+      // Create new conversation
       const { data: conversationId, error } = await supabase.rpc(
         'create_conversation_with_participants',
         {
@@ -217,6 +216,8 @@ export function useMessaging() {
 
       if (error) throw error;
 
+      console.log('[useMessaging] Created new conversation:', conversationId);
+      
       return conversationId;
     },
     onSuccess: () => {
@@ -255,6 +256,12 @@ export function useMessaging() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['messages', variables.conversationId] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      
+      // Show success toast
+      toast({
+        title: 'Bericht verzonden',
+        description: 'Je bericht is succesvol verzonden',
+      });
     },
     onError: (error, variables, context) => {
       console.error('[useMessaging] Send message failed after retries:', {
@@ -456,7 +463,7 @@ export function useMessaging() {
   };
 
   const sendMessage = (conversationId: string, content: string) => {
-    sendMessageMutation.mutate({ conversationId, content });
+    return sendMessageMutation.mutateAsync({ conversationId, content });
   };
 
   const markConversationAsRead = (conversationId: string) => {
