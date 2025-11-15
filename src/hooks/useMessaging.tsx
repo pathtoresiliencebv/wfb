@@ -296,12 +296,12 @@ export function useMessaging() {
     },
   });
 
-  // Set up real-time subscription for messages
+  // Set up real-time subscription for new messages
   useEffect(() => {
     if (!user) return;
 
     const channel = supabase
-      .channel('messages')
+      .channel('user-messages')
       .on(
         'postgres_changes',
         {
@@ -325,12 +325,62 @@ export function useMessaging() {
           queryClient.invalidateQueries({ queryKey: ['conversations'] });
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'messages',
+        },
+        (payload) => {
+          // Refresh messages when they're edited or deleted
+          queryClient.invalidateQueries({ queryKey: ['messages'] });
+        }
+      )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
   }, [user, queryClient, toast]);
+
+  // Set up real-time subscription for new conversations
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('user-conversations')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversation_participants',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          // Refresh conversations when user is added to a new one
+          queryClient.invalidateQueries({ queryKey: ['conversations', user.id] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'conversations',
+        },
+        () => {
+          // Refresh conversations when last_message_at is updated
+          queryClient.invalidateQueries({ queryKey: ['conversations', user.id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, queryClient]);
 
   const createConversation = (participantUserId: string) => {
     return createConversationMutation.mutateAsync(participantUserId);
