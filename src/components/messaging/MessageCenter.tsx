@@ -152,6 +152,20 @@ export function MessageCenter() {
     }
   }, [selectedConversation, markConversationAsRead]);
 
+  // Performance monitoring
+  useEffect(() => {
+    const startTime = performance.now();
+    
+    if (conversations) {
+      const loadTime = performance.now() - startTime;
+      console.log(`[Performance] Conversations loaded in ${loadTime}ms, count: ${conversations.length}`);
+      
+      if (loadTime > 2000) {
+        console.warn('[Performance] Slow conversation loading detected');
+      }
+    }
+  }, [conversations]);
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedConversation || !newMessage.trim()) return;
@@ -221,9 +235,18 @@ export function MessageCenter() {
   const handleCreateConversation = async () => {
     if (!selectedUserId) return;
 
+    console.log('[MessageCenter] Creating conversation with user:', selectedUserId);
+
     try {
       const conversationId = await createConversation(selectedUserId);
+      console.log('[MessageCenter] Conversation created:', conversationId);
+      
       const selectedUser = availableUsers?.find(u => u.user_id === selectedUserId);
+      
+      await queryClient.invalidateQueries({ queryKey: ['conversations', user?.id] });
+      await queryClient.refetchQueries({ queryKey: ['conversations', user?.id] });
+      
+      console.log('[MessageCenter] Queries refreshed, selecting conversation');
       
       setSelectedConversation(conversationId);
       setIsNewConversationOpen(false);
@@ -240,7 +263,12 @@ export function MessageCenter() {
         setShowConversationView(true);
       }
     } catch (error) {
-      console.error('Error creating conversation:', error);
+      console.error('[MessageCenter] Error creating conversation:', {
+        error,
+        userId: selectedUserId,
+        stack: error instanceof Error ? error.stack : undefined,
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
       toast({
         variant: "destructive",
         title: "Fout",

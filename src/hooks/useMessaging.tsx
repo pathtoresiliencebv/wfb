@@ -202,24 +202,37 @@ export function useMessaging() {
     }) => {
       if (!user) throw new Error('User not authenticated');
 
+      console.log('[useMessaging] Sending message to conversation:', conversationId);
+
       const { error } = await supabase.from('messages').insert({
         conversation_id: conversationId,
         sender_id: user.id,
         content: content.trim(),
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[useMessaging] Message insert failed:', error);
+        throw error;
+      }
+      
+      console.log('[useMessaging] Message sent successfully');
     },
+    retry: 2,
+    retryDelay: 1000,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['messages', variables.conversationId] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },
-    onError: (error) => {
-      console.error('Failed to send message:', error);
+    onError: (error, variables, context) => {
+      console.error('[useMessaging] Send message failed after retries:', {
+        error,
+        conversationId: variables.conversationId,
+        context
+      });
       toast({
         variant: "destructive",
         title: "Bericht niet verzonden",
-        description: "Probeer het opnieuw",
+        description: "Er ging iets mis. Probeer het opnieuw.",
       });
     }
   });
@@ -262,6 +275,8 @@ export function useMessaging() {
 
       if (error) throw error;
     },
+    retry: 1,
+    retryDelay: 500,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['messages'] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
