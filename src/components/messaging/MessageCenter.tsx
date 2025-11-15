@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,7 @@ import { useMessaging, Conversation, Message } from '@/hooks/useMessaging';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTypingIndicator } from '@/hooks/useTypingIndicator';
@@ -39,6 +39,7 @@ interface User {
 export function MessageCenter() {
   const { user } = useAuth();
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
   const {
     conversations,
     conversationsLoading,
@@ -64,6 +65,7 @@ export function MessageCenter() {
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editingContent, setEditingContent] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const markAsReadTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Typing indicator
   const { typingUsers, startTyping, stopTyping } = useTypingIndicator(
@@ -95,6 +97,19 @@ export function MessageCenter() {
     },
     enabled: isNewConversationOpen,
   });
+
+  // Debounced mark as read function
+  const debouncedMarkAsRead = useCallback((conversationId: string) => {
+    // Clear previous timeout
+    if (markAsReadTimeoutRef.current) {
+      clearTimeout(markAsReadTimeoutRef.current);
+    }
+    
+    // Set new timeout - only mark as read after 1 second of inactivity
+    markAsReadTimeoutRef.current = setTimeout(() => {
+      markConversationAsRead(conversationId);
+    }, 1000);
+  }, [markConversationAsRead]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -352,7 +367,22 @@ export function MessageCenter() {
     if (showConversationView && selectedConversation) {
       // Mobile Conversation View
       const conversation = conversations.find(c => c.id === selectedConversation);
-      const otherParticipant = conversation ? getOtherParticipant(conversation) : null;
+      
+      // Show loading if conversation not yet available
+      if (!conversation) {
+        return (
+          <div className="flex flex-col h-[calc(100vh-8rem)] border rounded-lg overflow-hidden">
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center space-y-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                <p className="text-foreground font-medium">Gesprek laden...</p>
+              </div>
+            </div>
+          </div>
+        );
+      }
+      
+      const otherParticipant = getOtherParticipant(conversation);
 
       return (
         <div className="flex flex-col h-[calc(100vh-8rem)] border rounded-lg overflow-hidden">{/* Mobile Conversation View */}

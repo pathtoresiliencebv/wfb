@@ -214,6 +214,14 @@ export function useMessaging() {
       queryClient.invalidateQueries({ queryKey: ['messages', variables.conversationId] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },
+    onError: (error) => {
+      console.error('Failed to send message:', error);
+      toast({
+        variant: "destructive",
+        title: "Bericht niet verzonden",
+        description: "Probeer het opnieuw",
+      });
+    }
   });
 
   // Mark conversation as read
@@ -232,6 +240,10 @@ export function useMessaging() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },
+    onError: (error) => {
+      console.error('Failed to mark as read:', error);
+      // Silent error - not critical for user experience
+    }
   });
 
   // Delete message (soft delete)
@@ -258,6 +270,14 @@ export function useMessaging() {
         description: 'Je bericht is succesvol verwijderd',
       });
     },
+    onError: (error) => {
+      console.error('Failed to delete message:', error);
+      toast({
+        variant: "destructive",
+        title: "Kon bericht niet verwijderen",
+        description: "Probeer het opnieuw",
+      });
+    }
   });
 
   // Edit message
@@ -285,6 +305,14 @@ export function useMessaging() {
         description: 'Je bericht is succesvol bijgewerkt',
       });
     },
+    onError: (error) => {
+      console.error('Failed to edit message:', error);
+      toast({
+        variant: "destructive",
+        title: "Kon bericht niet bewerken",
+        description: "Probeer het opnieuw",
+      });
+    }
   });
 
   // Set up real-time subscription for new messages
@@ -292,7 +320,7 @@ export function useMessaging() {
     if (!user) return;
 
     const channel = supabase
-      .channel('user-messages')
+      .channel(`user-messages-${user.id}`) // Unique channel name per user
       .on(
         'postgres_changes',
         {
@@ -331,16 +359,17 @@ export function useMessaging() {
       .subscribe();
 
     return () => {
+      channel.unsubscribe();
       supabase.removeChannel(channel);
     };
-  }, [user, queryClient, toast]);
+  }, [user?.id, queryClient, toast]);
 
   // Set up real-time subscription for new conversations
   useEffect(() => {
     if (!user) return;
 
     const channel = supabase
-      .channel('user-conversations')
+      .channel(`user-conversations-${user.id}`) // Unique channel name per user
       .on(
         'postgres_changes',
         {
@@ -369,9 +398,10 @@ export function useMessaging() {
       .subscribe();
 
     return () => {
+      channel.unsubscribe();
       supabase.removeChannel(channel);
     };
-  }, [user, queryClient]);
+  }, [user?.id, queryClient]);
 
   const createConversation = (participantUserId: string) => {
     return createConversationMutation.mutateAsync(participantUserId);
