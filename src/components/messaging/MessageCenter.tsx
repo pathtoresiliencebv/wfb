@@ -101,6 +101,35 @@ export function MessageCenter() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Real-time subscription for current conversation messages
+  useEffect(() => {
+    if (!selectedConversation || !user) return;
+
+    console.log('[MessageCenter] Setting up realtime for conversation:', selectedConversation);
+
+    const channel = supabase
+      .channel(`conversation:${selectedConversation}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${selectedConversation}`,
+        },
+        (payload) => {
+          console.log('[MessageCenter] Message change in current conversation:', payload);
+          // Messages will auto-refresh via the query invalidation in useMessaging
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('[MessageCenter] Cleaning up conversation realtime');
+      supabase.removeChannel(channel);
+    };
+  }, [selectedConversation, user]);
+
   // Mark conversation as read when selected
   useEffect(() => {
     if (selectedConversation) {
