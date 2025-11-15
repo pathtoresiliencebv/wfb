@@ -2147,6 +2147,10 @@ export type Database = {
         Args: { activity_data?: Json; activity_type: string; user_id: string }
         Returns: string
       }
+      create_conversation_with_participants: {
+        Args: { participant_user_ids: string[] }
+        Returns: string
+      }
       create_notification: {
         Args: {
           notification_data?: Json
