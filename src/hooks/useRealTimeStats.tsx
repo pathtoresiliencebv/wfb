@@ -17,7 +17,7 @@ export function useRealTimeStats() {
     userCount: 0,
     topicCount: 0,
     expertCount: 0,
-    verifiedCommunity: '100%',
+    verifiedCommunity: '0%',
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -32,17 +32,25 @@ export function useRealTimeStats() {
 
       try {
         // Batch all queries together for better performance
-        const [profilesResult, expertsResult, topicsResult] = await Promise.all([
+        const [profilesResult, expertsResult, topicsResult, verifiedResult] = await Promise.all([
           supabase.from('profiles').select('*', { count: 'exact', head: true }),
           supabase.from('profiles').select('*', { count: 'exact', head: true }).in('role', ['expert', 'admin', 'moderator']),
-          supabase.from('topics').select('*', { count: 'exact', head: true })
+          supabase.from('topics').select('*', { count: 'exact', head: true }),
+          supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_verified', true)
         ]);
 
+        // Calculate verification percentage
+        const totalUsers = profilesResult.count || 0;
+        const verifiedUsers = verifiedResult.count || 0;
+        const verificationPercentage = totalUsers > 0 
+          ? Math.round((verifiedUsers / totalUsers) * 100) 
+          : 0;
+
         const newStats = {
-          userCount: profilesResult.count || 0,
+          userCount: totalUsers,
           topicCount: topicsResult.count || 0,
           expertCount: expertsResult.count || 0,
-          verifiedCommunity: '100%',
+          verifiedCommunity: `${verificationPercentage}%`,
         };
 
         // Update cache
@@ -62,7 +70,7 @@ export function useRealTimeStats() {
             userCount: 0,
             topicCount: 0,
             expertCount: 0,
-            verifiedCommunity: '100%',
+            verifiedCommunity: '0%',
           });
         }
       } finally {
