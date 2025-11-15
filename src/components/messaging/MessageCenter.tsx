@@ -182,21 +182,14 @@ export function MessageCenter() {
       } else {
         // Send new message
         await sendMessage(selectedConversation, newMessage);
-        toast({
-          title: "Bericht verzonden",
-          description: "Je bericht is succesvol verzonden",
-        });
+        // Toast wordt getoond door onSuccess in mutation
       }
       
       setNewMessage('');
       stopTyping();
     } catch (error) {
       console.error('Error sending message:', error);
-      toast({
-        variant: "destructive",
-        title: "Fout",
-        description: "Kon bericht niet verzenden. Probeer het opnieuw.",
-      });
+      // Error toast wordt getoond door onError in mutation
     }
   };
 

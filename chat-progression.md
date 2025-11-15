@@ -1,5 +1,183 @@
 # Chat Messaging System - Progressie Log
 
+## Update 3: Message Sending & Duplicate Conversation Fixes
+
+**Datum**: 15 november 2024
+
+### Problemen Gevonden
+
+Na het fixen van de query strategie, ontdekten we twee kritieke problemen:
+
+1. **Messages werden niet verzonden**
+   - Alle conversations hadden 0 messages ondanks verzendpogingen
+   - Root cause: `sendMessage()` gebruikte `.mutate()` in plaats van `.mutateAsync()`
+   - `await sendMessage()` in MessageCenter.tsx wachtte op niets
+   - Toast notification werd direct getoond, maar bericht werd nooit verzonden
+
+2. **Duplicate conversations**
+   - 4 duplicate conversations met "roadtoonemillion"
+   - 1 conversation met "HazeMonkeyz"
+   - De check om duplicates te voorkomen was inefficiënt en werkte niet
+
+### Oplossing Implementatie
+
+#### 1. Fix Message Sending
+
+**useMessaging.tsx - sendMessage function**
+```typescript
+// VOOR (FOUT):
+const sendMessage = (conversationId: string, content: string) => {
+  sendMessageMutation.mutate({ conversationId, content });  // ❌ Returns void
+};
+
+// NA (CORRECT):
+const sendMessage = (conversationId: string, content: string) => {
+  return sendMessageMutation.mutateAsync({ conversationId, content });  // ✅ Returns promise
+};
+```
+
+**MessageCenter.tsx - handleSendMessage**
+```typescript
+// VOOR:
+await sendMessage(selectedConversation, newMessage);
+toast({ title: 'Bericht verzonden' });  // ⚠️ Direct getoond
+
+// NA:
+await sendMessage(selectedConversation, newMessage);
+// Toast wordt getoond door onSuccess in mutation
+```
+
+**Toast verplaatst naar mutation**
+```typescript
+const sendMessageMutation = useMutation({
+  // ...
+  onSuccess: (_, variables) => {
+    queryClient.invalidateQueries({ queryKey: ['messages', variables.conversationId] });
+    queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    
+    // ✅ Toast wordt hier getoond na successful send
+    toast({
+      title: 'Bericht verzonden',
+      description: 'Je bericht is succesvol verzonden',
+    });
+  },
+});
+```
+
+#### 2. Fix Duplicate Conversations
+
+**Database function: find_existing_conversation**
+```sql
+CREATE OR REPLACE FUNCTION find_existing_conversation(
+  current_user_id UUID,
+  other_user_id UUID
+)
+RETURNS UUID
+AS $$
+DECLARE
+  existing_conv_id UUID;
+BEGIN
+  -- Find conversation with exactly 2 participants
+  SELECT cp1.conversation_id INTO existing_conv_id
+  FROM conversation_participants cp1
+  WHERE cp1.user_id = current_user_id
+  AND EXISTS (
+    SELECT 1 FROM conversation_participants cp2
+    WHERE cp2.conversation_id = cp1.conversation_id
+    AND cp2.user_id = other_user_id
+  )
+  AND (
+    SELECT COUNT(*) FROM conversation_participants cp3
+    WHERE cp3.conversation_id = cp1.conversation_id
+  ) = 2
+  LIMIT 1;
+  
+  RETURN existing_conv_id;
+END;
+$$;
+```
+
+**createConversationMutation update**
+```typescript
+// VOOR: Inefficiënte multi-query check
+const { data: existingConversations } = await supabase
+  .from('conversation_participants')
+  .select('conversation_id')
+  .eq('user_id', user.id);
+
+for (const conv of existingConversations) {
+  const { data: otherParticipants } = await supabase
+    .from('conversation_participants')
+    .select('user_id')
+    .eq('conversation_id', conv.conversation_id)
+    .neq('user_id', user.id);
+  // ... check logic
+}
+
+// NA: Efficiënte single database function call
+const { data: existingConvId } = await supabase.rpc(
+  'find_existing_conversation',
+  {
+    current_user_id: user.id,
+    other_user_id: participantUserId,
+  }
+);
+
+if (existingConvId) {
+  return existingConvId;
+}
+```
+
+#### 3. Database Cleanup
+
+**Verwijder duplicate conversations**
+```sql
+WITH duplicates AS (
+  SELECT 
+    c.id as conversation_id,
+    ROW_NUMBER() OVER (
+      PARTITION BY LEAST(cp1.user_id, cp2.user_id), GREATEST(cp1.user_id, cp2.user_id)
+      ORDER BY c.created_at DESC
+    ) as rn
+  FROM conversations c
+  JOIN conversation_participants cp1 ON c.id = cp1.conversation_id
+  JOIN conversation_participants cp2 ON c.id = cp2.conversation_id
+  WHERE cp1.user_id < cp2.user_id
+)
+DELETE FROM conversations
+WHERE id IN (
+  SELECT conversation_id FROM duplicates WHERE rn > 1
+);
+```
+
+### Resultaten
+
+✅ **Messages worden nu correct verzonden en opgeslagen**
+✅ **Geen duplicate conversations meer mogelijk**
+✅ **Toast notifications tonen op juiste moment (na successful send)**
+✅ **Bestaande conversations worden correct gedetecteerd**
+✅ **Database cleanup verwijderde 3-4 duplicate conversations**
+✅ **Gebruiker ziet elke andere gebruiker maar 1x in de lijst**
+
+### Lessons Learned
+
+1. **Always use `.mutateAsync()` when you need to await a mutation**
+   - `.mutate()` returns void and fires & forgets
+   - `.mutateAsync()` returns a promise you can await
+   - Toast notifications should be in onSuccess/onError callbacks
+
+2. **Complex multi-query checks are error-prone**
+   - Database functions are more reliable
+   - Single query is faster and more maintainable
+   - Easier to test and debug
+
+3. **Data cleanup is essential after fixing bugs**
+   - Don't leave duplicate/corrupted data in production
+   - Use ROW_NUMBER() OVER PARTITION to identify duplicates
+   - Keep most recent record when cleaning up
+
+---
+
 ## 2025-11-15 - Critical RLS Bug Fix & System Overhaul
 
 ### 🔴 Probleem

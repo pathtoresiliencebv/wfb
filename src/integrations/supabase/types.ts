@@ -2172,6 +2172,10 @@ export type Database = {
         Returns: string
       }
       delete_expired_messages: { Args: never; Returns: undefined }
+      find_existing_conversation: {
+        Args: { current_user_id: string; other_user_id: string }
+        Returns: string
+      }
       get_client_ip: { Args: never; Returns: unknown }
       get_current_user_role: { Args: never; Returns: string }
       get_profile_visibility: {
