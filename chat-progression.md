@@ -150,6 +150,131 @@ const sendMessageMutation = useMutation({
 - Better error logging with `[useMessaging]` prefix
 - Detailed error context in console logs
 
+## Update 2: Query Strategy Simplification (2025-11-15 22:26)
+
+### 🔴 Issue: Frontend Still Returns 0 Conversations
+Despite correct RLS policies and database data (5 conversations with user as participant), the Supabase JS client query with `!inner` join was returning 0 results, causing permanent "Berichten laden..." state.
+
+### 🔍 Root Cause
+The `conversation_participants!inner` join syntax was conflicting with the RLS SELECT policy that uses `is_conversation_participant()`. This created a query execution context where:
+1. The join attempted to filter participants inline
+2. The RLS policy checked participation via function
+3. These conflicted, resulting in empty result set
+
+**Database had data**, but **query couldn't retrieve it** due to join/RLS interaction.
+
+### ✅ Solution Implemented
+
+#### 1. Simplified RLS Policy on Conversations
+```sql
+-- Drop oude policy met complexe dependencies
+DROP POLICY IF EXISTS "Users can view conversations they participate in" ON conversations;
+
+-- Nieuwe eenvoudige policy met directe subquery
+CREATE POLICY "Users can view conversations they participate in"
+ON conversations
+FOR SELECT
+TO authenticated
+USING (
+  id IN (
+    SELECT conversation_id 
+    FROM conversation_participants 
+    WHERE user_id = auth.uid()
+  )
+);
+```
+
+**Why this works**: Direct subquery without function indirection, no join conflicts.
+
+#### 2. Refactored useMessaging.tsx Query Strategy
+
+**Before (niet werkend):**
+```typescript
+const { data, error } = await supabase
+  .from('conversations')
+  .select(`
+    *,
+    conversation_participants!inner (
+      user_id,
+      profiles (...)
+    )
+  `)
+```
+❌ **Problem**: `!inner` join conflicts with RLS, returns 0 results
+
+**After (werkend):**
+```typescript
+// Step 1: Fetch conversations (simple query, no joins)
+const { data: convData } = await supabase
+  .from('conversations')
+  .select('*')
+  .order('last_message_at', { ascending: false, nullsFirst: false });
+
+// Step 2: Fetch participants separately for each conversation
+for (const conv of convData) {
+  const { data: participants } = await supabase
+    .from('conversation_participants')
+    .select(`
+      user_id,
+      joined_at,
+      last_read_at,
+      profiles:user_id (
+        username,
+        display_name,
+        avatar_url,
+        is_verified
+      )
+    `)
+    .eq('conversation_id', conv.id);
+    
+  // Filter: only include conversations where user is participant
+  if (participants.some(p => p.user_id === user.id)) {
+    conv.participants = participants;
+    // ... fetch last_message, unread_count
+  }
+}
+```
+✅ **Solution**: Separate queries avoid RLS/join conflicts
+
+#### 3. Added Participant Caching
+```typescript
+const [participantCache] = useState(new Map());
+
+// Check cache before fetching
+let participants = participantCache.get(conv.id);
+if (!participants) {
+  const { data } = await supabase
+    .from('conversation_participants')
+    .select(...)
+    .eq('conversation_id', conv.id);
+  
+  participants = data || [];
+  participantCache.set(conv.id, participants);
+}
+```
+
+**Benefit**: Reduces duplicate queries when conversations list refreshes.
+
+#### 4. Enhanced Error Handling
+- `.maybeSingle()` instead of `.single()` to prevent errors on empty results
+- Detailed performance logging with start/end time tracking
+- Participant fetch error logging per conversation
+
+### 📊 Expected Results
+- ✅ Conversations load instantly (< 500ms)
+- ✅ No "Berichten laden..." stuck state
+- ✅ Participant data correctly displayed
+- ✅ No 500 errors
+- ✅ Queries work within RLS boundaries
+- ✅ Cache reduces redundant participant queries
+
+### 🎓 Lessons Learned
+1. **Avoid `!inner` joins with complex RLS policies** - they can create execution conflicts
+2. **Separate queries > complex joins** when RLS is involved - more reliable, easier to debug
+3. **Cache frequently accessed data** (participants) to reduce query load
+4. **Use `.maybeSingle()`** for queries that might return empty - prevents unnecessary errors
+5. **Direct subqueries in RLS** > function calls - reduces indirection complexity
+
 ### 📊 Testing Checklist
 
 #### Manual Testing
