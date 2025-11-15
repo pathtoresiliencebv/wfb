@@ -305,9 +305,11 @@ function AppRoutes() {
                   path="/admin/users" 
                   element={
                     <AdminRoute requireRole="moderator">
-                      <AdminLayout>
-                        <AdminUsers />
-                      </AdminLayout>
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <AdminLayout>
+                          <AdminUsers />
+                        </AdminLayout>
+                      </Suspense>
                     </AdminRoute>
                   } 
                 />
@@ -315,9 +317,11 @@ function AppRoutes() {
                   path="/admin/categories" 
                   element={
                     <AdminRoute requireRole="moderator">
-                      <AdminLayout>
-                        <AdminCategories />
-                      </AdminLayout>
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <AdminLayout>
+                          <AdminCategories />
+                        </AdminLayout>
+                      </Suspense>
                     </AdminRoute>
                   } 
                 />
@@ -325,9 +329,11 @@ function AppRoutes() {
                   path="/admin/topics" 
                   element={
                     <AdminRoute requireRole="moderator">
-                      <AdminLayout>
-                        <AdminTopics />
-                      </AdminLayout>
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <AdminLayout>
+                          <AdminTopics />
+                        </AdminLayout>
+                      </Suspense>
                     </AdminRoute>
                   } 
                 />
@@ -335,9 +341,11 @@ function AppRoutes() {
                   path="/admin/tags" 
                   element={
                     <AdminRoute requireRole="moderator">
-                      <AdminLayout>
-                        <AdminTags />
-                      </AdminLayout>
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <AdminLayout>
+                          <AdminTags />
+                        </AdminLayout>
+                      </Suspense>
                     </AdminRoute>
                   } 
                 />
@@ -345,9 +353,11 @@ function AppRoutes() {
                   path="/admin/images" 
                   element={
                     <AdminRoute requireRole="moderator">
-                      <AdminLayout>
-                        <AdminImages />
-                      </AdminLayout>
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <AdminLayout>
+                          <AdminImages />
+                        </AdminLayout>
+                      </Suspense>
                     </AdminRoute>
                   } 
                 />
@@ -355,9 +365,11 @@ function AppRoutes() {
                   path="/admin/security" 
                   element={
                     <AdminRoute requireRole="moderator">
-                      <AdminLayout>
-                        <AdminSecurity />
-                      </AdminLayout>
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <AdminLayout>
+                          <AdminSecurity />
+                        </AdminLayout>
+                      </Suspense>
                     </AdminRoute>
                   } 
                 />
@@ -365,9 +377,11 @@ function AppRoutes() {
                   path="/admin/analytics" 
                   element={
                     <AdminRoute requireRole="moderator">
-                      <AdminLayout>
-                        <AdminAnalyticsPage />
-                      </AdminLayout>
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <AdminLayout>
+                          <AdminAnalyticsPage />
+                        </AdminLayout>
+                      </Suspense>
                     </AdminRoute>
                   } 
                 />
@@ -375,9 +389,11 @@ function AppRoutes() {
                   path="/admin/suppliers" 
                   element={
                     <AdminRoute requireRole="moderator">
-                      <AdminLayout>
-                        <AdminSuppliers />
-                      </AdminLayout>
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <AdminLayout>
+                          <AdminSuppliers />
+                        </AdminLayout>
+                      </Suspense>
                     </AdminRoute>
                   } 
                 />
