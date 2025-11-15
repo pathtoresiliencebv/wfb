@@ -175,6 +175,7 @@ export function MessageCenter() {
         // Update existing message
         await editMessage(editingMessageId, newMessage);
         setEditingMessageId(null);
+        setEditingContent('');
         toast({
           title: "Bericht bijgewerkt",
           description: "Je bericht is succesvol bewerkt",
@@ -182,14 +183,22 @@ export function MessageCenter() {
       } else {
         // Send new message
         await sendMessage(selectedConversation, newMessage);
-        // Toast wordt getoond door onSuccess in mutation
+        
+        // Force immediate refetch to show message in UI
+        await queryClient.refetchQueries({ 
+          queryKey: ['messages', selectedConversation],
+          exact: true 
+        });
       }
       
       setNewMessage('');
       stopTyping();
     } catch (error) {
-      console.error('Error sending message:', error);
-      // Error toast wordt getoond door onError in mutation
+      console.error('[MessageCenter] Error in handleSendMessage:', {
+        error,
+        stack: error instanceof Error ? error.stack : undefined,
+        message: error instanceof Error ? error.message : String(error)
+      });
     }
   };
 
