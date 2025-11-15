@@ -44,40 +44,68 @@ export function useMessaging() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch conversations
+  // Participant cache to reduce duplicate queries
+  const [participantCache] = useState(new Map());
+
+  // Fetch conversations with simplified query strategy
   const { data: conversations, isLoading: conversationsLoading } = useQuery({
     queryKey: ['conversations', user?.id],
     queryFn: async (): Promise<Conversation[]> => {
       if (!user) return [];
 
-      const { data, error } = await supabase
+      console.log('[useMessaging] Starting conversations fetch for user:', user.id);
+      const startTime = performance.now();
+
+      // Step 1: Fetch conversations (simple query without joins)
+      const { data: convData, error: convError } = await supabase
         .from('conversations')
-        .select(`
-          *,
-          conversation_participants!inner (
-            user_id,
-            joined_at,
-            last_read_at,
-            profiles (
-              username,
-              display_name,
-              avatar_url,
-              is_verified
-            )
-          )
-        `)
+        .select('*')
         .order('last_message_at', { ascending: false, nullsFirst: false });
 
-      if (error) throw error;
+      if (convError) {
+        console.error('[useMessaging] Error fetching conversations:', convError);
+        throw convError;
+      }
 
-      // Filter conversations where user is a participant
-      const userConversations = (data || []).filter(conv =>
-        conv.conversation_participants.some((p: any) => p.user_id === user.id)
-      );
+      console.log('[useMessaging] Found conversations:', convData?.length || 0);
 
-      // Fetch last message and unread count for each conversation
+      if (!convData || convData.length === 0) return [];
+
+      // Step 2: Fetch participants separately for each conversation
       const conversationsWithDetails = await Promise.all(
-        userConversations.map(async (conv) => {
+        convData.map(async (conv) => {
+          // Check cache first
+          let participants = participantCache.get(conv.id);
+          
+          if (!participants) {
+            const { data: participantsData, error: participantsError } = await supabase
+              .from('conversation_participants')
+              .select(`
+                user_id,
+                joined_at,
+                last_read_at,
+                profiles:user_id (
+                  username,
+                  display_name,
+                  avatar_url,
+                  is_verified
+                )
+              `)
+              .eq('conversation_id', conv.id);
+
+            if (participantsError) {
+              console.error('[useMessaging] Error fetching participants for conv', conv.id, participantsError);
+              return null;
+            }
+
+            participants = participantsData || [];
+            participantCache.set(conv.id, participants);
+          }
+
+          // Check if user is a participant
+          const isUserParticipant = participants.some((p: any) => p.user_id === user.id);
+          if (!isUserParticipant) return null;
+
           // Get last message
           const { data: lastMessage } = await supabase
             .from('messages')
@@ -85,12 +113,10 @@ export function useMessaging() {
             .eq('conversation_id', conv.id)
             .order('created_at', { ascending: false })
             .limit(1)
-            .single();
+            .maybeSingle();
 
           // Get unread count
-          const userParticipant = conv.conversation_participants.find(
-            (p: any) => p.user_id === user.id
-          );
+          const userParticipant = participants.find((p: any) => p.user_id === user.id);
           const lastReadAt = userParticipant?.last_read_at;
 
           let unreadCount = 0;
@@ -113,13 +139,20 @@ export function useMessaging() {
 
           return {
             ...conv,
+            participants,
             last_message: lastMessage,
             unread_count: unreadCount,
           };
         })
       );
 
-      return conversationsWithDetails;
+      // Filter out null values (conversations where user is not a participant)
+      const validConversations = conversationsWithDetails.filter(conv => conv !== null);
+
+      const endTime = performance.now();
+      console.log(`[useMessaging] Conversations loaded in ${(endTime - startTime).toFixed(2)}ms:`, validConversations.length);
+
+      return validConversations;
     },
     enabled: !!user,
   });
