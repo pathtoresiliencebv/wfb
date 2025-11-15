@@ -174,26 +174,17 @@ export function useMessaging() {
         }
       }
 
-      // Create new conversation
-      const { data: conversation, error: convError } = await supabase
-        .from('conversations')
-        .insert({})
-        .select()
-        .single();
+      // Use database function to create conversation with participants
+      const { data: conversationId, error } = await supabase.rpc(
+        'create_conversation_with_participants',
+        {
+          participant_user_ids: [user.id, participantUserId],
+        }
+      );
 
-      if (convError) throw convError;
+      if (error) throw error;
 
-      // Add participants
-      const { error: participantsError } = await supabase
-        .from('conversation_participants')
-        .insert([
-          { conversation_id: conversation.id, user_id: user.id },
-          { conversation_id: conversation.id, user_id: participantUserId },
-        ]);
-
-      if (participantsError) throw participantsError;
-
-      return conversation.id;
+      return conversationId;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
