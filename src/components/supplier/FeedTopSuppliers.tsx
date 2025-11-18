@@ -59,7 +59,7 @@ export const FeedTopSuppliers = () => {
           {suppliers.map((supplier, index) => (
             <div
               key={supplier.id}
-              onClick={() => navigate(`/supplier/${supplier.profiles?.username}`)}
+              onClick={() => navigate(`/aanbod/${supplier.profiles?.username}`)}
               className="p-4 hover:bg-accent/50 cursor-pointer transition-all duration-300 group"
             >
               <div className="flex items-center gap-3">
