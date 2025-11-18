@@ -7,7 +7,6 @@ import { Eye, EyeOff, Mail, Lock, Shield, Users, MessageSquare, ChevronLeft } fr
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
-import { AuthTestimonials } from './AuthTestimonials';
 
 const heroImage = '/lovable-uploads/a6faafc3-e2bd-47ec-8de8-603497930570.png';
 
@@ -15,27 +14,6 @@ interface ModernSignInProps {
   onSignIn?: (email: string, password: string, rememberMe: boolean) => void;
   onCreateAccount?: () => void;
 }
-
-const testimonials = [
-  {
-    avatarSrc: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&q=80",
-    name: "Jan De Vries",
-    handle: "@jandv",
-    text: "Eindelijk een veilige plek om kennis te delen over cannabis!"
-  },
-  {
-    avatarSrc: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&q=80",
-    name: "Sophie Janssens",
-    handle: "@sophiej",
-    text: "De beste community in België. Altijd hulpzame mensen!"
-  },
-  {
-    avatarSrc: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&q=80",
-    name: "Marc Peeters",
-    handle: "@marcpeeters",
-    text: "Geweldige informatie over wetgeving en teelt. Aanrader!"
-  }
-];
 
 export function ModernSignIn({ onSignIn, onCreateAccount }: ModernSignInProps) {
   const [email, setEmail] = useState('');
@@ -214,11 +192,15 @@ export function ModernSignIn({ onSignIn, onCreateAccount }: ModernSignInProps) {
             </div>
           </div>
 
-          <div className="flex-1 p-8">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
-              <h3 className="text-xl font-bold text-foreground mb-4">Wat onze leden zeggen</h3>
-              <AuthTestimonials testimonials={testimonials} />
-            </motion.div>
+          <div className="flex-1 p-8 flex items-center justify-center">
+            <div className="text-center space-y-6 max-w-md">
+              <h3 className="text-2xl font-bold text-foreground">
+                Welkom bij WietForum België
+              </h3>
+              <p className="text-muted-foreground">
+                Join de grootste Nederlandse cannabis community en deel je kennis en ervaring met gelijkgestemden
+              </p>
+            </div>
           </div>
 
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
