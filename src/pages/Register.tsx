@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ModernAuthPage } from '@/components/auth/ModernAuthPage';
+import { useServerSideRateLimit } from '@/hooks/useServerSideRateLimit';
 
 const registerSchema = z.object({
   username: z.string()
@@ -49,6 +50,7 @@ export default function Register() {
   const { register: registerUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { recordSuccessfulLogin } = useServerSideRateLimit();
 
   const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),

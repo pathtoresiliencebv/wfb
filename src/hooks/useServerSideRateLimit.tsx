@@ -15,10 +15,6 @@ export const useServerSideRateLimit = () => {
     email: string, 
     isSuccessful: boolean = false
   ): Promise<RateLimitResult | null> => {
-    // Temporarily disable rate limiting to fix button issue
-    console.log('Rate limit check skipped for:', email);
-    return { locked: false, remaining_attempts: 5 };
-    
     setIsLoading(true);
     
     try {
