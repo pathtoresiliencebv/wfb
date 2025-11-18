@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -51,110 +51,120 @@ export function useMessaging() {
   const { data: conversations, isLoading: conversationsLoading } = useQuery({
     queryKey: ['conversations', user?.id],
     queryFn: async (): Promise<Conversation[]> => {
-      if (!user) return [];
-
-      console.log('[useMessaging] Starting conversations fetch for user:', user.id);
       const startTime = performance.now();
-
-      // Step 1: Fetch conversations (simple query without joins)
-      const { data: convData, error: convError } = await supabase
-        .from('conversations')
-        .select('*')
-        .order('last_message_at', { ascending: false, nullsFirst: false });
-
-      if (convError) {
-        console.error('[useMessaging] Error fetching conversations:', convError);
-        throw convError;
+      
+      if (!user?.id) {
+        console.log('[useMessaging] No user ID available');
+        return [];
       }
 
-      console.log('[useMessaging] Found conversations:', convData?.length || 0);
+      console.log(`[useMessaging] Starting conversations fetch for user: ${user.id}`);
 
-      if (!convData || convData.length === 0) return [];
+      // First, get all conversations where the user is a participant
+      const { data: participantData, error: participantError } = await supabase
+        .from('conversation_participants')
+        .select('conversation_id')
+        .eq('user_id', user.id);
 
-      // Step 2: Fetch participants separately for each conversation
+      if (participantError) {
+        console.error('[useMessaging] Error fetching participant data:', participantError);
+        throw participantError;
+      }
+
+      if (!participantData || participantData.length === 0) {
+        console.log('[useMessaging] No conversations found for user');
+        return [];
+      }
+
+      console.log(`[useMessaging] Found conversations: ${participantData.length}`);
+
+      const conversationIds = participantData.map(p => p.conversation_id);
+
+      // Fetch conversation details
+      const { data: conversationsData, error: conversationsError } = await supabase
+        .from('conversations')
+        .select('*')
+        .in('id', conversationIds)
+        .order('last_message_at', { ascending: false });
+
+      if (conversationsError) {
+        console.error('[useMessaging] Error fetching conversations:', conversationsError);
+        throw conversationsError;
+      }
+
+      // For each conversation, get participants and last message
       const conversationsWithDetails = await Promise.all(
-        convData.map(async (conv) => {
-          // Check cache first
-          let participants = participantCache.get(conv.id);
-          
-          if (!participants) {
-            const { data: participantsData, error: participantsError } = await supabase
-              .from('conversation_participants')
-              .select(`
+        (conversationsData || []).map(async (conv) => {
+          // Get all participants for this conversation
+          const { data: participants } = await supabase
+            .from('conversation_participants')
+            .select(`
+              user_id,
+              joined_at,
+              last_read_at,
+              profiles:user_id (
                 user_id,
-                joined_at,
-                last_read_at,
-                profiles:user_id (
-                  username,
-                  display_name,
-                  avatar_url,
-                  is_verified
-                )
-              `)
-              .eq('conversation_id', conv.id);
+                username,
+                display_name,
+                avatar_url,
+                is_verified
+              )
+            `)
+            .eq('conversation_id', conv.id);
 
-            if (participantsError) {
-              console.error('[useMessaging] Error fetching participants for conv', conv.id, participantsError);
-              return null;
-            }
-
-            participants = participantsData || [];
-            participantCache.set(conv.id, participants);
-          }
-
-          // Check if user is a participant
-          const isUserParticipant = participants.some((p: any) => p.user_id === user.id);
-          if (!isUserParticipant) return null;
-
-          // Get last message
+          // Get the last message
           const { data: lastMessage } = await supabase
             .from('messages')
             .select('*')
             .eq('conversation_id', conv.id)
+            .eq('is_deleted', false)
             .order('created_at', { ascending: false })
             .limit(1)
-            .maybeSingle();
+            .single();
 
-          // Get unread count
-          const userParticipant = participants.find((p: any) => p.user_id === user.id);
-          const lastReadAt = userParticipant?.last_read_at;
+          // Find the current user's participant record
+          const currentUserParticipant = participants?.find(p => p.user_id === user.id);
 
+          // Calculate unread count
           let unreadCount = 0;
-          if (lastReadAt) {
+          if (currentUserParticipant?.last_read_at && lastMessage) {
             const { count } = await supabase
               .from('messages')
               .select('*', { count: 'exact', head: true })
               .eq('conversation_id', conv.id)
-              .gt('created_at', lastReadAt)
-              .neq('sender_id', user.id);
+              .eq('is_deleted', false)
+              .gt('created_at', currentUserParticipant.last_read_at);
+            
             unreadCount = count || 0;
-          } else {
+          } else if (!currentUserParticipant?.last_read_at && lastMessage) {
+            // If user has never read, count all messages
             const { count } = await supabase
               .from('messages')
               .select('*', { count: 'exact', head: true })
               .eq('conversation_id', conv.id)
-              .neq('sender_id', user.id);
+              .eq('is_deleted', false);
+            
             unreadCount = count || 0;
           }
 
           return {
             ...conv,
-            participants,
-            last_message: lastMessage,
-            unread_count: unreadCount,
+            participants: participants || [],
+            lastMessage,
+            unreadCount,
           };
         })
       );
 
-      // Filter out null values (conversations where user is not a participant)
-      const validConversations = conversationsWithDetails.filter(conv => conv !== null);
-
       const endTime = performance.now();
-      console.log(`[useMessaging] Conversations loaded in ${(endTime - startTime).toFixed(2)}ms:`, validConversations.length);
+      const duration = endTime - startTime;
+      console.log(`[useMessaging] Conversations loaded in ${duration.toFixed(2)}ms: ${conversationsWithDetails.length}`);
 
-      return validConversations;
+      return conversationsWithDetails;
     },
     enabled: !!user,
+    staleTime: 10000,
+    refetchOnWindowFocus: false,
   });
 
   // Fetch messages for a specific conversation
@@ -164,10 +174,7 @@ export function useMessaging() {
       queryFn: async (): Promise<Message[]> => {
         if (!conversationId) return [];
 
-        console.log('[DEBUG] Fetching messages:', {
-          conversationId,
-          timestamp: new Date().toISOString()
-        });
+        console.log('[MESSAGES] Fetching for conversation:', conversationId);
 
         const { data, error } = await supabase
           .from('messages')
@@ -177,9 +184,8 @@ export function useMessaging() {
           .gte('expires_at', new Date().toISOString())
           .order('created_at', { ascending: true });
 
-        console.log('[DEBUG] Messages fetched:', {
+        console.log('[MESSAGES] Fetched:', {
           count: data?.length || 0,
-          messages: data,
           error: error?.message
         });
 
@@ -187,8 +193,9 @@ export function useMessaging() {
         return data || [];
       },
       enabled: !!conversationId,
-      refetchOnMount: true,
       staleTime: 0,
+      refetchOnMount: 'always',
+      refetchOnWindowFocus: false,
     });
   };
 
@@ -249,20 +256,35 @@ export function useMessaging() {
     }) => {
       if (!user) throw new Error('User not authenticated');
 
-      console.log('[useMessaging] Sending message to conversation:', conversationId);
-
-      const { error } = await supabase.from('messages').insert({
-        conversation_id: conversationId,
-        sender_id: user.id,
-        content: content.trim(),
+      console.log('[SEND] Attempting to insert message:', {
+        conversationId,
+        userId: user.id,
+        contentLength: content.length,
+        timestamp: new Date().toISOString()
       });
 
+      const { data, error } = await supabase
+        .from('messages')
+        .insert({
+          conversation_id: conversationId,
+          sender_id: user.id,
+          content: content.trim(),
+        })
+        .select()
+        .single();
+
       if (error) {
-        console.error('[useMessaging] Message insert failed:', error);
+        console.error('[SEND] Insert failed:', {
+          error,
+          code: error.code,
+          message: error.message,
+          details: error.details
+        });
         throw error;
       }
       
-      console.log('[useMessaging] Message sent successfully');
+      console.log('[SEND] Message inserted successfully:', data);
+      return data;
     },
     retry: 2,
     retryDelay: 1000,
@@ -387,10 +409,10 @@ export function useMessaging() {
   useEffect(() => {
     if (!user) return;
 
-    console.log('[REALTIME] Setting up message subscriptions for user:', user.id);
+    console.log('[REALTIME] Setting up message subscriptions');
 
     const channel = supabase
-      .channel(`user-messages-${user.id}`) // Unique channel name per user
+      .channel(`user-messages-${user.id}`)
       .on(
         'postgres_changes',
         {
@@ -401,44 +423,33 @@ export function useMessaging() {
         (payload) => {
           const newMessage = payload.new as Message;
           
-          console.log('[REALTIME] New message received:', {
-            messageId: newMessage.id,
-            conversationId: newMessage.conversation_id,
+          console.log('[REALTIME] New message:', {
+            id: newMessage.id,
+            conversation: newMessage.conversation_id,
             fromSelf: newMessage.sender_id === user.id
           });
           
-          // Only show toast if message is not from current user
+          // Only invalidate messages query, NOT conversations
+          queryClient.invalidateQueries({ 
+            queryKey: ['messages', newMessage.conversation_id],
+            exact: true 
+          });
+          
+          // Show toast only for messages from others
           if (newMessage.sender_id !== user.id) {
             toast({
               title: 'Nieuw bericht',
               description: newMessage.content.substring(0, 50) + '...',
             });
           }
-
-          // Invalidate relevant queries to trigger refetch
-          queryClient.invalidateQueries({ queryKey: ['messages'] });
-          queryClient.invalidateQueries({ queryKey: ['conversations'] });
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'messages',
-        },
-        (payload) => {
-          console.log('[REALTIME] Message updated:', payload.new?.id);
-          // Refresh messages when they're edited or deleted
-          queryClient.invalidateQueries({ queryKey: ['messages'] });
         }
       )
       .subscribe((status) => {
-        console.log('[REALTIME] Messages subscription status:', status);
+        console.log('[REALTIME] Subscription status:', status);
       });
 
     return () => {
-      console.log('[REALTIME] Cleaning up message subscription');
+      console.log('[REALTIME] Cleaning up');
       channel.unsubscribe();
       supabase.removeChannel(channel);
     };
@@ -448,8 +459,10 @@ export function useMessaging() {
   useEffect(() => {
     if (!user) return;
 
+    console.log('[REALTIME] Setting up conversation subscriptions');
+
     const channel = supabase
-      .channel(`user-conversations-${user.id}`) // Unique channel name per user
+      .channel(`user-conversations-${user.id}`)
       .on(
         'postgres_changes',
         {
@@ -459,25 +472,16 @@ export function useMessaging() {
           filter: `user_id=eq.${user.id}`,
         },
         () => {
-          // Refresh conversations when user is added to a new one
+          console.log('[REALTIME] New conversation participant detected');
           queryClient.invalidateQueries({ queryKey: ['conversations', user.id] });
         }
       )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'conversations',
-        },
-        () => {
-          // Refresh conversations when last_message_at is updated
-          queryClient.invalidateQueries({ queryKey: ['conversations', user.id] });
-        }
-      )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[REALTIME] Conversation subscription status:', status);
+      });
 
     return () => {
+      console.log('[REALTIME] Cleaning up conversation subscriptions');
       channel.unsubscribe();
       supabase.removeChannel(channel);
     };
@@ -491,9 +495,9 @@ export function useMessaging() {
     return sendMessageMutation.mutateAsync({ conversationId, content });
   };
 
-  const markConversationAsRead = (conversationId: string) => {
+  const markConversationAsRead = useCallback((conversationId: string) => {
     markConversationAsReadMutation.mutate(conversationId);
-  };
+  }, [markConversationAsReadMutation.mutate]);
 
   const deleteMessage = (messageId: string) => {
     deleteMessageMutation.mutate(messageId);

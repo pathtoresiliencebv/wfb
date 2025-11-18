@@ -148,9 +148,9 @@ export function MessageCenter() {
   // Mark conversation as read when selected
   useEffect(() => {
     if (selectedConversation) {
-      markConversationAsRead(selectedConversation);
+      debouncedMarkAsRead(selectedConversation);
     }
-  }, [selectedConversation, markConversationAsRead]);
+  }, [selectedConversation]);
 
   // Performance monitoring
   useEffect(() => {
