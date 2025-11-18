@@ -171,23 +171,19 @@ export function MessageCenter() {
     if (!selectedConversation || !newMessage.trim()) return;
 
     try {
+      console.log('[SEND] Sending message:', { conversationId: selectedConversation });
+      
       if (editingMessageId) {
-        // Update existing message
         await editMessage(editingMessageId, newMessage);
         setEditingMessageId(null);
         setEditingContent('');
-        toast({
-          title: "Bericht bijgewerkt",
-          description: "Je bericht is succesvol bewerkt",
-        });
       } else {
-        // Send new message
         await sendMessage(selectedConversation, newMessage);
         
-        // Force immediate refetch to show message in UI
+        console.log('[SEND] Forcing refetch...');
         await queryClient.refetchQueries({ 
           queryKey: ['messages', selectedConversation],
-          exact: true 
+          exact: true
         });
       }
       

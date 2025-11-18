@@ -164,8 +164,10 @@ export function useMessaging() {
       queryFn: async (): Promise<Message[]> => {
         if (!conversationId) return [];
 
-        console.log('[useConversationMessages] Fetching messages for:', conversationId);
-        const start = performance.now();
+        console.log('[DEBUG] Fetching messages:', {
+          conversationId,
+          timestamp: new Date().toISOString()
+        });
 
         const { data, error } = await supabase
           .from('messages')
@@ -175,23 +177,18 @@ export function useMessaging() {
           .gte('expires_at', new Date().toISOString())
           .order('created_at', { ascending: true });
 
-        const duration = performance.now() - start;
-        console.log('[useConversationMessages] Query completed:', {
-          duration: `${duration.toFixed(2)}ms`,
+        console.log('[DEBUG] Messages fetched:', {
           count: data?.length || 0,
+          messages: data,
           error: error?.message
         });
 
-        if (error) {
-          console.error('[useConversationMessages] Error fetching messages:', error);
-          throw error;
-        }
-
+        if (error) throw error;
         return data || [];
       },
       enabled: !!conversationId,
       refetchOnMount: true,
-      staleTime: 0, // Always refetch to ensure latest messages
+      staleTime: 0,
     });
   };
 
@@ -390,6 +387,8 @@ export function useMessaging() {
   useEffect(() => {
     if (!user) return;
 
+    console.log('[REALTIME] Setting up message subscriptions for user:', user.id);
+
     const channel = supabase
       .channel(`user-messages-${user.id}`) // Unique channel name per user
       .on(
@@ -402,6 +401,12 @@ export function useMessaging() {
         (payload) => {
           const newMessage = payload.new as Message;
           
+          console.log('[REALTIME] New message received:', {
+            messageId: newMessage.id,
+            conversationId: newMessage.conversation_id,
+            fromSelf: newMessage.sender_id === user.id
+          });
+          
           // Only show toast if message is not from current user
           if (newMessage.sender_id !== user.id) {
             toast({
@@ -410,7 +415,7 @@ export function useMessaging() {
             });
           }
 
-          // Invalidate relevant queries
+          // Invalidate relevant queries to trigger refetch
           queryClient.invalidateQueries({ queryKey: ['messages'] });
           queryClient.invalidateQueries({ queryKey: ['conversations'] });
         }
@@ -423,13 +428,17 @@ export function useMessaging() {
           table: 'messages',
         },
         (payload) => {
+          console.log('[REALTIME] Message updated:', payload.new?.id);
           // Refresh messages when they're edited or deleted
           queryClient.invalidateQueries({ queryKey: ['messages'] });
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[REALTIME] Messages subscription status:', status);
+      });
 
     return () => {
+      console.log('[REALTIME] Cleaning up message subscription');
       channel.unsubscribe();
       supabase.removeChannel(channel);
     };
