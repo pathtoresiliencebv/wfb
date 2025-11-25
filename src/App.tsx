@@ -78,11 +78,13 @@ const queryClient = new QueryClient({
 
 
 
+import { GlobalErrorBoundary } from "@/components/error/GlobalErrorBoundary";
+
 function AppRoutes() {
   const { showOnboarding, setShowOnboarding, user } = useAuth();
 
   return (
-    <>
+    <GlobalErrorBoundary>
       {showOnboarding && user && (
         <OnboardingWelcome
           username={user.username}
@@ -489,7 +491,7 @@ function AppRoutes() {
           </Suspense>
         } />
       </Routes>
-    </>
+    </GlobalErrorBoundary>
   );
 }
 

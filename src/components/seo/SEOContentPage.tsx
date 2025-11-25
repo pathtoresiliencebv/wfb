@@ -10,6 +10,8 @@ import { RelatedSEOPages } from "./RelatedSEOPages";
 import { InternalLinkSuggestions } from "./InternalLinkSuggestions";
 import { ForumIntegrationLinks } from "./ForumIntegrationLinks";
 import { AllLocationsGrid } from "./AllLocationsGrid";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MapPin, MessageSquare, Info } from "lucide-react";
 
 interface SEOContentPageProps {
   slug: string;
@@ -137,9 +139,62 @@ export function SEOContentPage({ slug }: SEOContentPageProps) {
         <article className="prose prose-lg dark:prose-invert max-w-none">
           <h1>{page.h1_title}</h1>
 
+          {/* Hub Page Specific: Table of Contents / Featured Sections */}
+          {page.page_type === "pillar" && (
+            <Card className="mb-8 bg-muted/50 border-primary/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Info className="h-5 w-5 text-primary" />
+                  In deze gids
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                  {content?.sections?.map((section: any, index: number) => (
+                    section.heading && (
+                      <li key={index}>
+                        <a href={`#section-${index}`} className="hover:underline hover:text-primary transition-colors">
+                          {section.heading}
+                        </a>
+                      </li>
+                    )
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* City Page Specific: Local Information Header */}
+          {page.page_type === "city" && (
+            <div className="flex flex-wrap gap-4 mb-8 not-prose">
+              <Card className="flex-1 min-w-[250px]">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="p-3 bg-primary/10 rounded-full">
+                    <MapPin className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Regio</p>
+                    <p className="font-semibold">{page.parent_slug?.split('/').pop() || "Vlaanderen"}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="flex-1 min-w-[250px]">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="p-3 bg-secondary/10 rounded-full">
+                    <MessageSquare className="h-6 w-6 text-secondary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Community</p>
+                    <p className="font-semibold">Actieve lokale discussies</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           {/* Render content sections */}
           {content?.sections?.map((section: any, index: number) => (
-            <div key={index}>
+            <div key={index} id={`section-${index}`}>
               {section.heading && <h2>{section.heading}</h2>}
               {section.content && (
                 <div dangerouslySetInnerHTML={{ __html: section.content }} />

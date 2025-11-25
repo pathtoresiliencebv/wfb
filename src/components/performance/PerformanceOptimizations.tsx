@@ -11,9 +11,11 @@ export function PerformanceOptimizations() {
     const preconnectLinks = [
       'https://fonts.googleapis.com',
       'https://fonts.gstatic.com',
-    ];
+      import.meta.env.VITE_SUPABASE_URL,
+    ].filter(Boolean);
 
     preconnectLinks.forEach(href => {
+      if (!href) return;
       const link = document.createElement('link');
       link.rel = 'preconnect';
       link.href = href;
@@ -25,9 +27,11 @@ export function PerformanceOptimizations() {
     const dnsPrefetchLinks = [
       'https://fonts.googleapis.com',
       'https://fonts.gstatic.com',
-    ];
+      import.meta.env.VITE_SUPABASE_URL,
+    ].filter(Boolean);
 
     dnsPrefetchLinks.forEach(href => {
+      if (!href) return;
       const link = document.createElement('link');
       link.rel = 'dns-prefetch';
       link.href = href;

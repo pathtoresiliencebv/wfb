@@ -13,6 +13,8 @@ interface SEOHeadProps {
   structuredData?: Record<string, any>;
   noindex?: boolean;
   nofollow?: boolean;
+  publishedTime?: string;
+  modifiedTime?: string;
 }
 
 export function SEOHead({
@@ -28,6 +30,8 @@ export function SEOHead({
   structuredData,
   noindex = false,
   nofollow = false,
+  publishedTime,
+  modifiedTime,
 }: SEOHeadProps) {
   const baseUrl = window.location.origin;
   const currentUrl = canonical || window.location.href;
@@ -63,6 +67,8 @@ export function SEOHead({
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta property="og:locale" content="nl_BE" />
+      {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+      {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
 
       {/* Twitter Card */}
       <meta name="twitter:card" content={twitterCard} />

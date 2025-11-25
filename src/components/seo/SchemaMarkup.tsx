@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 
 interface SchemaMarkupProps {
-  type: "Article" | "WebPage" | "FAQPage" | "BreadcrumbList" | "Organization" | "WebSite";
+  type: "Article" | "WebPage" | "FAQPage" | "BreadcrumbList" | "Organization" | "WebSite" | "DiscussionForumPosting" | "Place";
   data: Record<string, any>;
 }
 
@@ -9,22 +9,100 @@ export function SchemaMarkup({ type, data }: SchemaMarkupProps) {
   const baseUrl = window.location.origin;
 
   const generateSchema = () => {
-    const baseSchema: any = {
+    let baseSchema: any = {
       "@context": "https://schema.org",
       "@type": type,
-      ...data,
     };
 
-    // Add default organization data if not present
-    if (type === "Article" && !data.publisher) {
-      baseSchema.publisher = {
-        "@type": "Organization",
+    if (type === "Article") {
+      baseSchema = {
+        ...baseSchema,
+        headline: data.headline,
+        image: data.image,
+        datePublished: data.datePublished,
+        dateModified: data.dateModified,
+        author: data.authorName
+          ? { "@type": "Person", name: data.authorName }
+          : { "@type": "Organization", name: "Wietforum België" },
+        publisher: {
+          "@type": "Organization",
+          name: "Wietforum België",
+          logo: {
+            "@type": "ImageObject",
+            url: `${baseUrl}/lovable-uploads/a6faafc3-e2bd-47ec-8de8-603497930570.png`,
+          },
+        },
+        description: data.description,
+      };
+    } else if (type === "DiscussionForumPosting") {
+      baseSchema = {
+        ...baseSchema,
+        headline: data.headline,
+        text: data.text,
+        author: {
+          "@type": "Person",
+          name: data.authorName,
+        },
+        interactionStatistic: {
+          "@type": "InteractionCounter",
+          interactionType: "https://schema.org/CommentAction",
+          userInteractionCount: data.interactionCount,
+        },
+        datePublished: data.datePublished,
+      };
+    } else if (type === "Place") {
+      baseSchema = {
+        ...baseSchema,
+        name: data.name,
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: data.addressLocality,
+          addressRegion: data.addressRegion,
+          addressCountry: "BE",
+        },
+        description: data.description,
+      };
+    } else if (type === "FAQPage") {
+      baseSchema = {
+        ...baseSchema,
+        mainEntity: data.questions?.map((q: any) => ({
+          "@type": "Question",
+          name: q.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: q.answer,
+          },
+        })),
+      };
+    } else if (type === "BreadcrumbList") {
+      baseSchema = {
+        ...baseSchema,
+        itemListElement: data.items?.map((item: any, index: number) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: item.name,
+          item: item.url.startsWith("http") ? item.url : `${baseUrl}${item.url}`,
+        })),
+      };
+    } else if (type === "Organization") {
+      baseSchema = {
+        ...baseSchema,
         name: "Wietforum België",
-        logo: {
-          "@type": "ImageObject",
-          url: `${baseUrl}/lovable-uploads/a6faafc3-e2bd-47ec-8de8-603497930570.png`,
+        url: baseUrl,
+        logo: `${baseUrl}/lovable-uploads/a6faafc3-e2bd-47ec-8de8-603497930570.png`,
+        sameAs: [
+          "https://facebook.com/wietforum",
+          "https://instagram.com/wietforum",
+        ],
+        contactPoint: {
+          "@type": "ContactPoint",
+          contactType: "Customer Support",
+          email: "info@wietforum.be",
         },
       };
+    } else {
+      // Fallback for WebPage or generic
+      baseSchema = { ...baseSchema, ...data };
     }
 
     return baseSchema;
@@ -70,44 +148,18 @@ export const createArticleSchema = (data: {
     image: data.image || `${window.location.origin}/lovable-uploads/a6faafc3-e2bd-47ec-8de8-603497930570.png`,
     datePublished: data.datePublished,
     dateModified: data.dateModified,
-    author: data.author
-      ? {
-          "@type": "Person",
-          name: data.author,
-        }
-      : {
-          "@type": "Organization",
-          name: "Wietforum België",
-        },
+    authorName: data.author,
   },
 });
 
 export const createBreadcrumbSchema = (items: Array<{ name: string; url: string }>) => ({
   type: "BreadcrumbList" as const,
-  data: {
-    itemListElement: items.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      item: {
-        "@id": item.url,
-        name: item.name,
-      },
-    })),
-  },
+  data: { items },
 });
 
 export const createFAQSchema = (faqs: Array<{ question: string; answer: string }>) => ({
   type: "FAQPage" as const,
-  data: {
-    mainEntity: faqs.map((faq) => ({
-      "@type": "Question",
-      name: faq.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: faq.answer,
-      },
-    })),
-  },
+  data: { questions: faqs },
 });
 
 export const createWebSiteSchema = () => ({
@@ -122,5 +174,37 @@ export const createWebSiteSchema = () => ({
       target: `${window.location.origin}/search?q={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
+  },
+});
+
+export const createForumPostingSchema = (data: {
+  headline: string;
+  text: string;
+  authorName: string;
+  datePublished: string;
+  interactionCount: number;
+}) => ({
+  type: "DiscussionForumPosting" as const,
+  data: {
+    headline: data.headline,
+    text: data.text,
+    authorName: data.authorName,
+    datePublished: data.datePublished,
+    interactionCount: data.interactionCount,
+  },
+});
+
+export const createPlaceSchema = (data: {
+  name: string;
+  addressLocality: string;
+  addressRegion: string;
+  description: string;
+}) => ({
+  type: "Place" as const,
+  data: {
+    name: data.name,
+    addressLocality: data.addressLocality,
+    addressRegion: data.addressRegion,
+    description: data.description,
   },
 });
