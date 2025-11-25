@@ -144,24 +144,46 @@ export const useUserProfile = (): UseUserProfileReturn => {
         .order('created_at', { ascending: false })
         .limit(10);
 
-      // Get vote counts for posts
+      // Get vote counts for posts (skip if votes table doesn't exist or no access)
       const allTopicIds = userTopics?.map(t => t.id) || [];
       const allReplyIds = userReplies?.map(r => r.id) || [];
       
-      const [topicVotes, replyVotes] = await Promise.all([
-        allTopicIds.length > 0 ? supabase
-          .from('votes')
-          .select('item_id, vote_type')
-          .eq('item_type', 'topic')
-          .in('item_id', allTopicIds)
-          .eq('vote_type', 'up') : { data: [] },
-        allReplyIds.length > 0 ? supabase
-          .from('votes')
-          .select('item_id, vote_type')
-          .eq('item_type', 'reply')
-          .in('item_id', allReplyIds)
-          .eq('vote_type', 'up') : { data: [] }
-      ]);
+      let topicVotes = { data: [] as any[] };
+      let replyVotes = { data: [] as any[] };
+      
+      try {
+        const votesPromises = [];
+        if (allTopicIds.length > 0) {
+          votesPromises.push(
+            supabase
+              .from('votes')
+              .select('item_id, vote_type')
+              .eq('item_type', 'topic')
+              .in('item_id', allTopicIds)
+              .eq('vote_type', 'up')
+          );
+        } else {
+          votesPromises.push(Promise.resolve({ data: [] }));
+        }
+        
+        if (allReplyIds.length > 0) {
+          votesPromises.push(
+            supabase
+              .from('votes')
+              .select('item_id, vote_type')
+              .eq('item_type', 'reply')
+              .in('item_id', allReplyIds)
+              .eq('vote_type', 'up')
+          );
+        } else {
+          votesPromises.push(Promise.resolve({ data: [] }));
+        }
+        
+        [topicVotes, replyVotes] = await Promise.all(votesPromises);
+      } catch (voteError) {
+        console.warn('Could not fetch votes (table may not exist):', voteError);
+        // Continue without vote counts
+      }
 
       // Format topics
       const formattedTopics: UserPost[] = userTopics?.map(topic => ({
@@ -215,15 +237,20 @@ export const useUserProfile = (): UseUserProfileReturn => {
 
   // Helper function to get item IDs for vote counting
   const getItemIds = async (userId: string): Promise<string> => {
-    const [topics, replies] = await Promise.all([
-      supabase.from('topics').select('id').eq('author_id', userId),
-      supabase.from('replies').select('id').eq('author_id', userId)
-    ]);
-    
-    const topicIds = topics.data?.map(t => t.id) || [];
-    const replyIds = replies.data?.map(r => r.id) || [];
-    
-    return [...topicIds, ...replyIds].join(',');
+    try {
+      const [topics, replies] = await Promise.all([
+        supabase.from('topics').select('id').eq('author_id', userId),
+        supabase.from('replies').select('id').eq('author_id', userId)
+      ]);
+      
+      const topicIds = topics.data?.map(t => t.id) || [];
+      const replyIds = replies.data?.map(r => r.id) || [];
+      
+      return [...topicIds, ...replyIds].join(',') || 'none';
+    } catch (error) {
+      console.warn('Could not fetch item IDs for votes:', error);
+      return 'none';
+    }
   };
 
   return {
