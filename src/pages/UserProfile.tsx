@@ -21,9 +21,10 @@ export default function UserProfile() {
 
   useEffect(() => {
     if (userId) {
+      console.log('Fetching user profile for userId:', userId);
       fetchUserData(userId);
     }
-  }, [userId]);
+  }, [userId, fetchUserData]);
 
   if (loading) {
     return (

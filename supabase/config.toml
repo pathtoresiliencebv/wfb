@@ -3,21 +3,17 @@ project_id = "yopswdnayrogadtxpwzm"
 [functions.reset-admin-password]
 verify_jwt = false
 
-[functions.send-password-reset]
-verify_jwt = false
-
-[functions.send-email-verification]
+[functions.send-auth-emails]
 verify_jwt = false
 
 [functions.send-welcome-email]
 verify_jwt = false
 
 [auth.email]
-# Enable custom SMTP server
 enable_signup = true
 double_confirm_changes_enabled = true
 
 [auth.hook.send_email]
 enabled = true
-uri = "https://yopswdnayrogadtxpwzm.supabase.co/functions/v1/send-email-verification"
+uri = "https://yopswdnayrogadtxpwzm.supabase.co/functions/v1/send-auth-emails"
 secrets = "AUTH_HOOK_SECRET,RESEND_API_KEY"
