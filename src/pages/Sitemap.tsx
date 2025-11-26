@@ -1,10 +1,33 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ExternalLink, CheckCircle2, FileText, Globe } from "lucide-react";
+import { ExternalLink, CheckCircle2, FileText, Globe, MapPin, Layout } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Link } from "react-router-dom";
 
 export default function Sitemap() {
   const baseUrl = "https://wietforumbelgique.com";
   const sitemapBaseUrl = `${baseUrl}`;
+
+  const { data: seoPages, isLoading } = useQuery({
+    queryKey: ['seo-pages-sitemap'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('seo_content_pages')
+        .select('title, slug, page_type')
+        .eq('is_published', true)
+        .order('title');
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // Group pages
+  const generalPages = seoPages?.filter(p => p.page_type === 'general' || p.page_type === 'pillar') || [];
+  const locationPages = seoPages?.filter(p => p.page_type === 'city' || p.page_type === 'province') || [];
 
   const sitemaps = [
     { name: "Sitemap Index", type: "index", description: "Hoofdindex van alle sitemaps", icon: Globe },
@@ -79,7 +102,7 @@ export default function Sitemap() {
         </Card>
 
         {/* Sub-sitemaps */}
-        <div className="space-y-4">
+        <div className="space-y-4 mb-12">
           <h2 className="text-2xl font-semibold mb-4">Sub-sitemaps</h2>
           <div className="grid gap-4 md:grid-cols-2">
             {sitemaps.map((sitemap) => {
@@ -113,61 +136,76 @@ export default function Sitemap() {
         </div>
 
         {/* SEO Content Links */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>🎯 SEO Content Pagina's</CardTitle>
-            <CardDescription>
-              Directe links naar onze SEO-geoptimaliseerde content
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4 text-sm">
-              <div>
-                <strong className="text-primary">Pijler Pagina:</strong>
-                <br />
-                <a href="/cannabis-belgie" className="text-primary hover:underline ml-4">
-                  /cannabis-belgie - De Complete Gids
-                </a>
-              </div>
-              <div>
-                <strong className="text-primary">Provincie Pagina's:</strong>
-                <ul className="list-disc list-inside space-y-1 mt-2 ml-4">
-                  <li>
-                    <a href="/cannabis-belgie/antwerpen" className="text-primary hover:underline">
-                      Cannabis in Antwerpen
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/cannabis-belgie/oost-vlaanderen" className="text-primary hover:underline">
-                      Cannabis in Oost-Vlaanderen
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/cannabis-belgie/west-vlaanderen" className="text-primary hover:underline">
-                      Cannabis in West-Vlaanderen
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/cannabis-belgie/vlaams-brabant" className="text-primary hover:underline">
-                      Cannabis in Vlaams-Brabant
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/cannabis-belgie/limburg" className="text-primary hover:underline">
-                      Cannabis in Limburg
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <div className="pt-4 border-t">
-                <p className="text-xs text-muted-foreground">
-                  💡 <strong>Tip:</strong> Alle 20 SEO pagina's (1 Pijler + 5 Provincies + 14 Steden) 
-                  worden automatisch toegevoegd aan de sitemap zodra je ze publiceert in het admin panel.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <h2 className="text-2xl font-semibold mb-4">Overzicht SEO Pagina's</h2>
+        
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Skeleton className="h-40 w-full" />
+            <Skeleton className="h-40 w-full" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* General Pages */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Layout className="h-5 w-5 text-primary" />
+                  Algemene Informatie
+                </CardTitle>
+                <CardDescription>
+                  Algemene informatie over cannabis in België
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[300px] pr-4">
+                  <ul className="space-y-2">
+                    {generalPages.map((page) => (
+                      <li key={page.slug}>
+                        <Link 
+                          to={`/${page.slug}`} 
+                          className="text-sm text-muted-foreground hover:text-primary hover:underline transition-colors flex items-center gap-2"
+                        >
+                          <FileText className="h-3 w-3" />
+                          {page.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+
+            {/* Location Pages */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  Lokale Gidsen
+                </CardTitle>
+                <CardDescription>
+                  Informatie per regio en provincie
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[300px] pr-4">
+                  <ul className="space-y-2">
+                    {locationPages.map((page) => (
+                      <li key={page.slug}>
+                        <Link 
+                          to={`/${page.slug}`} 
+                          className="text-sm text-muted-foreground hover:text-primary hover:underline transition-colors flex items-center gap-2"
+                        >
+                          <MapPin className="h-3 w-3" />
+                          {page.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Technical Info */}
         <Card className="mt-8 border-muted">

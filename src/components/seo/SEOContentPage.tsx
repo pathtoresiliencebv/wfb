@@ -70,9 +70,16 @@ export function SEOContentPage({ slug }: SEOContentPageProps) {
   // Generate breadcrumbs based on page hierarchy
   const breadcrumbs = [];
   if (page.parent_slug) {
+    // Format parent label (e.g. "antwerpen" -> "Antwerpen", "vlaams-brabant" -> "Vlaams Brabant")
+    const parentSlugPart = page.parent_slug.split('/').pop() || "";
+    const parentLabel = parentSlugPart
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+
     // Add parent if exists
     breadcrumbs.push({
-      label: page.page_type === "city" ? "Provincie" : "Cannabis in België",
+      label: page.page_type === "city" ? parentLabel : (page.page_type === "province" ? "Provincie" : "Cannabis in België"),
       href: page.parent_slug.startsWith("/") ? page.parent_slug : `/${page.parent_slug}`,
     });
   }
@@ -174,7 +181,9 @@ export function SEOContentPage({ slug }: SEOContentPageProps) {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Regio</p>
-                    <p className="font-semibold">{page.parent_slug?.split('/').pop() || "Vlaanderen"}</p>
+                    <p className="font-semibold">
+                      {page.parent_slug?.split('/').pop()?.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ') || "Vlaanderen"}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
