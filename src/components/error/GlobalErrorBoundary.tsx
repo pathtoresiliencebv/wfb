@@ -1,6 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, Home, LogIn } from 'lucide-react';
+import { AlertTriangle, Home, UserPlus } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Props {
@@ -32,9 +32,9 @@ export class GlobalErrorBoundary extends Component<Props, State> {
     window.location.href = '/';
   };
 
-  private handleLogin = () => {
+  private handleRegister = () => {
     this.setState({ hasError: false, error: null });
-    window.location.href = '/login';
+    window.location.href = '/register';
   };
 
   public render() {
@@ -46,11 +46,11 @@ export class GlobalErrorBoundary extends Component<Props, State> {
               <div className="mx-auto w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center mb-2">
                 <AlertTriangle className="h-6 w-6 text-destructive" />
               </div>
-              <CardTitle className="text-xl font-bold">Er is iets misgegaan</CardTitle>
+              <CardTitle className="text-xl font-bold">Maak een gratis account aan</CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-4">
               <p className="text-muted-foreground text-sm">
-                We hebben een onverwachte fout gedetecteerd. Dit gebeurt vaak als je probeert toegang te krijgen tot beveiligde inhoud zonder ingelogd te zijn.
+                Om toegang te krijgen tot deze inhoud, maak je een gratis account aan. Het duurt slechts een minuut!
               </p>
               {process.env.NODE_ENV === 'development' && this.state.error && (
                 <div className="p-2 bg-muted rounded text-xs text-left overflow-auto max-h-32">
@@ -63,9 +63,9 @@ export class GlobalErrorBoundary extends Component<Props, State> {
                 <Home className="mr-2 h-4 w-4" />
                 Naar Home
               </Button>
-              <Button onClick={this.handleLogin} className="w-full sm:w-auto">
-                <LogIn className="mr-2 h-4 w-4" />
-                Inloggen
+              <Button onClick={this.handleRegister} className="w-full sm:w-auto">
+                <UserPlus className="mr-2 h-4 w-4" />
+                Maak een gratis account aan
               </Button>
             </CardFooter>
           </Card>

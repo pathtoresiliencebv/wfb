@@ -57,20 +57,82 @@ export default function Forums() {
   const { slug } = useParams();
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
-  // Fetch categories with React Query
+  // Fetch categories with React Query, including calculated counts
   const { data: categories = [], isLoading: categoriesLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get all categories
+      const { data: categoriesData, error: categoriesError } = await supabase
         .from('categories')
         .select('*')
         .eq('is_active', true)
         .order('sort_order');
 
-      if (error) throw error;
-      return data || [];
+      if (categoriesError) throw categoriesError;
+      if (!categoriesData || categoriesData.length === 0) return [];
+
+      const categoryIds = categoriesData.map(c => c.id);
+
+      // Get all topics for these categories
+      const { data: topicsData, error: topicsError } = await supabase
+        .from('topics')
+        .select('id, category_id')
+        .in('category_id', categoryIds);
+
+      if (topicsError) throw topicsError;
+
+      // Get all replies for topics in these categories
+      const topicIds = topicsData?.map(t => t.id) || [];
+      let repliesData: any[] = [];
+      
+      if (topicIds.length > 0) {
+        const { data: replies, error: repliesError } = await supabase
+          .from('replies')
+          .select('topic_id')
+          .in('topic_id', topicIds);
+
+        if (repliesError) throw repliesError;
+        repliesData = replies || [];
+      }
+
+      // Create maps for counting
+      const topicCountMap = new Map<string, number>();
+      const replyCountMap = new Map<string, number>();
+
+      // Initialize all categories with 0
+      categoriesData.forEach(cat => {
+        topicCountMap.set(cat.id, 0);
+        replyCountMap.set(cat.id, 0);
+      });
+
+      // Count topics per category
+      topicsData?.forEach(topic => {
+        const count = topicCountMap.get(topic.category_id) || 0;
+        topicCountMap.set(topic.category_id, count + 1);
+      });
+
+      // Count replies per category (via topics)
+      const topicToCategoryMap = new Map<string, string>();
+      topicsData?.forEach(topic => {
+        topicToCategoryMap.set(topic.id, topic.category_id);
+      });
+
+      repliesData.forEach(reply => {
+        const categoryId = topicToCategoryMap.get(reply.topic_id);
+        if (categoryId) {
+          const count = replyCountMap.get(categoryId) || 0;
+          replyCountMap.set(categoryId, count + 1);
+        }
+      });
+
+      // Merge counts into categories
+      return categoriesData.map(category => ({
+        ...category,
+        topic_count: topicCountMap.get(category.id) || 0,
+        reply_count: replyCountMap.get(category.id) || 0,
+      }));
     },
-    staleTime: 300000, // 5 minutes
+    staleTime: 60000, // 1 minute - shorter cache for more accurate counts
   });
 
   // Fetch popular topics with React Query
