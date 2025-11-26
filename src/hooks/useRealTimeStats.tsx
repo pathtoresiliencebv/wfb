@@ -31,25 +31,39 @@ export function useRealTimeStats() {
       }
 
       try {
-        // Batch all queries together for better performance
-        const [profilesResult, expertsResult, topicsResult, verifiedResult] = await Promise.all([
+        // Execute queries independently to prevent one failure from blocking others
+        const [profilesResult, expertsResult, topicsResult, verifiedResult] = await Promise.allSettled([
           supabase.from('profiles').select('*', { count: 'exact', head: true }),
           supabase.from('profiles').select('*', { count: 'exact', head: true }).in('role', ['expert', 'admin', 'moderator']),
           supabase.from('topics').select('*', { count: 'exact', head: true }),
           supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_verified', true)
         ]);
 
+        // Helper to extract count from settled promise
+        const getCount = (result: PromiseSettledResult<{ count: number | null }>) => {
+          if (result.status === 'fulfilled' && result.value.count !== null) {
+            return result.value.count;
+          }
+          if (result.status === 'rejected') {
+            console.error('Stats query failed:', result.reason);
+          }
+          return 0;
+        };
+
+        const totalUsers = getCount(profilesResult as any);
+        const expertCount = getCount(expertsResult as any);
+        const topicCount = getCount(topicsResult as any);
+        const verifiedUsers = getCount(verifiedResult as any);
+
         // Calculate verification percentage
-        const totalUsers = profilesResult.count || 0;
-        const verifiedUsers = verifiedResult.count || 0;
         const verificationPercentage = totalUsers > 0 
           ? Math.round((verifiedUsers / totalUsers) * 100) 
           : 0;
 
         const newStats = {
           userCount: totalUsers,
-          topicCount: topicsResult.count || 0,
-          expertCount: expertsResult.count || 0,
+          topicCount: topicCount,
+          expertCount: expertCount,
           verifiedCommunity: `${verificationPercentage}%`,
         };
 
