@@ -94,15 +94,30 @@ export function SEOContentPage({ slug }: SEOContentPageProps) {
   // Generate schemas
   const schemas = [];
 
-  // Article schema
-  schemas.push(
-    createArticleSchema({
-      headline: page.h1_title,
-      description: page.meta_description || "",
-      datePublished: page.publish_date || page.created_at,
-      dateModified: page.last_updated,
-    })
-  );
+    // Article schema
+    schemas.push(
+      createArticleSchema({
+        headline: page.h1_title,
+        description: page.meta_description || "",
+        datePublished: page.publish_date || page.created_at,
+        dateModified: page.last_updated,
+        author: "Wietforum België"
+      })
+    );
+
+    // Breadcrumb schema
+    if (breadcrumbs.length > 0) {
+      schemas.push({
+        type: "BreadcrumbList" as const,
+        data: {
+          items: breadcrumbs.map((b, i) => ({
+            name: b.label,
+            url: b.href,
+            position: i + 1
+          }))
+        }
+      });
+    }
 
   // FAQ schema if content has FAQs
   if (content?.faq && Array.isArray(content.faq)) {
@@ -140,7 +155,9 @@ export function SEOContentPage({ slug }: SEOContentPageProps) {
 
       <div className="container max-w-4xl mx-auto px-4 py-8">
         {/* Breadcrumbs */}
-        <Breadcrumbs items={breadcrumbs} className="mb-6" />
+        <nav aria-label="Breadcrumb" className="mb-6">
+          <Breadcrumbs items={breadcrumbs} className="mb-0" />
+        </nav>
 
         {/* Main Content */}
         <article className="prose prose-lg dark:prose-invert max-w-none">

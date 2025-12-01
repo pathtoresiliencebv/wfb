@@ -4,6 +4,8 @@ import {
   ArrowLeft, MessageSquare, Eye, Clock, Share2, Flag, Bookmark, 
   Bell, BellOff, Quote, X, Send
 } from 'lucide-react';
+import { SEOHead } from '@/components/seo/SEOHead';
+import { createForumPostingSchema, createBreadcrumbSchema } from '@/components/seo/SchemaMarkup';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -382,8 +384,40 @@ export default function TopicDetail() {
     downvotes: 0
   };
 
+  const canonicalUrl = `${window.location.origin}/forums/${topic.categories.slug}/topic/${topic.id}`;
+  
+  const discussionSchema = createForumPostingSchema({
+    headline: topic.title,
+    text: topic.content.substring(0, 500), // Limit content length for schema
+    authorName: topic.profiles.username,
+    datePublished: topic.created_at,
+    interactionCount: topic.reply_count
+  });
+  
+  const breadcrumbSchema = createBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Forums', url: '/forums' },
+    { name: topic.categories.name, url: `/forums/${topic.categories.slug}` },
+    { name: topic.title, url: canonicalUrl }
+  ]);
+
   return (
     <div className="max-w-6xl mx-auto px-4 pt-2 pb-6 space-y-4">
+      <SEOHead 
+        title={topic.title}
+        description={topic.content.replace(/<[^>]*>?/gm, '').substring(0, 155) + '...'}
+        canonical={canonicalUrl}
+        ogType="article"
+        publishedTime={topic.created_at}
+        structuredData={{
+          "@context": "https://schema.org",
+          "@graph": [
+             { ...discussionSchema.data, "@type": "DiscussionForumPosting" },
+             { ...breadcrumbSchema.data, "@type": "BreadcrumbList" }
+          ]
+        }}
+      />
+
       {/* Topic Card */}
       <Card>
         <CardHeader className="border-b">

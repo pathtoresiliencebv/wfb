@@ -30,7 +30,8 @@ import { Separator } from '@/components/ui/separator';
 import { Layout } from '@/components/layout/Layout';
 import { BadgedText } from '@/lib/badgeParser';
 import { Skeleton } from '@/components/ui/skeleton';
-import { SupplierMenu } from '@/components/supplier/SupplierMenu';
+import { SEOHead } from '@/components/seo/SEOHead';
+import { createOrganizationSchema } from '@/components/seo/SchemaMarkup';
 
 export const SupplierProfile: React.FC = () => {
   const { username } = useParams<{ username: string }>();
@@ -53,16 +54,6 @@ export const SupplierProfile: React.FC = () => {
     },
     enabled: !!username,
   });
-
-  React.useEffect(() => {
-    if ((supplier as any)?.business_name) {
-      document.title = `${(supplier as any).business_name} - Leverancier | Wiet Forum België`;
-      const meta = document.querySelector('meta[name="description"]');
-      if (meta) {
-        meta.setAttribute('content', (supplier as any).description || `Bekijk ${(supplier as any).business_name} leverancier profiel op Wiet Forum België.`);
-      }
-    }
-  }, [supplier]);
 
   if (isLoading) {
     return (
@@ -107,8 +98,26 @@ export const SupplierProfile: React.FC = () => {
     return <CrownBadge size="lg" />;
   };
 
+  const organizationSchema = createOrganizationSchema({
+    name: supplier.business_name,
+    description: supplier.description || undefined,
+    image: supplier.profiles.avatar_url || undefined,
+    url: window.location.href,
+  });
+
   return (
     <Layout>
+      <SEOHead 
+        title={`${supplier.business_name} - Leverancier`}
+        description={supplier.description || `Bekijk ${supplier.business_name} leverancier profiel op Wiet Forum België.`}
+        ogType="profile"
+        ogImage={supplier.profiles.avatar_url || undefined}
+        structuredData={{
+            "@context": "https://schema.org",
+            ...organizationSchema.data,
+            "@type": "Organization"
+        }}
+      />
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-6">
           

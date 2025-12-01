@@ -208,3 +208,22 @@ export const createPlaceSchema = (data: {
     description: data.description,
   },
 });
+
+export const createOrganizationSchema = (data: {
+  name: string;
+  description?: string;
+  logo?: string;
+  image?: string;
+  url?: string;
+  sameAs?: string[];
+}) => ({
+  type: "Organization" as const,
+  data: {
+    name: data.name,
+    description: data.description,
+    logo: data.logo,
+    image: data.image,
+    url: data.url,
+    sameAs: data.sameAs,
+  },
+});

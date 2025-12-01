@@ -11,6 +11,8 @@ import { ArrowLeft, Plus, MessageSquare, Eye, Calendar, User } from 'lucide-reac
 import { formatDistanceToNow } from 'date-fns';
 import { nl } from 'date-fns/locale';
 import { BadgedText } from '@/lib/badgeParser';
+import { SEOHead } from '@/components/seo/SEOHead';
+import { createBreadcrumbSchema } from '@/components/seo/SchemaMarkup';
 
 export default function ForumCategory() {
   const { slug } = useParams<{ slug: string }>();
@@ -85,6 +87,20 @@ export default function ForumCategory() {
 
   return (
     <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
+      <SEOHead 
+        title={category.name}
+        description={`Discussies over ${category.name} op Wiet Forum België.`}
+        canonical={`${window.location.origin}/forums/${slug}`}
+        structuredData={{
+          "@context": "https://schema.org",
+          ...createBreadcrumbSchema([
+            { name: 'Home', url: '/' },
+            { name: 'Forums', url: '/forums' },
+            { name: category.name, url: `/forums/${slug}` }
+          ]).data,
+          "@type": "BreadcrumbList"
+        }}
+      />
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div className="flex items-center gap-2 sm:gap-3 md:gap-4 w-full sm:w-auto">
           <Link to="/forums">
