@@ -80,7 +80,7 @@ export function AppSidebar() {
   });
   
   // Show mini icons on mobile for specific routes (e.g., user and supplier profiles)
-  const allowMiniOnMobile = currentPath.startsWith('/user') || currentPath.startsWith('/leverancier');
+  const allowMiniOnMobile = currentPath.startsWith('/user');
 
   const isActive = (path: string) => {
     if (path === '/') {

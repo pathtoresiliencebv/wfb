@@ -182,18 +182,18 @@ export const SupplierDashboard: React.FC = () => {
   return (
     <div className="space-y-4 md:space-y-6 px-2 sm:px-0">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-        <div className="flex items-center gap-2 md:gap-3">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full">
+        <div className="flex flex-wrap items-center gap-2 md:gap-3">
           <div className="flex items-center gap-2">
-            <Store className="h-5 w-5 md:h-6 md:w-6 text-primary" />
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold">Leverancier Dashboard</h1>
+            <Store className="h-5 w-5 md:h-6 md:w-6 text-primary shrink-0" />
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold break-words">Leverancier Dashboard</h1>
           </div>
           {supplierProfile && <CrownBadge />}
         </div>
         <Button
           onClick={() => setIsEditing(!isEditing)}
           variant={isEditing ? 'outline' : 'default'}
-          className="min-h-[44px] px-4"
+          className="min-h-[44px] px-4 w-full sm:w-auto"
         >
           <Settings className="h-4 w-4 mr-2" />
           <span className="hidden sm:inline">{isEditing ? 'Annuleren' : 'Bewerken'}</span>
