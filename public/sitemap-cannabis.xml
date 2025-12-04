@@ -1,13 +1,114 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Pijler pagina -->
+  <!-- ==================== PILLAR PAGES ==================== -->
   <url>
     <loc>https://wietforumbelgique.com/cannabis-belgie</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
-  
-  <!-- Provincie pagina's -->
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-wetgeving-belgie-2025</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/medicinale-cannabis-belgie</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/buitenkweek-gids-belgie</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-social-club-belgie</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cbd-olie-belgie</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- ==================== FAQ PAGES ==================== -->
+  <url>
+    <loc>https://wietforumbelgique.com/is-wiet-legaal-belgie</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/hoeveel-wietplanten-belgie</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/speekseltest-wiet-hoelang</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- ==================== FORUM KEYWORD PAGES ==================== -->
+  <url>
+    <loc>https://wietforumbelgique.com/wietforum</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/wiet-forum</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-forum</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabisforum</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/420-forum</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/canna-forum</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/ganja-forum</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/grow-forum</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/kweek-forum</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- ==================== ARTICLE PAGES ==================== -->
+  <url>
+    <loc>https://wietforumbelgique.com/autoflower-zaden-gids</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/wiet-drogen-gids</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- ==================== PROVINCIE PAGES ==================== -->
   <url>
     <loc>https://wietforumbelgique.com/cannabis-belgie/antwerpen</loc>
     <changefreq>weekly</changefreq>
@@ -33,8 +134,8 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  
-  <!-- Stad pagina's - Antwerpen -->
+
+  <!-- ==================== STAD PAGES - ANTWERPEN ==================== -->
   <url>
     <loc>https://wietforumbelgique.com/cannabis-belgie/antwerpen/antwerpen</loc>
     <changefreq>monthly</changefreq>
@@ -50,8 +151,68 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
-  <!-- Stad pagina's - Oost-Vlaanderen -->
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/antwerpen/mortsel</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/antwerpen/boom</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/antwerpen/herentals</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/antwerpen/mol</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/antwerpen/geel</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/antwerpen/lier</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/antwerpen/brasschaat</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/antwerpen/schoten</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/antwerpen/hoogstraten</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/antwerpen/kontich</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/antwerpen/arendonk</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/antwerpen/westerlo</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- ==================== STAD PAGES - OOST-VLAANDEREN ==================== -->
   <url>
     <loc>https://wietforumbelgique.com/cannabis-belgie/oost-vlaanderen/gent</loc>
     <changefreq>monthly</changefreq>
@@ -67,8 +228,68 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
-  <!-- Stad pagina's - West-Vlaanderen -->
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/oost-vlaanderen/dendermonde</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/oost-vlaanderen/lokeren</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/oost-vlaanderen/wetteren</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/oost-vlaanderen/beveren</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/oost-vlaanderen/temse</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/oost-vlaanderen/eeklo</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/oost-vlaanderen/geraardsbergen</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/oost-vlaanderen/zottegem</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/oost-vlaanderen/deinze</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/oost-vlaanderen/ronse</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/oost-vlaanderen/ninove</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/oost-vlaanderen/zele</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- ==================== STAD PAGES - WEST-VLAANDEREN ==================== -->
   <url>
     <loc>https://wietforumbelgique.com/cannabis-belgie/west-vlaanderen/brugge</loc>
     <changefreq>monthly</changefreq>
@@ -84,8 +305,68 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
-  <!-- Stad pagina's - Vlaams-Brabant -->
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/west-vlaanderen/roeselare</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/west-vlaanderen/ieper</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/west-vlaanderen/waregem</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/west-vlaanderen/knokke-heist</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/west-vlaanderen/blankenberge</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/west-vlaanderen/de-panne</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/west-vlaanderen/menen</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/west-vlaanderen/izegem</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/west-vlaanderen/harelbeke</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/west-vlaanderen/torhout</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/west-vlaanderen/diksmuide</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/west-vlaanderen/poperinge</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- ==================== STAD PAGES - VLAAMS-BRABANT ==================== -->
   <url>
     <loc>https://wietforumbelgique.com/cannabis-belgie/vlaams-brabant/leuven</loc>
     <changefreq>monthly</changefreq>
@@ -96,8 +377,48 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
-  <!-- Stad pagina's - Limburg -->
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/vlaams-brabant/halle</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/vlaams-brabant/tienen</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/vlaams-brabant/aarschot</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/vlaams-brabant/diest</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/vlaams-brabant/zaventem</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/vlaams-brabant/tervuren</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/vlaams-brabant/overijse</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/vlaams-brabant/grimbergen</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- ==================== STAD PAGES - LIMBURG ==================== -->
   <url>
     <loc>https://wietforumbelgique.com/cannabis-belgie/limburg/hasselt</loc>
     <changefreq>monthly</changefreq>
@@ -111,6 +432,103 @@
   <url>
     <loc>https://wietforumbelgique.com/cannabis-belgie/limburg/tongeren</loc>
     <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/limburg/sint-truiden</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/limburg/beringen</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/limburg/lommel</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/limburg/maasmechelen</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/limburg/bilzen</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/limburg/maaseik</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/limburg/bree</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/limburg/lanaken</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-belgie/limburg/leopoldsburg</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- ==================== FORUM + LOCATIE COMBINATIES ==================== -->
+  <url>
+    <loc>https://wietforumbelgique.com/wiet-forum-antwerpen</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/wiet-forum-gent</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/wiet-forum-brussel</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/wiet-forum-brugge</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/wiet-forum-leuven</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/wiet-forum-hasselt</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-forum-antwerpen</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-forum-gent</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-forum-brussel</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://wietforumbelgique.com/cannabis-forum-brugge</loc>
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
 </urlset>

@@ -1,8 +1,6 @@
 import { HeroSection } from './HeroSection';
 import { FloatingCannabisLeaf } from '@/components/animations/FloatingCannabisLeaf';
 import { ValuePropositionSection } from './ValuePropositionSection';
-import { HowItWorksSection } from './HowItWorksSection';
-import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { FAQSection } from '@/components/home/FAQSection';
 import { TrustBadgesSection } from './TrustBadgesSection';
 import { CTASection } from './CTASection';
@@ -45,11 +43,6 @@ export function LandingPage() {
         <ValuePropositionSection />
       </section>
 
-      {/* How It Works - GROENE SECTIE */}
-      <section className="relative z-10 py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-br from-green-500/15 via-primary/15 to-green-700/10 border-y border-primary/30 overflow-hidden">
-        <div className="absolute bottom-1/4 right-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-green-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '0.5s' }} />
-        <HowItWorksSection />
-      </section>
 
       {/* Social Proof Section - LICHTE SECTIE */}
       <section className="relative z-10 py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-br from-background via-background/50 to-accent/20 overflow-hidden">
@@ -71,13 +64,6 @@ export function LandingPage() {
         <TrustBadgesSection />
       </section>
 
-      {/* Testimonials - GROENE SECTIE */}
-      <section className="relative z-10 py-12 sm:py-16 md:py-20 bg-gradient-to-br from-green-500/5 via-background to-primary/5 border-y border-green-500/10 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" />
-        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <TestimonialsSection />
-        </div>
-      </section>
 
       {/* FAQ Section - LICHTE SECTIE */}
       <section className="relative z-10 py-12 sm:py-16 md:py-20 bg-background overflow-hidden">
