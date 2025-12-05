@@ -12,6 +12,8 @@ import { ForumIntegrationLinks } from "./ForumIntegrationLinks";
 import { AllLocationsGrid } from "./AllLocationsGrid";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, MessageSquare, Info } from "lucide-react";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 
 interface SEOContentPageProps {
   slug: string;
@@ -42,28 +44,40 @@ export function SEOContentPage({ slug }: SEOContentPageProps) {
 
   if (isLoading) {
     return (
-      <div className="container max-w-4xl mx-auto px-4 py-8">
-        <Skeleton className="h-8 w-3/4 mb-4" />
-        <Skeleton className="h-12 w-full mb-8" />
-        <div className="space-y-4">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-5/6" />
-          <Skeleton className="h-4 w-4/6" />
-        </div>
-      </div>
+      <>
+        <Header />
+        <main className="min-h-screen pt-4">
+          <div className="container max-w-4xl mx-auto px-4 py-8">
+            <Skeleton className="h-8 w-3/4 mb-4" />
+            <Skeleton className="h-12 w-full mb-8" />
+            <div className="space-y-4">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+              <Skeleton className="h-4 w-4/6" />
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
     );
   }
 
   if (error || !page) {
     return (
-      <div className="container max-w-4xl mx-auto px-4 py-8">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Deze pagina kon niet worden geladen. Probeer het later opnieuw.
-          </AlertDescription>
-        </Alert>
-      </div>
+      <>
+        <Header />
+        <main className="min-h-screen pt-4">
+          <div className="container max-w-4xl mx-auto px-4 py-8">
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Deze pagina kon niet worden geladen. Probeer het later opnieuw.
+              </AlertDescription>
+            </Alert>
+          </div>
+        </main>
+        <Footer />
+      </>
     );
   }
 
@@ -153,6 +167,10 @@ export function SEOContentPage({ slug }: SEOContentPageProps) {
 
       <MultiSchema schemas={schemas} />
 
+      {/* Header */}
+      <Header />
+
+      <main className="min-h-screen pt-4">
       <div className="container max-w-4xl mx-auto px-4 py-8">
         {/* Breadcrumbs */}
         <nav aria-label="Breadcrumb" className="mb-6">
@@ -278,6 +296,10 @@ export function SEOContentPage({ slug }: SEOContentPageProps) {
           </p>
         </div>
       </div>
+      </main>
+
+      {/* Footer */}
+      <Footer />
     </>
   );
 }
