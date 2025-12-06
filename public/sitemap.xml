@@ -2,18 +2,22 @@
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
     <loc>https://wietforumbelgique.com/sitemap-pages.xml</loc>
-    <lastmod>2025-01-20T00:00:00+00:00</lastmod>
+    <lastmod>2025-12-06T00:00:00+00:00</lastmod>
   </sitemap>
   <sitemap>
     <loc>https://wietforumbelgique.com/sitemap-cannabis.xml</loc>
-    <lastmod>2025-01-20T00:00:00+00:00</lastmod>
+    <lastmod>2025-12-06T00:00:00+00:00</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://wietforumbelgique.com/sitemap-seo-content.xml</loc>
+    <lastmod>2025-12-06T00:00:00+00:00</lastmod>
   </sitemap>
   <sitemap>
     <loc>https://wietforumbelgique.com/sitemap-forums.xml</loc>
-    <lastmod>2025-01-20T00:00:00+00:00</lastmod>
+    <lastmod>2025-12-06T00:00:00+00:00</lastmod>
   </sitemap>
   <sitemap>
     <loc>https://wietforumbelgique.com/sitemap-topics.xml</loc>
-    <lastmod>2025-01-20T00:00:00+00:00</lastmod>
+    <lastmod>2025-12-06T00:00:00+00:00</lastmod>
   </sitemap>
 </sitemapindex>
