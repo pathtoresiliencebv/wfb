@@ -4,12 +4,8 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { WelcomeSection } from './WelcomeSection';
 import { RecentActivity } from '@/components/feed/RecentActivity';
 import { TopSuppliers } from '@/components/supplier/TopSuppliers';
-import { RecentPosts } from './RecentPosts';
-import { TrendingTopics } from './TrendingTopics';
-import { SuggestedTopics } from './SuggestedTopics';
 import { PullToRefresh } from '@/components/mobile/PullToRefresh';
 import { FeedLoadingSkeleton } from '@/components/loading/OptimizedLoadingStates';
-import { PresentationTab } from './PresentationTab';
 
 export function AuthenticatedHome() {
   const isMobile = useIsMobile();
@@ -26,12 +22,6 @@ export function AuthenticatedHome() {
       <WelcomeSection />
       
       {!isMobile && <TopSuppliers />}
-      
-      <RecentPosts />
-      
-      <TrendingTopics limit={6} showHeader={true} />
-      
-      <SuggestedTopics />
     </div>
   );
 
@@ -48,10 +38,9 @@ export function AuthenticatedHome() {
       ) : (
         <>
           {mainContent}
-          {/* Sidebar - Recente Activiteit + Presentatie */}
+          {/* Sidebar - Recente Activiteit */}
           <div className="space-y-4 md:space-y-6 lg:sticky lg:top-24">
             <RecentActivity />
-            <PresentationTab />
           </div>
         </>
       )}
