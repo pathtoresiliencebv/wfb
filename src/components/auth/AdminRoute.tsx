@@ -29,6 +29,12 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({
       try {
         console.log('🔐 [AdminRoute] Verifying admin access server-side...');
         
+        // Refresh session to ensure we have the latest token
+        await supabase.auth.refreshSession();
+        
+        // Small delay to ensure session is fully synced
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         // Server-side verification using edge function
         const { data, error } = await supabase.functions.invoke('verify-admin-role');
         

@@ -115,6 +115,9 @@ export default function AdminLogin() {
           description: "Welkom in het admin dashboard.",
         });
         
+        // Small delay to ensure session is synced before navigation
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         // Always redirect to admin dashboard
         navigate('/admin', { replace: true });
       }
@@ -163,6 +166,9 @@ export default function AdminLogin() {
         title: "Admin toegang verleend",
         description: "Welkom in het admin dashboard.",
       });
+      
+      // Small delay to ensure session is synced before navigation
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       navigate('/admin', { replace: true });
     } else {
