@@ -452,25 +452,31 @@ function AppRoutes() {
                 <Route 
                   path="/cannabis-belgie" 
                   element={
-                    <Suspense fallback={<PageLoadingSpinner />}>
-                      <SEOContent />
-                    </Suspense>
+                    <Layout>
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <SEOContent />
+                      </Suspense>
+                    </Layout>
                   } 
                 />
                 <Route 
                   path="/cannabis-belgie/:province" 
                   element={
-                    <Suspense fallback={<PageLoadingSpinner />}>
-                      <SEOContent />
-                    </Suspense>
+                    <Layout>
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <SEOContent />
+                      </Suspense>
+                    </Layout>
                   } 
                 />
                 <Route 
                   path="/cannabis-belgie/:province/:city" 
                   element={
-                    <Suspense fallback={<PageLoadingSpinner />}>
-                      <SEOContent />
-                    </Suspense>
+                    <Layout>
+                      <Suspense fallback={<PageLoadingSpinner />}>
+                        <SEOContent />
+                      </Suspense>
+                    </Layout>
                   } 
                 />
                 
