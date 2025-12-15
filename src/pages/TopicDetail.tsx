@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowLeft, MessageSquare, Eye, Clock, Share2, Flag, Bookmark, 
-  Bell, BellOff, Quote, X, Send
+  Bell, BellOff, Quote, X, Send, Pencil, Trash2
 } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { createForumPostingSchema, createBreadcrumbSchema } from '@/components/seo/SchemaMarkup';
@@ -26,6 +26,17 @@ import { nl } from 'date-fns/locale';
 import DOMPurify from 'dompurify';
 import { cn } from '@/lib/utils';
 import { BadgedText } from '@/lib/badgeParser';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface TopicData {
   id: string;
@@ -80,6 +91,8 @@ export default function TopicDetail() {
   const [isReplying, setIsReplying] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showFAB, setShowFAB] = useState(true);
+  const [isAdminOrMod, setIsAdminOrMod] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const initialVotes: Record<string, any> = {};
   if (topic) {
@@ -105,6 +118,65 @@ export default function TopicDetail() {
   const { handleVote, getVoteData } = useVoting(initialVotes);
   const { toggleBookmark, isBookmarked } = useBookmarks();
   const { isSubscribed, toggleSubscription } = useTopicSubscriptions(topicId);
+
+  // Check admin/moderator role
+  useEffect(() => {
+    const checkAdminRole = async () => {
+      if (!user) {
+        setIsAdminOrMod(false);
+        return;
+      }
+      
+      try {
+        const { data: isAdmin } = await supabase.rpc('has_role', {
+          _user_id: user.id,
+          _role: 'admin',
+        });
+        
+        const { data: isMod } = await supabase.rpc('has_role', {
+          _user_id: user.id,
+          _role: 'moderator',
+        });
+        
+        setIsAdminOrMod(isAdmin || isMod);
+      } catch (error) {
+        console.error('Error checking admin role:', error);
+      }
+    };
+    
+    checkAdminRole();
+  }, [user]);
+
+  // Handle topic deletion
+  const handleDeleteTopic = async () => {
+    if (!topic) return;
+    
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('topics')
+        .delete()
+        .eq('id', topic.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: 'Topic verwijderd',
+        description: 'Het topic is succesvol verwijderd.',
+      });
+      
+      navigate(`/forums/${topic.categories.slug}`);
+    } catch (error) {
+      console.error('Error deleting topic:', error);
+      toast({
+        title: 'Fout',
+        description: 'Er ging iets mis bij het verwijderen van het topic.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   useEffect(() => {
     const fetchTopicAndReplies = async () => {
@@ -540,6 +612,52 @@ export default function TopicDetail() {
                 >
                   <Flag className="h-4 w-4" />
                 </Button>
+
+                {/* Admin/Moderator Actions */}
+                {isAdminOrMod && (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate(`/create-topic?edit=${topic.id}`)}
+                      title="Bewerken"
+                      className="text-muted-foreground hover:text-primary"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          title="Verwijderen"
+                          className="text-muted-foreground hover:text-destructive"
+                          disabled={isDeleting}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Topic verwijderen?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Weet je zeker dat je dit topic wilt verwijderen? Dit kan niet ongedaan worden gemaakt.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuleren</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleDeleteTopic}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Verwijderen
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </>
+                )}
               </div>
             </div>
           </div>
