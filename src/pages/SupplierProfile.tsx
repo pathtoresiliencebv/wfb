@@ -30,6 +30,7 @@ import { Separator } from '@/components/ui/separator';
 import { Layout } from '@/components/layout/Layout';
 import { BadgedText } from '@/lib/badgeParser';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SupplierMenu } from '@/components/supplier/SupplierMenu';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { createOrganizationSchema } from '@/components/seo/SchemaMarkup';
 
