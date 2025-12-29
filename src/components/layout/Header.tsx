@@ -94,8 +94,8 @@ export function Header() {
           {/* Notifications */}
           {user && <NotificationDropdown />}
 
-          {/* User Menu or Login/Register */}
-          {user ? <DropdownMenu>
+          {/* User Menu - No registration buttons on public pages */}
+          {user && <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 md:h-9 md:w-9 rounded-full p-0">
                   <Avatar className="h-8 w-8 md:h-9 md:w-9">
@@ -134,14 +134,7 @@ export function Header() {
                   Uitloggen
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu> : <div className="flex items-center space-x-1 md:space-x-2">
-              <Button variant="ghost" size="sm" className="text-xs md:text-sm px-2 md:px-3 h-8 md:h-9" asChild>
-                <Link to="/login">Inloggen</Link>
-              </Button>
-              <Button variant="default" size="sm" className="text-xs md:text-sm px-2 md:px-3 h-8 md:h-9" asChild>
-                <Link to="/register">Registreren</Link>
-              </Button>
-            </div>}
+            </DropdownMenu>}
         </div>
       </div>
     </header>;
