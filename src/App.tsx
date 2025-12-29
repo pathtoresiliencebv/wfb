@@ -62,6 +62,7 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 // SEO pages
 const Sitemap = lazy(() => import("./pages/Sitemap"));
 const SEOContent = lazy(() => import("./pages/SEOContent"));
+const AIVisibilityDashboard = lazy(() => import("./pages/AIVisibilityDashboard"));
 
 // Optimized QueryClient with aggressive caching
 const queryClient = new QueryClient({
@@ -92,404 +93,405 @@ function AppRoutes() {
         />
       )}
       <Routes>
-                {/* Public auth routes */}
-                <Route 
-                  path="/login" 
-                  element={
-                    <ProtectedRoute requireAuth={false}>
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <Login />
-                      </Suspense>
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/register" 
-                  element={
-                    <ProtectedRoute requireAuth={false}>
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <Register />
-                      </Suspense>
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/password-reset" 
-                  element={
-                    <ProtectedRoute requireAuth={false}>
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <PasswordReset />
-                      </Suspense>
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                {/* Admin auth routes */}
-                <Route 
-                  path="/admin/login" 
-                  element={
-                    <ProtectedRoute requireAuth={false}>
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <AdminLogin />
-                      </Suspense>
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                {/* Supplier login route */}
-                <Route 
-                  path="/supplier-login" 
-                  element={
-                    <ProtectedRoute requireAuth={false}>
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <SupplierLogin />
-                      </Suspense>
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                {/* Home route */}
-                <Route 
-                  path="/" 
-                  element={
-                    <Layout>
-                      <HomePage />
-                    </Layout>
-                  } 
-                />
-                <Route 
-                  path="/forums" 
-                  element={
-                    <Layout>
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <Forums />
-                      </Suspense>
-                    </Layout>
-                  } 
-                />
-                <Route 
-                  path="/forums/:slug" 
-                  element={
-                    <Layout>
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <ForumCategory />
-                      </Suspense>
-                    </Layout>
-                  } 
-                />
-                <Route 
-                  path="/forums/:slug/topic/:topicId" 
-                  element={
-                    <Layout>
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <TopicDetail />
-                      </Suspense>
-                    </Layout>
-                  } 
-                 />
-                <Route 
-                  path="/create-topic" 
-                  element={
-                    <Layout>
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <CreateTopic />
-                      </Suspense>
-                    </Layout>
-                  } 
-                />
-                <Route 
-                  path="/forums/:slug/new-topic" 
-                  element={
-                    <Layout>
-                      <CreateTopic />
-                    </Layout>
-                  } 
-                />
-                <Route 
-                  path="/user/:userId" 
-                  element={
-                    <Layout>
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <UserProfile />
-                      </Suspense>
-                    </Layout>
-                  } 
-                />
-                <Route 
-                  path="/members" 
-                  element={
-                    <Layout>
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <Members />
-                      </Suspense>
-                    </Layout>
-                  } 
-                />
-                <Route 
-                  path="/leaderboard" 
-                  element={
-                    <Layout>
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <Leaderboard />
-                      </Suspense>
-                    </Layout>
-                  } 
-                />
-                <Route 
-                  path="/messages" 
-                  element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <Suspense fallback={<PageLoadingSpinner />}>
-                          <Messages />
-                        </Suspense>
-                      </Layout>
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/search" 
-                  element={
-                    <Layout>
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <Search />
-                      </Suspense>
-                    </Layout>
-                  } 
-                />
-                <Route 
-                  path="/settings" 
-                  element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <Suspense fallback={<PageLoadingSpinner />}>
-                          <Settings />
-                        </Suspense>
-                      </Layout>
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/gamification" 
-                  element={
-                    <Layout>
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <Gamification />
-                      </Suspense>
-                    </Layout>
-                  } 
-                />
-                <Route 
-                  path="/admin" 
-                  element={
-                    <AdminRoute requireRole="moderator">
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <AdminLayout>
-                          <AdminDashboard />
-                        </AdminLayout>
-                      </Suspense>
-                    </AdminRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/moderation" 
-                  element={
-                    <AdminRoute requireRole="moderator">
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <AdminLayout>
-                          <AdminModeration />
-                        </AdminLayout>
-                      </Suspense>
-                    </AdminRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/users" 
-                  element={
-                    <AdminRoute requireRole="moderator">
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <AdminLayout>
-                          <AdminUsers />
-                        </AdminLayout>
-                      </Suspense>
-                    </AdminRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/categories" 
-                  element={
-                    <AdminRoute requireRole="moderator">
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <AdminLayout>
-                          <AdminCategories />
-                        </AdminLayout>
-                      </Suspense>
-                    </AdminRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/topics" 
-                  element={
-                    <AdminRoute requireRole="moderator">
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <AdminLayout>
-                          <AdminTopics />
-                        </AdminLayout>
-                      </Suspense>
-                    </AdminRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/tags" 
-                  element={
-                    <AdminRoute requireRole="moderator">
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <AdminLayout>
-                          <AdminTags />
-                        </AdminLayout>
-                      </Suspense>
-                    </AdminRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/images" 
-                  element={
-                    <AdminRoute requireRole="moderator">
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <AdminLayout>
-                          <AdminImages />
-                        </AdminLayout>
-                      </Suspense>
-                    </AdminRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/security" 
-                  element={
-                    <AdminRoute requireRole="moderator">
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <AdminLayout>
-                          <AdminSecurity />
-                        </AdminLayout>
-                      </Suspense>
-                    </AdminRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/analytics" 
-                  element={
-                    <AdminRoute requireRole="moderator">
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <AdminLayout>
-                          <AdminAnalyticsPage />
-                        </AdminLayout>
-                      </Suspense>
-                    </AdminRoute>
-                  } 
-                />
-                <Route 
-                  path="/admin/suppliers" 
-                  element={
-                    <AdminRoute requireRole="moderator">
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <AdminLayout>
-                          <AdminSuppliers />
-                        </AdminLayout>
-                      </Suspense>
-                    </AdminRoute>
-                  } 
-                />
-                
-                 <Route 
-                   path="/aanbod/:username" 
-                   element={
-                     <ProtectedRoute>
-                       <Suspense fallback={<PageLoadingSpinner />}>
-                         <SupplierProfilePage />
-                       </Suspense>
-                     </ProtectedRoute>
-                   } 
-                 />
-                
-                <Route 
-                  path="/leverancier/dashboard" 
-                  element={
-                    <Suspense fallback={<PageLoadingSpinner />}>
-                      <SupplierDashboard />
-                    </Suspense>
-                  } 
-                />
-                
-                {/* Legal pages */}
-                <Route 
-                  path="/terms" 
-                  element={
-                    <Suspense fallback={<PageLoadingSpinner />}>
-                      <Terms />
-                    </Suspense>
-                  } 
-                />
-                <Route 
-                  path="/privacy" 
-                  element={
-                    <Suspense fallback={<PageLoadingSpinner />}>
-                      <Privacy />
-                    </Suspense>
-                  } 
-                />
+        {/* Public auth routes */}
+        <Route
+          path="/login"
+          element={
+            <ProtectedRoute requireAuth={false}>
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <Login />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <ProtectedRoute requireAuth={false}>
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <Register />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/password-reset"
+          element={
+            <ProtectedRoute requireAuth={false}>
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <PasswordReset />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
 
-                {/* SEO pages */}
-                <Route 
-                  path="/sitemap" 
-                  element={
-                    <Suspense fallback={<PageLoadingSpinner />}>
-                      <Sitemap />
-                    </Suspense>
-                  } 
-                />
-                
-                {/* SEO Content - catch-all for cannabis-belgie and subpaths */}
-                <Route 
-                  path="/cannabis-belgie" 
-                  element={
-                    <Layout>
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <SEOContent />
-                      </Suspense>
-                    </Layout>
-                  } 
-                />
-                <Route 
-                  path="/cannabis-belgie/:province" 
-                  element={
-                    <Layout>
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <SEOContent />
-                      </Suspense>
-                    </Layout>
-                  } 
-                />
-                <Route 
-                  path="/cannabis-belgie/:province/:city" 
-                  element={
-                    <Layout>
-                      <Suspense fallback={<PageLoadingSpinner />}>
-                        <SEOContent />
-                      </Suspense>
-                    </Layout>
-                  } 
-                />
-                
-                {/* Generic SEO content by slug */}
-                <Route 
-                  path="/:slug" 
-                  element={
-                    <Suspense fallback={<PageLoadingSpinner />}>
-                      <SEOContent />
-                    </Suspense>
-                  } 
-                />
-                
+        {/* Admin auth routes */}
+        <Route
+          path="/admin/login"
+          element={
+            <ProtectedRoute requireAuth={false}>
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <AdminLogin />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Supplier login route */}
+        <Route
+          path="/supplier-login"
+          element={
+            <ProtectedRoute requireAuth={false}>
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <SupplierLogin />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Home route */}
+        <Route
+          path="/"
+          element={
+            <Layout>
+              <HomePage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/forums"
+          element={
+            <Layout>
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <Forums />
+              </Suspense>
+            </Layout>
+          }
+        />
+        <Route
+          path="/forums/:slug"
+          element={
+            <Layout>
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <ForumCategory />
+              </Suspense>
+            </Layout>
+          }
+        />
+        <Route
+          path="/forums/:slug/topic/:topicId"
+          element={
+            <Layout>
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <TopicDetail />
+              </Suspense>
+            </Layout>
+          }
+        />
+        <Route
+          path="/create-topic"
+          element={
+            <Layout>
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <CreateTopic />
+              </Suspense>
+            </Layout>
+          }
+        />
+        <Route
+          path="/forums/:slug/new-topic"
+          element={
+            <Layout>
+              <CreateTopic />
+            </Layout>
+          }
+        />
+        <Route
+          path="/user/:userId"
+          element={
+            <Layout>
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <UserProfile />
+              </Suspense>
+            </Layout>
+          }
+        />
+        <Route
+          path="/members"
+          element={
+            <Layout>
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <Members />
+              </Suspense>
+            </Layout>
+          }
+        />
+        <Route
+          path="/leaderboard"
+          element={
+            <Layout>
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <Leaderboard />
+              </Suspense>
+            </Layout>
+          }
+        />
+        <Route
+          path="/messages"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Suspense fallback={<PageLoadingSpinner />}>
+                  <Messages />
+                </Suspense>
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/search"
+          element={
+            <Layout>
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <Search />
+              </Suspense>
+            </Layout>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Suspense fallback={<PageLoadingSpinner />}>
+                  <Settings />
+                </Suspense>
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/gamification"
+          element={
+            <Layout>
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <Gamification />
+              </Suspense>
+            </Layout>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute requireRole="moderator">
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <AdminLayout>
+                  <AdminDashboard />
+                </AdminLayout>
+              </Suspense>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/moderation"
+          element={
+            <AdminRoute requireRole="moderator">
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <AdminLayout>
+                  <AdminModeration />
+                </AdminLayout>
+              </Suspense>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <AdminRoute requireRole="moderator">
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <AdminLayout>
+                  <AdminUsers />
+                </AdminLayout>
+              </Suspense>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/categories"
+          element={
+            <AdminRoute requireRole="moderator">
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <AdminLayout>
+                  <AdminCategories />
+                </AdminLayout>
+              </Suspense>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/topics"
+          element={
+            <AdminRoute requireRole="moderator">
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <AdminLayout>
+                  <AdminTopics />
+                </AdminLayout>
+              </Suspense>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/tags"
+          element={
+            <AdminRoute requireRole="moderator">
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <AdminLayout>
+                  <AdminTags />
+                </AdminLayout>
+              </Suspense>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/images"
+          element={
+            <AdminRoute requireRole="moderator">
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <AdminLayout>
+                  <AdminImages />
+                </AdminLayout>
+              </Suspense>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/security"
+          element={
+            <AdminRoute requireRole="moderator">
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <AdminLayout>
+                  <AdminSecurity />
+                </AdminLayout>
+              </Suspense>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/analytics"
+          element={
+            <AdminRoute requireRole="moderator">
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <AdminLayout>
+                  <AdminAnalyticsPage />
+                </AdminLayout>
+              </Suspense>
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/suppliers"
+          element={
+            <AdminRoute requireRole="moderator">
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <AdminLayout>
+                  <AdminSuppliers />
+                </AdminLayout>
+              </Suspense>
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/aanbod/:username"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<PageLoadingSpinner />}>
+                <SupplierProfilePage />
+              </Suspense>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/leverancier/dashboard"
+          element={
+            <Suspense fallback={<PageLoadingSpinner />}>
+              <SupplierDashboard />
+            </Suspense>
+          }
+        />
+
+        {/* Legal pages */}
+        <Route
+          path="/terms"
+          element={
+            <Suspense fallback={<PageLoadingSpinner />}>
+              <Terms />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/privacy"
+          element={
+            <Suspense fallback={<PageLoadingSpinner />}>
+              <Privacy />
+            </Suspense>
+          }
+        />
+
+        {/* SEO pages */}
+        <Route
+          path="/ai-seo"
+          element={
+            <Suspense fallback={<PageLoadingSpinner />}>
+              <AIVisibilityDashboard />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/sitemap"
+          element={
+            <Suspense fallback={<PageLoadingSpinner />}>
+              <Sitemap />
+            </Suspense>
+          }
+        />
+
+        {/* SEO Content - catch-all for cannabis-belgie and subpaths */}
+        <Route
+          path="/cannabis-belgie"
+          element={
+            <Suspense fallback={<PageLoadingSpinner />}>
+              <SEOContent />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/cannabis-belgie/:province"
+          element={
+            <Suspense fallback={<PageLoadingSpinner />}>
+              <SEOContent />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/cannabis-belgie/:province/:city"
+          element={
+            <Suspense fallback={<PageLoadingSpinner />}>
+              <SEOContent />
+            </Suspense>
+          }
+        />
+
+        {/* Generic SEO content by slug */}
+        <Route
+          path="/:slug"
+          element={
+            <Suspense fallback={<PageLoadingSpinner />}>
+              <SEOContent />
+            </Suspense>
+          }
+        />
         {/* Catch-all route */}
         <Route path="*" element={
           <Suspense fallback={<PageLoadingSpinner />}>
@@ -512,12 +514,12 @@ function App() {
               <TooltipProvider>
                 <Toaster />
                 <Sonner />
-              <PerformanceOptimizations />
-              <AppRoutes />
-            </TooltipProvider>
-          </ThemeProvider>
-        </AuthProvider>
-      </BrowserRouter>
+                <PerformanceOptimizations />
+                <AppRoutes />
+              </TooltipProvider>
+            </ThemeProvider>
+          </AuthProvider>
+        </BrowserRouter>
       </HelmetProvider>
     </QueryClientProvider>
   );

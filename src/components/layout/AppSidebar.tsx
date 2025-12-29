@@ -17,6 +17,7 @@ import {
   Star,
   Package,
   Shield,
+  Sparkles,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,6 +39,7 @@ import { SidebarTopSuppliers } from '@/components/supplier/SidebarTopSuppliers';
 const mainNavItems = [
   { title: 'Feed', url: '/', icon: Home },
   { title: 'Forums', url: '/forums', icon: MessageSquare },
+  { title: 'AI Visibility', url: '/ai-seo', icon: Sparkles },
   { title: 'Leden', url: '/members', icon: Users },
   { title: 'Berichten', url: '/messages', icon: Mail },
 ];
@@ -63,7 +65,7 @@ export function AppSidebar() {
   const isMobile = useIsMobile();
   const collapsed = state === "collapsed";
   const logo = '/lovable-uploads/8721330a-f235-4c3b-9c21-85436a192135.png';
-  
+
   // Fetch categories from database
   const { data: categories = [], isLoading: categoriesLoading } = useQuery({
     queryKey: ['sidebar-categories'],
@@ -73,12 +75,12 @@ export function AppSidebar() {
         .select('*')
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
-      
+
       if (error) throw error;
       return data || [];
     },
   });
-  
+
   // Show mini icons on mobile for specific routes (e.g., user and supplier profiles)
   const allowMiniOnMobile = currentPath.startsWith('/user');
 
@@ -98,7 +100,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar 
+    <Sidebar
       allowMiniOnMobile={allowMiniOnMobile}
       collapsible="icon"
     >
@@ -106,9 +108,9 @@ export function AppSidebar() {
         {/* Logo Section */}
         <div className={`mb-6 flex items-center transition-all duration-300 ${collapsed ? 'justify-center' : 'justify-start px-2'}`}>
           <Link to="/" className="flex items-center gap-3 group">
-            <img 
-              src={logo} 
-              alt="Wiet Forum België" 
+            <img
+              src={logo}
+              alt="Wiet Forum België"
               className={`object-contain transition-all duration-300 group-hover:scale-105 ${collapsed ? 'h-10 w-10' : 'h-12 w-auto'}`}
             />
             {!collapsed && (
@@ -155,7 +157,7 @@ export function AppSidebar() {
                 categories.map((category: any) => {
                   const categoryUrl = `/forums/${category.slug}`;
                   const IconComponent = iconMap[category.icon as keyof typeof iconMap] || MessageSquare;
-                  
+
                   return (
                     <SidebarMenuItem key={category.id}>
                       <SidebarMenuButton asChild>

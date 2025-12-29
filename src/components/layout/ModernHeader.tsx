@@ -102,15 +102,6 @@ export function ModernHeader() {
                                 {item.description}
                               </p>
                             </div>
-                            <Button 
-                              size="sm" 
-                              className="mt-10 modern-header-cta"
-                              asChild
-                            >
-                              <Link to="/register">
-                                Word Lid Vandaag
-                              </Link>
-                            </Button>
                           </div>
                           <div className="flex flex-col text-sm h-full justify-end">
                             {item.items?.map((subItem) => (

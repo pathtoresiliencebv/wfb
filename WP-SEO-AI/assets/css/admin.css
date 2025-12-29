@@ -1,0 +1,670 @@
+/**
+ * WPWorld AI Visibility Engine - Admin Styles
+ */
+
+.wpworld-ai-dashboard {
+    max-width: 1200px;
+}
+
+.wpworld-ai-dashboard h1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+    margin-bottom: 30px;
+}
+
+.wpworld-ai-dashboard h1 .dashicons {
+    font-size: 30px;
+    width: 30px;
+    height: 30px;
+    color: #2271b1;
+}
+
+/* Status Cards */
+.wpworld-ai-status-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.wpworld-ai-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    transition: box-shadow 0.2s ease;
+}
+
+.wpworld-ai-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wpworld-ai-card.status-ok {
+    border-left: 4px solid #00a32a;
+}
+
+.wpworld-ai-card.status-error {
+    border-left: 4px solid #d63638;
+}
+
+.wpworld-ai-card.status-pending {
+    border-left: 4px solid #dba617;
+}
+
+.wpworld-ai-card .card-icon {
+    flex-shrink: 0;
+}
+
+.wpworld-ai-card .card-icon .dashicons {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+}
+
+.wpworld-ai-card.status-ok .card-icon .dashicons {
+    color: #00a32a;
+}
+
+.wpworld-ai-card.status-error .card-icon .dashicons {
+    color: #d63638;
+}
+
+.wpworld-ai-card.status-pending .card-icon .dashicons {
+    color: #dba617;
+}
+
+.wpworld-ai-card .card-content h3 {
+    margin: 0 0 5px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.wpworld-ai-card .card-content p {
+    margin: 0;
+    color: #50575e;
+    font-size: 13px;
+}
+
+.wpworld-ai-card .card-content p a {
+    margin-left: 8px;
+    text-decoration: none;
+}
+
+.wpworld-ai-card .card-content p small {
+    display: block;
+    margin-top: 3px;
+    color: #787c82;
+    font-size: 11px;
+}
+
+/* Info Box */
+.wpworld-ai-info-box {
+    background: #f0f6fc;
+    border: 1px solid #c3c4c7;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.wpworld-ai-info-box h2 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    color: #1d2327;
+}
+
+.wpworld-ai-info-box p {
+    margin: 0 0 15px 0;
+    color: #50575e;
+}
+
+.wpworld-ai-info-box ul {
+    margin: 0 0 15px 20px;
+    padding: 0;
+}
+
+.wpworld-ai-info-box ul li {
+    margin-bottom: 8px;
+    color: #50575e;
+}
+
+.wpworld-ai-info-box ul li strong {
+    color: #1d2327;
+}
+
+.wpworld-ai-info-box small {
+    color: #787c82;
+}
+
+/* Activity Table */
+.wpworld-ai-activity {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.wpworld-ai-activity h2 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+}
+
+.wpworld-ai-activity table {
+    border: none;
+    box-shadow: none;
+}
+
+.wpworld-ai-activity table th {
+    background: #f6f7f7;
+    font-weight: 600;
+}
+
+.wpworld-ai-activity table td,
+.wpworld-ai-activity table th {
+    padding: 12px 15px;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-badge.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.failed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-badge.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* Progress Section */
+.wpworld-ai-progress-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 30px;
+    color: #fff;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.progress-title h2 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    color: #fff;
+}
+
+.progress-title .status-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.progress-title .status-badge.active {
+    background: rgba(16, 185, 129, 0.3);
+}
+
+.progress-title .status-badge.completed {
+    background: rgba(16, 185, 129, 0.5);
+}
+
+.progress-stats {
+    text-align: right;
+}
+
+.progress-percentage {
+    display: block;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.progress-tasks {
+    display: block;
+    font-size: 13px;
+    opacity: 0.8;
+    margin-top: 5px;
+}
+
+.progress-bar-container {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    height: 12px;
+    overflow: hidden;
+    margin-bottom: 25px;
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.5s ease;
+}
+
+/* Timeline */
+.progress-timeline {
+    margin-top: 20px;
+}
+
+.timeline-steps {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.timeline-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.step-indicator {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.timeline-step.completed .step-indicator {
+    background: #10b981;
+}
+
+.timeline-step.completed .step-indicator .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #fff;
+}
+
+.step-label {
+    font-size: 11px;
+    text-align: center;
+    opacity: 0.9;
+}
+
+.timeline-step.completed .step-label {
+    opacity: 1;
+    font-weight: 600;
+}
+
+/* Awaiting Section */
+.wpworld-ai-awaiting-section {
+    background: #fff;
+    border: 2px dashed #c3c4c7;
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.awaiting-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.wpworld-ai-awaiting-section h2 {
+    margin: 0 0 10px 0;
+    color: #1d2327;
+}
+
+.wpworld-ai-awaiting-section p {
+    margin: 0 0 10px 0;
+    color: #50575e;
+}
+
+/* Upgrade Section */
+.wpworld-ai-upgrade-section {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #fff;
+}
+
+.upgrade-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.wpworld-ai-upgrade-section h2 {
+    margin: 0 0 10px 0;
+    font-size: 24px;
+    color: #fff;
+}
+
+.wpworld-ai-upgrade-section p {
+    margin: 0 0 20px 0;
+    font-size: 16px;
+    opacity: 0.95;
+}
+
+.upgrade-features {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.upgrade-features .feature {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.upgrade-features .feature .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+.wpworld-ai-upgrade-section .button-hero {
+    background: #fff !important;
+    color: #d97706 !important;
+    border: none !important;
+    font-size: 16px !important;
+    padding: 12px 30px !important;
+    height: auto !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.wpworld-ai-upgrade-section .button-hero:hover {
+    background: #f3f4f6 !important;
+    transform: translateY(-2px);
+}
+
+/* Reassurance Banner */
+.wpworld-ai-reassurance-banner {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border: 1px solid #10b981;
+    border-radius: 12px;
+    padding: 20px 25px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.reassurance-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+}
+
+.reassurance-content strong {
+    display: block;
+    color: #065f46;
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
+.reassurance-content p {
+    margin: 0;
+    color: #047857;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Complete Section with Report CTA */
+.wpworld-ai-complete-section {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #fff;
+}
+
+.complete-icon {
+    font-size: 56px;
+    margin-bottom: 15px;
+}
+
+.wpworld-ai-complete-section h2 {
+    margin: 0 0 10px 0;
+    font-size: 26px;
+    color: #fff;
+}
+
+.wpworld-ai-complete-section > p {
+    margin: 0 0 25px 0;
+    font-size: 16px;
+    opacity: 0.95;
+}
+
+.wpworld-report-btn {
+    background: #fff !important;
+    color: #059669 !important;
+    border: none !important;
+    font-size: 18px !important;
+    padding: 15px 35px !important;
+    height: auto !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 10px;
+}
+
+.wpworld-report-btn:hover {
+    background: #f3f4f6 !important;
+    transform: translateY(-2px);
+}
+
+.wpworld-report-btn .dashicons {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+}
+
+.upgrade-section {
+    margin-top: 35px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.upgrade-section h3 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    color: #fff;
+    opacity: 0.9;
+}
+
+.wpworld-ai-complete-section .button-secondary {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.wpworld-ai-complete-section .button-secondary:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* All Tasks Grid */
+.wpworld-ai-all-tasks {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.wpworld-ai-all-tasks h2 {
+    margin: 0 0 5px 0;
+    font-size: 18px;
+    color: #1d2327;
+}
+
+.tasks-subtitle {
+    margin: 0 0 20px 0;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+.task-item.completed {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+}
+
+.task-item.running {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.task-icon {
+    flex-shrink: 0;
+}
+
+.task-icon .dashicons {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+}
+
+.task-item.completed .task-icon .dashicons {
+    color: #10b981;
+}
+
+.task-item.running .task-icon .dashicons {
+    color: #3b82f6;
+}
+
+.task-item.pending .task-icon .dashicons {
+    color: #9ca3af;
+}
+
+.task-icon .spinning {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.task-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.task-name {
+    display: block;
+    font-weight: 600;
+    font-size: 13px;
+    color: #1f2937;
+    margin-bottom: 2px;
+}
+
+.task-description {
+    display: block;
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.task-status-badge {
+    flex-shrink: 0;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.task-status-badge.completed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.task-status-badge.running {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.task-status-badge.pending {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .wpworld-ai-status-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .wpworld-ai-card {
+        padding: 15px;
+    }
+    
+    .progress-header {
+        flex-direction: column;
+    }
+    
+    .progress-stats {
+        text-align: left;
+    }
+    
+    .progress-percentage {
+        font-size: 36px;
+    }
+    
+    .timeline-steps {
+        flex-wrap: wrap;
+    }
+    
+    .timeline-step {
+        flex: 0 0 30%;
+        margin-bottom: 15px;
+    }
+    
+    .upgrade-features {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+}
