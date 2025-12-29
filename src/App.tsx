@@ -404,11 +404,9 @@ function AppRoutes() {
         <Route
           path="/aanbod/:username"
           element={
-            <ProtectedRoute>
-              <Suspense fallback={<PageLoadingSpinner />}>
-                <SupplierProfilePage />
-              </Suspense>
-            </ProtectedRoute>
+            <Suspense fallback={<PageLoadingSpinner />}>
+              <SupplierProfilePage />
+            </Suspense>
           }
         />
 

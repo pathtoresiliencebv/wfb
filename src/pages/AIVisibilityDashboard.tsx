@@ -8,7 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { InfoIcon, Sparkles } from 'lucide-react';
+import { InfoIcon, Sparkles, Link as LinkIcon, ExternalLink } from 'lucide-react';
+import { seobot } from '@/lib/seobot';
+import { Badge } from '@/components/ui/badge';
 
 const AIVisibilityDashboard = () => {
     const { isRegistered, isLoading, progressData, registerSite } = useAIProject();
@@ -102,6 +104,39 @@ const AIVisibilityDashboard = () => {
                                     <li><strong>Search Indexing:</strong> Fast submission to Google/Bing.</li>
                                     <li><strong>AI Citations:</strong> External references on Notion, etc.</li>
                                 </ul>
+                            </CardContent>
+                        </Card>
+
+                        {/* SEOBot Blog Connection */}
+                        <Card className={seobot.isConfigured() ? "border-green-200 bg-green-50/50" : "border-orange-200 bg-orange-50/50"}>
+                            <CardHeader>
+                                <CardTitle className="flex items-center text-sm font-bold">
+                                    <LinkIcon className="w-4 h-4 mr-2" />
+                                    Blog Connection (SEOBot)
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm">Status</span>
+                                    {seobot.isConfigured() ? (
+                                        <Badge variant="default" className="bg-green-600">Verbonden</Badge>
+                                    ) : (
+                                        <Badge variant="secondary">Niet geconfigureerd</Badge>
+                                    )}
+                                </div>
+                                {!seobot.isConfigured() && (
+                                    <p className="text-xs text-muted-foreground italic">
+                                        Voeg je SEOBot API key toe aan de environment variables om blog artikelen te synchroniseren.
+                                    </p>
+                                )}
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="w-full flex items-center justify-center gap-2"
+                                    onClick={() => window.open('https://seobot.io', '_blank')}
+                                >
+                                    Open SEOBot <ExternalLink className="w-3 h-3" />
+                                </Button>
                             </CardContent>
                         </Card>
 

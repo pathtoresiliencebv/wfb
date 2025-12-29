@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,6 +11,12 @@ interface SitemapEntry {
   lastmod?: string;
   changefreq?: string;
   priority?: string;
+}
+
+interface SupplierProfile {
+  profiles: {
+    username: string;
+  };
 }
 
 serve(async (req) => {
@@ -44,6 +50,9 @@ serve(async (req) => {
     } else if (type === "topics") {
       // Forum topics (limited to most recent/popular)
       xml = await generateTopicsSitemap(supabase, baseUrl);
+    } else if (type === "suppliers") {
+      // Supplier profiles
+      xml = await generateSupplierProfilesSitemap(supabase, baseUrl);
     }
 
     return new Response(xml, {
@@ -68,6 +77,7 @@ function generateSitemapIndex(baseUrl: string): string {
     { name: "cannabis", lastmod: new Date().toISOString() },
     { name: "forums", lastmod: new Date().toISOString() },
     { name: "topics", lastmod: new Date().toISOString() },
+    { name: "suppliers", lastmod: new Date().toISOString() }, // Added suppliers
   ];
 
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
@@ -134,18 +144,36 @@ async function generateForumsSitemap(supabase: any, baseUrl: string): Promise<st
 }
 
 async function generateTopicsSitemap(supabase: any, baseUrl: string): Promise<string> {
-  // Limit to recent 1000 topics for performance
+  // Limit to recent 1000 topics
   const { data: topics } = await supabase
     .from("topics")
-    .select("id, updated_at")
+    .select("id, updated_at, categories(slug)") // Fetch category slug for correct URL
     .order("last_activity_at", { ascending: false })
     .limit(1000);
 
   const entries: SitemapEntry[] = (topics || []).map((topic: any) => ({
-    loc: `${baseUrl}/topic/${topic.id}`,
+    loc: topic.categories?.slug
+      ? `${baseUrl}/forums/${topic.categories.slug}/topic/${topic.id}` // Fixed URL structure
+      : `${baseUrl}/topic/${topic.id}`, // Fallback if category slug is missing
     lastmod: topic.updated_at,
     changefreq: "daily",
     priority: "0.6",
+  }));
+
+  return generateXmlFromEntries(entries);
+}
+
+async function generateSupplierProfilesSitemap(supabase: any, baseUrl: string): Promise<string> {
+  const { data: suppliers } = await supabase
+    .from("supplier_profiles")
+    .select("profiles(username), updated_at")
+    .eq("is_active", true);
+
+  const entries: SitemapEntry[] = (suppliers || []).map((s: any) => ({
+    loc: `${baseUrl}/aanbod/${s.profiles?.username}`,
+    lastmod: s.updated_at,
+    changefreq: "weekly",
+    priority: "0.7",
   }));
 
   return generateXmlFromEntries(entries);
